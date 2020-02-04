@@ -11,10 +11,6 @@ public class FilterTestController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @RequestMapping("/signup")
-    public String signup(String username, String password) {
-        return String.valueOf(jdbcTemplate.update("insert into t_user values(?,?)",username,password));
-    }
     @RequestMapping("/add")
     public Integer add(Integer a,Integer b) {
         return a+b;

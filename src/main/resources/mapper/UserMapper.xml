@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gzu.queswer.dao.UserDao">
+    <select id="selectUserByUsername" resultType="com.gzu.queswer.model.User">
+        SELECT uid,UNIX_TIMESTAMP(signup_time) signup_time,username,password,authority,nickname,sex
+        FROM t_user
+        WHERE username = #{username};
+    </select>
+    <select id="selectUserInfoByUid" resultType="com.gzu.queswer.model.UserInfo">
+        SELECT uid,nickname
+        FROM t_user
+        WHERE uid = #{uid};
+    </select>
+    <insert id="insertUser" useGeneratedKeys="true" keyProperty="uid">
+        INSERT INTO t_user(signup_time, username, password, authority, nickname, sex)
+        VALUES (now(), #{username}, #{password}, #{authority}, #{nickname}, #{sex})
+    </insert>
+    <update id="updateUser">
+        UPDATE t_user
+        SET nickname=#{nickname},
+            sex=#{sex}
+        WHERE uid = #{uid};
+    </update>
+    <insert id="insertSupport">
+        INSERT INTO t_support
+        VALUES (#{uid}, #{support_uid});
+    </insert>
+    <select id="selectSupportsByUid" resultType="Long">
+        SELECT support_uid uid
+        FROM t_support
+        WHERE uid = #{uid};
+    </select>
+    <select id="selectSupportersByUid" resultType="Long">
+        SELECT uid
+        FROM t_support
+        WHERE support_uid = #{support_uid};
+    </select>
+</mapper>

@@ -1,4 +1,6 @@
-package com.gzu.queswer.util;
+package com.gzu.queswer.filiter;
+
+import com.gzu.queswer.wrapper.DecodeWrapper;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;

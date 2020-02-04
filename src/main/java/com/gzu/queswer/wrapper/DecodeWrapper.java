@@ -1,6 +1,7 @@
-package com.gzu.queswer.util;
+package com.gzu.queswer.wrapper;
 
 import com.alibaba.fastjson.JSONObject;
+import com.gzu.queswer.util.SecurityUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -15,13 +16,13 @@ public class DecodeWrapper extends HttpServletRequestWrapper {
     public DecodeWrapper(HttpServletRequest request) {
         super(request);
         Map requestParameterMap = request.getParameterMap();
-        String params = null ;
+        String params = null;
         try {
-            params=SecurityUtil.rsaDecode(((String[])requestParameterMap.get("params"))[0]);
+            params = SecurityUtil.rsaDecode(((String[]) requestParameterMap.get("params"))[0]);
             map = JSONObject.parseObject(params);
         } catch (Exception e) {
             e.printStackTrace();
-            map=new HashMap();
+            map = new HashMap();
         }
     }
 

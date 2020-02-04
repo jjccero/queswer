@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gzu.queswer.dao.QuestionDao">
+    <select id="selectQuestions" resultType="com.gzu.queswer.model.Question">
+        SELECT qid,question,detail,uid,UNIX_TIMESTAMP(question_time) question_time,anonymous
+        FROM t_question
+        ORDER BY qid DESC
+        LIMIT #{offset},#{limit};
+    </select>
+    <select id="selectQuestionByQid" resultType="com.gzu.queswer.model.Question">
+        SELECT qid,question,detail,uid,UNIX_TIMESTAMP(question_time) question_time,anonymous
+        FROM t_question
+        WHERE qid = #{qid};
+    </select>
+    <insert id="insertQuestion" useGeneratedKeys="true" keyProperty="qid">
+        INSERT INTO t_question (question_time, question, detail, uid, anonymous)
+        VALUES (now(), #{question}, #{detail}, #{uid}, #{anonymous});
+    </insert>
+    <select id="selectFollowCount" resultType="Integer">
+        SELECT COUNT(*)
+        FROM t_follow
+        WHERE qid = #{qid};
+    </select>
+    <insert id="insertFollow">
+        INSERT INTO t_follow (qid, uid)
+        VALUES (#{qid}, #{uid})
+    </insert>
+    <delete id="deleteFollow">
+        DELETE
+        FROM t_follow
+        WHERE qid = #{qid}
+          AND uid = #{uid};
+    </delete>
+    <select id="isFollowed" resultType="Boolean">
+        SELECT IF(COUNT(*) > 0, TRUE, FALSE) followed
+        FROM t_follow
+        WHERE qid = #{qid}
+          AND uid = #{uid};
+    </select>
+    <select id="isQuestioned" resultType="Boolean">
+        SELECT IF(uid = #{uid}, TRUE, FALSE) questioned
+        FROM t_question
+        WHERE qid=#{qid};
+    </select>
+    <select id="selectFollowsByUid" resultType="Long">
+        SELECT qid
+        FROM t_follow
+        WHERE uid = #{uid};
+    </select>
+</mapper>

@@ -1,30 +1,26 @@
 package com.gzu.queswer.dao;
 
-import com.gzu.queswer.util.DateUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import com.gzu.queswer.model.User;
+import com.gzu.queswer.model.UserInfo;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
-import java.util.Date;
-import java.util.Map;
+import java.util.List;
 
-@Component
-public class UserDao {
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+@Repository
+public interface UserDao {
 
-    public Integer signup(String username, String password, Date date) {
-        String sql = "INSERT INTO t_user VALUES(?,?,?)";
-        return jdbcTemplate.update(sql, username, password, date);
-    }
+    void insertUser(User user);
 
-    public Integer login(String username, String password) {
-        String sql = "SELECT COUNT(*) FROM t_user WHERE username=? AND password=?";
-        return jdbcTemplate.queryForObject(sql, new Object[]{username, password}, Integer.class);
-    }
+    User selectUserByUsername(@Param("username") String username);
 
-    public String getPassword(String username) {
-        String sql = "SELECT password FROM t_user WHERE username=?";
-        return jdbcTemplate.queryForObject(sql, new Object[]{username}, String.class);
-    }
+    Integer updateUser(User user);
+
+    Integer insertSupport(@Param("uid") Long uid, Long support_uid);
+
+    List selectSupportsByUid(@Param("uid") Long uid);
+
+    List selectSupportersByUid(@Param("support_uid") Long support_uid);
+
+    UserInfo selectUserInfoByUid(@Param("uid") Long uid);
 }

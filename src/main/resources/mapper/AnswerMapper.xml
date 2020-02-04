@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gzu.queswer.dao.AnswerDao">
+    <insert id="insertAnswer" useGeneratedKeys="true" keyProperty="aid">
+        INSERT INTO t_answer (answer_time, uid, qid, answer, anonymous)
+        VALUES (now(), #{uid}, #{qid}, #{answer}, #{anonymous})
+    </insert>
+    <update id="updateAnswer">
+        UPDATE t_answer
+        SET answer=#{answer},
+            answer_time=now(),
+            anonymous=#{anonymous}
+        WHERE aid = #{aid}
+          AND uid = #{uid}
+    </update>
+    <delete id="deleteAnswer">
+        DELETE
+        FROM t_answer
+        WHERE aid = #{aid}
+          AND uid = #{uid}
+    </delete>
+    <insert id="insertAttitude">
+        INSERT INTO t_attitude (aid, uid, attitude)
+        VALUES (#{aid}, #{uid}, #{attitude})
+        ON DUPLICATE KEY UPDATE
+            attitude=#{attitude}
+    </insert>
+    <delete id="deleteAttitude">
+        DELETE
+        FROM t_attitude
+        WHERE aid = #{aid}
+          AND uid = #{uid}
+    </delete>
+    <select id="selectAttitudeByAid" resultType="Integer">
+        SELECT count(*)
+        FROM t_attitude
+        WHERE aid = #{aid}
+          AND attitude = TRUE
+        UNION ALL
+        SELECT count(*)
+        FROM t_attitude
+        WHERE aid = #{aid}
+          AND attitude = FALSE
+    </select>
+    <select id="selectAttitudeByUid" resultType="Boolean">
+        SELECT attitude
+        FROM t_attitude
+        WHERE aid = #{aid}
+          AND uid = #{uid}
+    </select>
+    <select id="selectAnswersByQid" resultType="com.gzu.queswer.model.Answer">
+        SELECT aid,qid,uid,answer,UNIX_TIMESTAMP(answer_time) answer_time,anonymous
+        FROM t_answer
+        WHERE qid = #{qid}
+    </select>
+    <select id="selectAnswerCountByAid" resultType="Integer">
+        SELECT COUNT(*)
+        FROM t_answer
+        WHERE qid = #{qid}
+    </select>
+    <select id="selectAnswerByUid" resultType="com.gzu.queswer.model.Answer">
+        SELECT aid,qid,uid,answer,UNIX_TIMESTAMP(answer_time) answer_time,anonymous
+        FROM t_answer
+        WHERE qid = #{qid}
+          AND uid = #{uid};
+    </select>
+</mapper>
