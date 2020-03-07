@@ -48,20 +48,19 @@ public class QuestionController {
             userService.setUserInfo(question, uid);
             map.put("question", question);
             map.put("topics", topicService.selectQuestionTopics(qid));
-            map.put("followCount",questionService.selectFollowCount(qid));
+            map.put("followCount", questionService.selectFollowCount(qid));
 
         }
         if (uid != null) {
             map.put("followed", questionService.isFollowed(qid, uid));
             map.put("questioned", questionService.isQuestioned(qid, uid));
-            Answer answer=answerService.selectAnswerByUid(qid, uid);
-            userService.setUserInfo(answer,uid);
-            map.put("answer",answer);
-        }
-        else {
+            Answer answer = answerService.selectAnswerByUid(qid, uid);
+            userService.setUserInfo(answer, uid);
+            map.put("answer", answer);
+        } else {
             map.put("followed", false);
             map.put("questioned", false);
-            map.put("answer",null);
+            map.put("answer", null);
         }
 
         return map;

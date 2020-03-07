@@ -1,6 +1,7 @@
 package com.gzu.queswer.service;
 
 import com.gzu.queswer.dao.AnswerDao;
+import com.gzu.queswer.dao.RedisDao;
 import com.gzu.queswer.model.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,14 +35,16 @@ public class AnswerService {
     public Integer deleteAttitude(Long aid, Long uid) {
         return answerDao.deleteAttitude(aid, uid);
     }
-
+@Autowired
+    private RedisDao redisDao;
     public Map getAttitude(Long aid, Long uid) {
+//        redisDao.hello();
         Map map = null;
         if (aid == null) return map;
         map = new HashMap();
-        map.put("attituded", answerDao.selectAttitudeByUid(aid, uid));
-        if (uid == null) return map;
         map.put("attitudes", answerDao.selectAttitudeByAid(aid));
+        if (uid == null) return map;
+        map.put("attituded", answerDao.selectAttitudeByUid(aid, uid));
         return map;
     }
 

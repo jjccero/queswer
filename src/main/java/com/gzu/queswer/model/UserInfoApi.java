@@ -1,6 +1,8 @@
 package com.gzu.queswer.model;
 
-public class UserInfoApi {
+import java.io.Serializable;
+
+public class UserInfoApi implements Serializable {
     private Long uid;
     private Boolean anonymous;
     private UserInfo userInfo;

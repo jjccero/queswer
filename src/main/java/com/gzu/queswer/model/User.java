@@ -1,8 +1,5 @@
 package com.gzu.queswer.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-@JsonIgnoreProperties(value = {"password"})
 public class User {
     private Long uid;
     private Long signup_time;

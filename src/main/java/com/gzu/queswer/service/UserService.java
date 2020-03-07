@@ -1,5 +1,6 @@
 package com.gzu.queswer.service;
 
+import com.gzu.queswer.dao.RedisDao;
 import com.gzu.queswer.dao.UserDao;
 import com.gzu.queswer.model.User;
 import com.gzu.queswer.model.UserInfo;
@@ -15,16 +16,20 @@ import java.util.List;
 public class UserService {
     @Autowired
     private UserDao userDao;
-
+    @Autowired
+    private RedisDao redisDao;
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public User login(String username,String password){
-        User user=userDao.selectUserByUsername(username);
-        if(user==null) return null;
-        return passwordEncoder.matches(password,user.getPassword())?user:null;
+    public User login(String username, String password) {
+        User user = userDao.selectUserByUsername(username);
+        if (user == null) return null;
+        String _password = user.getPassword();
+        user.setPassword(null);
+        return passwordEncoder.matches(password, _password) ? user : null;
     }
 
     public Long insertUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userDao.insertUser(user);
         return user.getUid();
     }
@@ -45,21 +50,29 @@ public class UserService {
         return userDao.selectSupportersByUid(support_uid);
     }
 
-    public void setUserInfo(UserInfoApi userInfoApi,Long uid){
-        UserInfo userInfo=userDao.selectUserInfoByUid(userInfoApi.getUid());
-        Boolean anonymous=userInfoApi.getAnonymous();
-        userInfo.setAnonymous(anonymous);
-        if(anonymous&&uid!=userInfoApi.getUid()){
+    public void setUserInfo(UserInfoApi userInfoApi, Long uid) {
+        if (userInfoApi == null) return;
+        UserInfo userInfo;
+        Boolean anonymous = userInfoApi.getAnonymous();
+        if (anonymous && uid != userInfoApi.getUid()) {
+            userInfo = new UserInfo();
             userInfo.setNickname("匿名用户");
             userInfo.setUid(null);
             userInfoApi.setUid(null);
+        } else {
+            userInfo = redisDao.getUserInfo(userInfoApi.getUid());
+            if (userInfo == null) {
+                userInfo = userDao.selectUserInfoByUid(userInfoApi.getUid());
+                redisDao.setUserInfo(userInfo);
+            }
         }
+        userInfo.setAnonymous(anonymous);
         userInfoApi.setUserInfo(userInfo);
     }
 
-    public void setUserInfo(List<UserInfoApi> list,Long uid){
-        for(UserInfoApi userInfoApi:list){
-            setUserInfo(userInfoApi,uid);
+    public void setUserInfo(List<UserInfoApi> list, Long uid) {
+        for (UserInfoApi userInfoApi : list) {
+            setUserInfo(userInfoApi, uid);
         }
     }
 }

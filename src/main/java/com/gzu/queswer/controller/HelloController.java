@@ -66,8 +66,8 @@ public class HelloController {
     }
 
     @RequestMapping("/deleteAnswer")
-    public Integer deleteAnswer(Long qid, Long uid) {
-        return answerService.deleteAnswer(qid, uid);
+    public Integer deleteAnswer(Long aid, Long uid) {
+        return answerService.deleteAnswer(aid, uid);
     }
 
     @RequestMapping("/addAttitude")
@@ -111,23 +111,26 @@ public class HelloController {
     @RequestMapping("getReviewList")
     public List getReviewList(Long aid,Long uid) {
         List<UserInfoApi> reviews = reviewService.getReviewList(aid);
+        //通过aid获取回答者和qid
         Map answerer=reviewService.selectAnswererByAid(aid);
-        Long answerer_uid=(Long) answerer.get("aid");
-        Boolean answerer_anonymous=(Boolean)answerer.get("anonymous") ;
         Long qid= (Long) answerer.get("qid");
+        //通过qid获取提问者
         Map questioner=reviewService.selectQuestionerByQid(qid);
-        Long questioner_uid=(Long) questioner.get("aid");
+        Long answerer_uid=(Long) answerer.get("uid");
+        Long questioner_uid=(Long) questioner.get("uid");
+        Boolean answerer_anonymous=(Boolean)answerer.get("anonymous") ;
         Boolean questioner_anonymous=(Boolean)questioner.get("anonymous") ;
         for(UserInfoApi userInfoApi:reviews){
             Review review= (Review) userInfoApi;
             review.setAnonymous(false);
-            if(answerer_uid==review.getUid()){
-                review.setAnonymous(answerer_anonymous);
-                review.setAnswerer(true);
-            }
             if(questioner_uid==review.getUid()){
                 review.setQuestioner(true);
                 review.setAnonymous(questioner_anonymous);
+            }
+            if(answerer_uid==review.getUid()){
+                review.setAnonymous(answerer_anonymous);
+                review.setAnswerer(true);
+                review.setQuestioner(false);
             }
         }
         userService.setUserInfo(reviews,uid);
