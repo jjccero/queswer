@@ -1,6 +1,6 @@
 package com.gzu.queswer.service;
 
-import com.gzu.queswer.dao.RedisDao;
+import com.gzu.queswer.dao.UserInfoDao;
 import com.gzu.queswer.dao.UserDao;
 import com.gzu.queswer.model.User;
 import com.gzu.queswer.model.UserInfo;
@@ -17,7 +17,7 @@ public class UserService {
     @Autowired
     private UserDao userDao;
     @Autowired
-    private RedisDao redisDao;
+    private UserInfoDao userInfoDao;
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public User login(String username, String password) {
@@ -60,10 +60,10 @@ public class UserService {
             userInfo.setUid(null);
             userInfoApi.setUid(null);
         } else {
-            userInfo = redisDao.getUserInfo(userInfoApi.getUid());
+            userInfo = userInfoDao.getUserInfo(userInfoApi.getUid());
             if (userInfo == null) {
                 userInfo = userDao.selectUserInfoByUid(userInfoApi.getUid());
-                redisDao.setUserInfo(userInfo);
+                userInfoDao.setUserInfo(userInfo);
             }
         }
         userInfo.setAnonymous(anonymous);

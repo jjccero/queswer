@@ -71,8 +71,8 @@ public class HelloController {
     }
 
     @RequestMapping("/addAttitude")
-    public Integer addAttitude(Long aid, Long uid, Boolean attitude) {
-        return answerService.insetAttitude(aid, uid, attitude);
+    public Integer addAttitude(@RequestBody Attitude attitude) {
+        return answerService.insertAttitude(attitude);
     }
 
     @RequestMapping("/deleteAttitude")

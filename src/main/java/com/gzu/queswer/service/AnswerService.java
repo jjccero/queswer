@@ -1,8 +1,10 @@
 package com.gzu.queswer.service;
 
 import com.gzu.queswer.dao.AnswerDao;
-import com.gzu.queswer.dao.RedisDao;
+import com.gzu.queswer.dao.AttitudeDao;
+import com.gzu.queswer.dao.UserInfoDao;
 import com.gzu.queswer.model.Answer;
+import com.gzu.queswer.model.Attitude;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,8 @@ public class AnswerService {
     @Autowired
     private AnswerDao answerDao;
 
+    @Autowired
+    private AttitudeDao attitudeDao;
     public Long insertAnswer(Answer answer) {
         answerDao.insertAnswer(answer);
         return answer.getAid();
@@ -28,23 +32,23 @@ public class AnswerService {
         return answerDao.updateAnswer(answer);
     }
 
-    public Integer insetAttitude(Long aid, Long uid, Boolean attitude) {
-        return answerDao.insertAttitude(aid, uid, attitude);
+    public Integer insertAttitude(Attitude attitude) {
+        return attitudeDao.insertAttitude(attitude);
     }
 
     public Integer deleteAttitude(Long aid, Long uid) {
-        return answerDao.deleteAttitude(aid, uid);
+        return attitudeDao.deleteAttitude(aid, uid);
     }
 @Autowired
-    private RedisDao redisDao;
+    private UserInfoDao userInfoDao;
     public Map getAttitude(Long aid, Long uid) {
 //        redisDao.hello();
         Map map = null;
         if (aid == null) return map;
         map = new HashMap();
-        map.put("attitudes", answerDao.selectAttitudeByAid(aid));
+        map.put("attitudes", attitudeDao.selectAttitudeByAid(aid));
         if (uid == null) return map;
-        map.put("attituded", answerDao.selectAttitudeByUid(aid, uid));
+        map.put("attituded", attitudeDao.selectAttitudeByUid(aid, uid));
         return map;
     }
 

@@ -1,6 +1,7 @@
 package com.gzu.queswer.dao;
 
 import com.gzu.queswer.model.Answer;
+import com.gzu.queswer.model.Attitude;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -15,12 +16,18 @@ public interface AnswerDao {
 
     Integer updateAnswer(Answer answer);
 
-    Integer insertAttitude(@Param("aid") Long aid, @Param("uid") Long uid, @Param("attitude") Boolean attitude);
+    @Deprecated
+    Integer insertAttitude(Attitude attitude);
 
+    @Deprecated
     Integer deleteAttitude(@Param("aid") Long aid, @Param("uid") Long uid);
 
+    @Deprecated
     List selectAttitudeByAid(Long aid);
 
+    List selectAttitudesByAid(Long aid);
+
+    @Deprecated
     Boolean selectAttitudeByUid(@Param("aid") Long aid, @Param("uid") Long uid);
 
     List selectAnswersByQid(@Param("qid") Long qid);

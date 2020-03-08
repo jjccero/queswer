@@ -42,6 +42,11 @@
         WHERE aid = #{aid}
           AND attitude = FALSE
     </select>
+    <select id="selectAttitudesByAid" resultType="com.gzu.queswer.model.Attitude">
+        SELECT *
+        FROM t_attitude
+        WHERE aid = #{aid};
+    </select>
     <select id="selectAttitudeByUid" resultType="Boolean">
         SELECT attitude
         FROM t_attitude
