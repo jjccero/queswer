@@ -17,9 +17,22 @@ public class RedisDao {
         setParams_30m = new SetParams();
         setParams_30m.ex(second_30m);
     }
-
-    public Jedis getJedis(){
+    void template(){
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (jedis != null)
+                jedis.close();
+        }
+    }
+    protected Jedis getJedis(){
         return RedisUtil.getJedis();
     }
 
+    public String getKey(Long id, Jedis jedis){
+        return null;
+    }
 }

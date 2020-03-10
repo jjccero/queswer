@@ -35,5 +35,5 @@ public interface AnswerDao {
 
     Answer selectAnswerbyAid(Long aid);
 
-    List selectAidsByQid(Long qid);
+    List<Long> selectAidsByQid(Long qid);
 }

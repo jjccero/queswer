@@ -3,6 +3,7 @@ package com.gzu.queswer.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.gzu.queswer.model.*;
 import com.gzu.queswer.service.*;
+import com.gzu.queswer.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -60,9 +61,9 @@ public class HelloController {
         return userService.selectSupportersByUid(support_uid);
     }
 
-    @RequestMapping("/addAnswer")
+    @RequestMapping(value = "/addAnswer", method = RequestMethod.POST)
     public Long addAnswer(@RequestBody Answer answer) {
-        answer.setAnswer_time(System.currentTimeMillis());
+        answer.setAnswer_time(DateUtil.getUnixTime());
         return answerService.insertAnswer(answer);
     }
 
@@ -77,7 +78,7 @@ public class HelloController {
     }
 
     @RequestMapping("/deleteAttitude")
-    public Integer deleteAttitude(Long aid, Long uid) {
+    public Integer deleteAttitude(long aid, long uid) {
         return answerService.deleteAttitude(aid, uid);
     }
 

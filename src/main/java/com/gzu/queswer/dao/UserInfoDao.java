@@ -48,4 +48,5 @@ public class UserInfoDao extends RedisDao {
         jedis.select(t_userInfo);
         return jedis;
     }
+
 }

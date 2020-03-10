@@ -1,5 +1,6 @@
 package com.gzu.queswer.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Question;
 import com.gzu.queswer.model.UserInfoApi;
@@ -7,15 +8,14 @@ import com.gzu.queswer.service.AnswerService;
 import com.gzu.queswer.service.QuestionService;
 import com.gzu.queswer.service.TopicService;
 import com.gzu.queswer.service.UserService;
+import com.gzu.queswer.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 public class QuestionController {
@@ -30,6 +30,7 @@ public class QuestionController {
 
     @RequestMapping(value = "addQuestion", method = RequestMethod.POST)
     public Long addQuestion(@RequestBody Question question) {
+        question.setQuestion_time(DateUtil.getUnixTime());
         return questionService.insertQuestion(question);
     }
 
@@ -41,29 +42,21 @@ public class QuestionController {
     }
 
     @RequestMapping("getQuestion")
-    public Map getQuestion(Long qid, Long uid) {
-        Map map = new HashMap();
+    public JSONObject getQuestion(Long qid, Long uid) {
+        JSONObject jsonObject =questionService.selectQuestionByQid(qid,uid);;
         if (qid != null) {
-            Question question = questionService.selectQuestionByQid(qid);
+            Question question = jsonObject.getObject("question",Question.class);
             userService.setUserInfo(question, uid);
-            map.put("question", question);
-            map.put("topics", topicService.selectQuestionTopics(qid));
-            map.put("followCount", questionService.selectFollowCount(qid));
-
+            jsonObject.put("topics", topicService.selectQuestionTopics(qid));
         }
         if (uid != null) {
-            map.put("followed", questionService.isFollowed(qid, uid));
-            map.put("questioned", questionService.isQuestioned(qid, uid));
             Answer answer = answerService.selectAnswerByUid(qid, uid);
             userService.setUserInfo(answer, uid);
-            map.put("answer", answer);
+            jsonObject.put("answer", answer);
         } else {
-            map.put("followed", false);
-            map.put("questioned", false);
-            map.put("answer", null);
+            jsonObject.put("answer", null);
         }
-
-        return map;
+        return jsonObject;
     }
 
     @RequestMapping("addFollow")

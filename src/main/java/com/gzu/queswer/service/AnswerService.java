@@ -1,7 +1,6 @@
 package com.gzu.queswer.service;
 
 import com.gzu.queswer.dao.AnswerDaoImpl;
-import com.gzu.queswer.dao.UserInfoDao;
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Attitude;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,7 @@ public class AnswerService {
 
     @Autowired
     private AnswerDaoImpl answerDaoImpl;
+
     public Long insertAnswer(Answer answer) {
         answerDaoImpl.insertAnswer(answer);
         return answer.getAid();
@@ -33,11 +33,10 @@ public class AnswerService {
         return answerDaoImpl.insertAttitude(attitude);
     }
 
-    public Integer deleteAttitude(Long aid, Long uid) {
+    public Integer deleteAttitude(long aid, long uid) {
         return answerDaoImpl.deleteAttitude(aid, uid);
     }
-@Autowired
-    private UserInfoDao userInfoDao;
+
     public Map getAttitude(Long aid, Long uid) {
         Map map = null;
         if (aid == null) return map;

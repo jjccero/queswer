@@ -54,7 +54,7 @@ public class UserService {
         if (userInfoApi == null) return;
         UserInfo userInfo;
         Boolean anonymous = userInfoApi.getAnonymous();
-        if (anonymous && uid != userInfoApi.getUid()) {
+        if (anonymous && !uid.equals(userInfoApi.getUid())) {
             userInfo = new UserInfo();
             userInfo.setNickname("匿名用户");
             userInfo.setUid(null);

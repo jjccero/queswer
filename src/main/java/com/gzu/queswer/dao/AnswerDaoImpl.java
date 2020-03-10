@@ -14,9 +14,6 @@ import java.util.List;
 
 @Repository
 public class AnswerDaoImpl extends RedisDao {
-    @Value("${t_answer}")
-    int t_answer;
-
     @Autowired
     private AnswerDao answerDao;
 
@@ -25,12 +22,10 @@ public class AnswerDaoImpl extends RedisDao {
         Jedis jedis = null;
         try {
             jedis = getJedis();
-            String aid_key = getKey(aid, jedis);
-            if (aid_key != null) {
-                attitudes = new ArrayList<>();
-                attitudes.add(jedis.scard(aid_key + ":1"));
-                attitudes.add(jedis.scard(aid_key + ":0"));
-            }
+            String aid_key=aid.toString();
+            attitudes = new ArrayList<>();
+            attitudes.add(jedis.scard(aid_key + ":1"));
+            attitudes.add(jedis.scard(aid_key + ":0"));
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -181,7 +176,13 @@ public class AnswerDaoImpl extends RedisDao {
         return JSON.parseObject(jedis.get(aid_key), Answer.class);
     }
 
-    private String getKey(Long aid, Jedis jedis) {
+
+    public Answer selectAnswerByUid(Long qid, Long uid) {
+        return answerDao.selectAnswerByUid(qid, uid);
+    }
+
+    @Override
+    public String getKey(Long aid, Jedis jedis) {
         String aid_key = aid.toString();
         if (jedis.expire(aid_key, second_30m) == 0L) {
             Answer answer = answerDao.selectAnswerbyAid(aid);
@@ -190,10 +191,8 @@ public class AnswerDaoImpl extends RedisDao {
         return jedis.strlen(aid_key) == 0L ? null : aid_key;
     }
 
-    public Answer selectAnswerByUid(Long qid, Long uid) {
-        return answerDao.selectAnswerByUid(qid, uid);
-    }
-
+    @Value("${t_answer}")
+    int t_answer;
     @Override
     public Jedis getJedis() {
         Jedis jedis = super.getJedis();

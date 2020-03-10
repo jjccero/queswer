@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.gzu.queswer.dao.UserDao">
     <select id="selectUserByUsername" resultType="com.gzu.queswer.model.User">
-        SELECT uid,UNIX_TIMESTAMP(signup_time) signup_time,username,password,authority,nickname,sex
+        SELECT uid,signup_time,username,password,authority,nickname,sex,intro
         FROM t_user
         WHERE username = #{username};
     </select>
