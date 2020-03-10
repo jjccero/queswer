@@ -8,6 +8,16 @@ public class User {
     private Short authority;
     private String nickname;
     private Short sex;
+
+    public String getIntro() {
+        return intro;
+    }
+
+    public void setIntro(String intro) {
+        this.intro = intro;
+    }
+
+    private String intro;
     public final static Short superUser = new Short((short) 1);
     public final static Short normalUser = new Short((short)0);
 

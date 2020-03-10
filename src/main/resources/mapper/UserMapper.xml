@@ -7,13 +7,13 @@
         WHERE username = #{username};
     </select>
     <select id="selectUserInfoByUid" resultType="com.gzu.queswer.model.UserInfo">
-        SELECT uid,nickname
+        SELECT uid,nickname,intro
         FROM t_user
         WHERE uid = #{uid};
     </select>
     <insert id="insertUser" useGeneratedKeys="true" keyProperty="uid">
-        INSERT INTO t_user(signup_time, username, password, authority, nickname, sex)
-        VALUES (now(), #{username}, #{password}, #{authority}, #{nickname}, #{sex})
+        INSERT INTO t_user(signup_time, username, password, authority, nickname, sex,intro)
+        VALUES (now(), #{username}, #{password}, #{authority}, #{nickname}, #{sex},#{intro})
     </insert>
     <update id="updateUser">
         UPDATE t_user

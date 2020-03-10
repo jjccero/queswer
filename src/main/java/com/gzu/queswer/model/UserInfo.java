@@ -6,6 +6,15 @@ public class UserInfo implements Serializable {
     private Long uid;
     private String nickname;
     private Boolean anonymous;
+    private String intro;
+
+    public String getIntro() {
+        return intro;
+    }
+
+    public void setIntro(String intro) {
+        this.intro = intro;
+    }
 
     public Long getUid() {
         return uid;

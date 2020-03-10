@@ -10,14 +10,8 @@ public class RedisUtil {
         jedisPool = new JedisPool();
     }
 
-    public static Jedis getJedis(int database) {
-        Jedis jedis= jedisPool.getResource();
-        jedis.select(database);
-        return jedis;
-    }
-
-    public static void closeJedis(final Jedis jedis) {
-        jedis.close();
+    public static Jedis getJedis() {
+        return jedisPool.getResource();
     }
 
 }

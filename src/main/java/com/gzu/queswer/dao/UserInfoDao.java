@@ -5,31 +5,37 @@ import com.gzu.queswer.model.UserInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.params.SetParams;
 
 @Repository
 public class UserInfoDao extends RedisDao {
 
-    private static final int SECONDS = 60;
-    private static SetParams setParams;
-
-    static {
-        setParams = new SetParams();
-        setParams.ex(SECONDS);
-    }
-
     public void setUserInfo(UserInfo userInfo) {
-        Jedis jedis = getJedis();
-        jedis.set(userInfo.getUid().toString(), JSONObject.toJSONString(userInfo), setParams);
-        closeJedis(jedis);
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            jedis.set(userInfo.getUid().toString(), JSONObject.toJSONString(userInfo), setParams_60s);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (jedis != null)
+                jedis.close();
+        }
     }
 
     public UserInfo getUserInfo(Long uid) {
-        Jedis jedis = getJedis();
-        String key = uid.toString();
-        UserInfo userInfo = JSONObject.parseObject(jedis.get(key), UserInfo.class);
-        if (userInfo != null) jedis.expire(key, SECONDS);
-        closeJedis(jedis);
+        Jedis jedis = null;
+        UserInfo userInfo=null;
+        try {
+            jedis = getJedis();
+            String key = uid.toString();
+            userInfo = JSONObject.parseObject(jedis.get(key), UserInfo.class);
+            if (userInfo != null) jedis.expire(key, second_60s);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (jedis != null)
+                jedis.close();
+        }
         return userInfo;
     }
 
@@ -37,8 +43,9 @@ public class UserInfoDao extends RedisDao {
     int t_userInfo;
 
     @Override
-    public void setDatabase() {
-        database = t_userInfo;
-        System.out.println(this.getClass());
+    public Jedis getJedis() {
+        Jedis jedis = super.getJedis();
+        jedis.select(t_userInfo);
+        return jedis;
     }
 }

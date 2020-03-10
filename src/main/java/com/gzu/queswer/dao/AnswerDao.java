@@ -23,16 +23,17 @@ public interface AnswerDao {
     Integer deleteAttitude(@Param("aid") Long aid, @Param("uid") Long uid);
 
     @Deprecated
-    List selectAttitudeByAid(Long aid);
-
     List selectAttitudesByAid(Long aid);
 
     @Deprecated
     Boolean selectAttitudeByUid(@Param("aid") Long aid, @Param("uid") Long uid);
 
+    @Deprecated
     List selectAnswersByQid(@Param("qid") Long qid);
 
-    Integer selectAnswerCountByAid(@Param("qid") Long qid);
-
     Answer selectAnswerByUid(@Param("qid") Long qid, @Param("uid") Long uid);
+
+    Answer selectAnswerbyAid(Long aid);
+
+    List selectAidsByQid(Long qid);
 }

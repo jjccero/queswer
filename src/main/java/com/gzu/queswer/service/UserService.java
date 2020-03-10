@@ -58,6 +58,7 @@ public class UserService {
             userInfo = new UserInfo();
             userInfo.setNickname("匿名用户");
             userInfo.setUid(null);
+            userInfo.setIntro(null);
             userInfoApi.setUid(null);
         } else {
             userInfo = userInfoDao.getUserInfo(userInfoApi.getUid());

@@ -1,7 +1,6 @@
 package com.gzu.queswer.service;
 
-import com.gzu.queswer.dao.AnswerDao;
-import com.gzu.queswer.dao.AttitudeDao;
+import com.gzu.queswer.dao.AnswerDaoImpl;
 import com.gzu.queswer.dao.UserInfoDao;
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Attitude;
@@ -14,49 +13,46 @@ import java.util.Map;
 
 @Service
 public class AnswerService {
-    @Autowired
-    private AnswerDao answerDao;
 
     @Autowired
-    private AttitudeDao attitudeDao;
+    private AnswerDaoImpl answerDaoImpl;
     public Long insertAnswer(Answer answer) {
-        answerDao.insertAnswer(answer);
+        answerDaoImpl.insertAnswer(answer);
         return answer.getAid();
     }
 
     public Integer deleteAnswer(Long aid, Long uid) {
-        return answerDao.deleteAnswer(aid, uid);
+        return answerDaoImpl.deleteAnswer(aid, uid);
     }
 
     public Integer updateAnswer(Answer answer) {
-        return answerDao.updateAnswer(answer);
+        return answerDaoImpl.updateAnswer(answer);
     }
 
     public Integer insertAttitude(Attitude attitude) {
-        return attitudeDao.insertAttitude(attitude);
+        return answerDaoImpl.insertAttitude(attitude);
     }
 
     public Integer deleteAttitude(Long aid, Long uid) {
-        return attitudeDao.deleteAttitude(aid, uid);
+        return answerDaoImpl.deleteAttitude(aid, uid);
     }
 @Autowired
     private UserInfoDao userInfoDao;
     public Map getAttitude(Long aid, Long uid) {
-//        redisDao.hello();
         Map map = null;
         if (aid == null) return map;
         map = new HashMap();
-        map.put("attitudes", attitudeDao.selectAttitudeByAid(aid));
+        map.put("attitudes", answerDaoImpl.selectAttitudesByAid(aid));
         if (uid == null) return map;
-        map.put("attituded", attitudeDao.selectAttitudeByUid(aid, uid));
+        map.put("attituded", answerDaoImpl.selectAttitudeByUid(aid, uid));
         return map;
     }
 
     public List getAnswerList(Long qid) {
-        return answerDao.selectAnswersByQid(qid);
+        return answerDaoImpl.selectAnswersByQid(qid);
     }
 
     public Answer selectAnswerByUid(Long qid, Long uid) {
-        return answerDao.selectAnswerByUid(qid, uid);
+        return answerDaoImpl.selectAnswerByUid(qid, uid);
     }
 }

@@ -62,6 +62,7 @@ public class HelloController {
 
     @RequestMapping("/addAnswer")
     public Long addAnswer(@RequestBody Answer answer) {
+        answer.setAnswer_time(System.currentTimeMillis());
         return answerService.insertAnswer(answer);
     }
 

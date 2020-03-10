@@ -3,12 +3,17 @@
 <mapper namespace="com.gzu.queswer.dao.AnswerDao">
     <insert id="insertAnswer" useGeneratedKeys="true" keyProperty="aid">
         INSERT INTO t_answer (answer_time, uid, qid, answer, anonymous)
-        VALUES (now(), #{uid}, #{qid}, #{answer}, #{anonymous})
+        VALUES (#{answer_time}, #{uid}, #{qid}, #{answer}, #{anonymous})
     </insert>
+    <select id="selectAnswerbyAid" resultType="com.gzu.queswer.model.Answer">
+        SELECT aid,qid,uid,answer,answer_time answer_time,anonymous
+        FROM t_answer
+        WHERE aid = #{aid}
+    </select>
     <update id="updateAnswer">
         UPDATE t_answer
         SET answer=#{answer},
-            answer_time=now(),
+            answer_time=#{answer_time},
             anonymous=#{anonymous}
         WHERE aid = #{aid}
           AND uid = #{uid}
@@ -54,7 +59,12 @@
           AND uid = #{uid}
     </select>
     <select id="selectAnswersByQid" resultType="com.gzu.queswer.model.Answer">
-        SELECT aid,qid,uid,answer,UNIX_TIMESTAMP(answer_time) answer_time,anonymous
+        SELECT aid,qid,uid,answer,answer_time answer_time,anonymous
+        FROM t_answer
+        WHERE qid = #{qid}
+    </select>
+    <select id="selectAidsByQid" resultType="Long">
+        SELECT aid
         FROM t_answer
         WHERE qid = #{qid}
     </select>
@@ -64,7 +74,7 @@
         WHERE qid = #{qid}
     </select>
     <select id="selectAnswerByUid" resultType="com.gzu.queswer.model.Answer">
-        SELECT aid,qid,uid,answer,UNIX_TIMESTAMP(answer_time) answer_time,anonymous
+        SELECT aid,qid,uid,answer, answer_time,anonymous
         FROM t_answer
         WHERE qid = #{qid}
           AND uid = #{uid};

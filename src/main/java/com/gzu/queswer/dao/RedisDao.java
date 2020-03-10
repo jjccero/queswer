@@ -2,21 +2,24 @@ package com.gzu.queswer.dao;
 
 import com.gzu.queswer.util.RedisUtil;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.params.SetParams;
 
-import javax.annotation.PostConstruct;
+public class RedisDao {
 
-public abstract class RedisDao {
-    public int database;
+    final protected static SetParams setParams_60s;
+    final protected static SetParams setParams_30m;
+    final protected static int second_60s = 60;
+    final protected static int second_30m = 1800;
 
-    @PostConstruct
-    public abstract void setDatabase();
-
-    public Jedis getJedis() {
-        return RedisUtil.getJedis(database);
+    static {
+        setParams_60s = new SetParams();
+        setParams_60s.ex(second_60s);
+        setParams_30m = new SetParams();
+        setParams_30m.ex(second_30m);
     }
 
-    public void closeJedis(Jedis jedis) {
-        RedisUtil.closeJedis(jedis);
+    public Jedis getJedis(){
+        return RedisUtil.getJedis();
     }
 
 }
