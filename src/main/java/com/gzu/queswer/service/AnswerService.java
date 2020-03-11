@@ -3,55 +3,86 @@ package com.gzu.queswer.service;
 import com.gzu.queswer.dao.AnswerDaoImpl;
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Attitude;
+import com.gzu.queswer.model.Review;
+import com.gzu.queswer.model.UserInfo;
+import com.gzu.queswer.model.info.AnswerInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class AnswerService {
 
     @Autowired
     private AnswerDaoImpl answerDaoImpl;
+    @Autowired
+    QuestionService questionService;
+    @Autowired
+    UserService userService;
 
     public Long insertAnswer(Answer answer) {
         answerDaoImpl.insertAnswer(answer);
-        return answer.getAid();
+        return questionService.insertAnswer(answer);
     }
 
-    public Integer deleteAnswer(Long aid, Long uid) {
-        return answerDaoImpl.deleteAnswer(aid, uid);
+    public boolean deleteAnswer(Long aid, Long uid) {
+        Answer answer = answerDaoImpl.selectAnswerByAid(aid);
+        return answer != null && answer.getUid().equals(uid) && questionService.deleteAnswer(answer) && answerDaoImpl.deleteAnswer(aid, uid);
     }
 
-    public Integer updateAnswer(Answer answer) {
+    public boolean updateAnswer(Answer answer) {
         return answerDaoImpl.updateAnswer(answer);
     }
 
-    public Integer insertAttitude(Attitude attitude) {
+    public boolean insertAttitude(Attitude attitude) {
         return answerDaoImpl.insertAttitude(attitude);
     }
 
-    public Integer deleteAttitude(long aid, long uid) {
+    public boolean deleteAttitude(long aid, long uid) {
         return answerDaoImpl.deleteAttitude(aid, uid);
     }
 
-    public Map getAttitude(Long aid, Long uid) {
-        Map map = null;
-        if (aid == null) return map;
-        map = new HashMap();
-        map.put("attitudes", answerDaoImpl.selectAttitudesByAid(aid));
-        if (uid == null) return map;
-        map.put("attituded", answerDaoImpl.selectAttitudeByUid(aid, uid));
-        return map;
+    public List getAnswers(Long qid, Long uid) {
+        List<Long> aids = questionService.selectAidsByQid(qid);
+        List<AnswerInfo> answerInfos = new ArrayList<>();
+        for (Long aid : aids) {
+            AnswerInfo answerInfo = answerDaoImpl.getAnswerInfo(aid, uid);
+            setUserInfo(answerInfo, uid);
+            answerInfos.add(answerInfo);
+        }
+        return answerInfos;
     }
 
-    public List getAnswerList(Long qid) {
-        return answerDaoImpl.selectAnswersByQid(qid);
+    public void setUserInfo(AnswerInfo answerInfo, Long uid) {
+        UserInfo userInfo;
+        Answer answer = answerInfo.getAnswer();
+        Boolean anonymous = answer.getAnonymous();
+        if (anonymous && !answer.getUid().equals(uid)) {
+            userInfo = UserInfo.defaultUserInfo;
+            answer.setUid(null);
+        } else {
+            userInfo = userService.getUserInfo(answer.getUid());
+            userInfo.setAnonymous(anonymous);
+        }
+        answerInfo.setUserInfo(userInfo);
     }
 
-    public Answer selectAnswerByUid(Long qid, Long uid) {
-        return answerDaoImpl.selectAnswerByUid(qid, uid);
+    public Answer selectAnswerByAid(Long aid) {
+        return answerDaoImpl.selectAnswerByAid(aid);
+    }
+
+
+    public List selectRidsByAid(Long aid) {
+        return answerDaoImpl.selectRidsByAid(aid);
+    }
+
+    public Long addReview(Review review) {
+        Long rid = review.getRid();
+        if (rid != null) {
+            answerDaoImpl.addReview(review.getAid().toString(), rid.toString());
+        }
+        return rid;
     }
 }

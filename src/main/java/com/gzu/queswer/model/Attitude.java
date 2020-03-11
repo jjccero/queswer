@@ -1,9 +1,9 @@
 package com.gzu.queswer.model;
 
 public class Attitude {
-    Long aid;
-    Long uid;
-    Boolean attitude;
+    private Long aid;
+    private Long uid;
+    private Boolean attitude;
 
     public Long getAid() {
         return aid;

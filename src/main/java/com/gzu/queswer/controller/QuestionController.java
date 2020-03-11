@@ -1,9 +1,7 @@
 package com.gzu.queswer.controller;
 
-import com.alibaba.fastjson.JSONObject;
-import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Question;
-import com.gzu.queswer.model.UserInfoApi;
+import com.gzu.queswer.model.info.QuestionInfo;
 import com.gzu.queswer.service.AnswerService;
 import com.gzu.queswer.service.QuestionService;
 import com.gzu.queswer.service.TopicService;
@@ -30,33 +28,20 @@ public class QuestionController {
 
     @RequestMapping(value = "addQuestion", method = RequestMethod.POST)
     public Long addQuestion(@RequestBody Question question) {
+        question.setQid(null);
         question.setQuestion_time(DateUtil.getUnixTime());
         return questionService.insertQuestion(question);
     }
 
     @RequestMapping(value = "getQuestions", method = RequestMethod.GET)
     public List getQuestions(int offset, int limit, Long uid) {
-        List<UserInfoApi> questions = questionService.selectQuestions(offset, limit);
-        userService.setUserInfo(questions, uid);
+        List<Question> questions = questionService.selectQuestions(offset, limit);
         return questions;
     }
 
     @RequestMapping("getQuestion")
-    public JSONObject getQuestion(Long qid, Long uid) {
-        JSONObject jsonObject =questionService.selectQuestionByQid(qid,uid);;
-        if (qid != null) {
-            Question question = jsonObject.getObject("question",Question.class);
-            userService.setUserInfo(question, uid);
-            jsonObject.put("topics", topicService.selectQuestionTopics(qid));
-        }
-        if (uid != null) {
-            Answer answer = answerService.selectAnswerByUid(qid, uid);
-            userService.setUserInfo(answer, uid);
-            jsonObject.put("answer", answer);
-        } else {
-            jsonObject.put("answer", null);
-        }
-        return jsonObject;
+    public QuestionInfo getQuestion(Long qid, Long uid) {
+        return questionService.getQuestionInfo(qid,uid);
     }
 
     @RequestMapping("addFollow")
@@ -73,4 +58,6 @@ public class QuestionController {
     public List getOpptunities(int offset, int limit) {
         return null;
     }
+
+
 }

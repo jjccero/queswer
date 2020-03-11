@@ -1,10 +1,12 @@
 package com.gzu.queswer.model;
 
-public class Answer extends UserInfoApi {
+public class Answer {
     private Long aid;
+    private Long uid;
     private Long qid;
     private Long answer_time;
     private String answer;
+    private Boolean anonymous;
 
     public Long getAid() {
         return aid;
@@ -12,6 +14,14 @@ public class Answer extends UserInfoApi {
 
     public void setAid(Long aid) {
         this.aid = aid;
+    }
+
+    public Long getUid() {
+        return uid;
+    }
+
+    public void setUid(Long uid) {
+        this.uid = uid;
     }
 
     public Long getQid() {
@@ -38,4 +48,11 @@ public class Answer extends UserInfoApi {
         this.answer = answer;
     }
 
+    public Boolean getAnonymous() {
+        return anonymous;
+    }
+
+    public void setAnonymous(Boolean anonymous) {
+        this.anonymous = anonymous;
+    }
 }

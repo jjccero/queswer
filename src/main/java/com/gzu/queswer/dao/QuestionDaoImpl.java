@@ -1,8 +1,9 @@
 package com.gzu.queswer.dao;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Question;
+import com.gzu.queswer.model.info.QuestionInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -17,7 +18,10 @@ public class QuestionDaoImpl extends RedisDao {
     @Autowired
     private QuestionDao questionDao;
 
-    @Deprecated
+    private Question getQuestion(String qid_key, Jedis jedis) {
+        return JSON.parseObject(jedis.get(qid_key), Question.class);
+    }
+
     public Question selectQuestionByQid(Long qid) {
         Jedis jedis = null;
         Question question = null;
@@ -25,8 +29,7 @@ public class QuestionDaoImpl extends RedisDao {
             jedis = getJedis();
             String qid_key = getKey(qid, jedis);
             if (qid_key != null) {
-                question = JSON.parseObject(jedis.get(qid_key), Question.class);
-                jedis.zincrby(TOP_LIST_KEY, 1.0, qid_key);
+                question = getQuestion(qid_key, jedis);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -35,6 +38,28 @@ public class QuestionDaoImpl extends RedisDao {
                 jedis.close();
         }
         return question;
+    }
+
+    public List selectAidsByQid(Long qid) {
+        List aids = new ArrayList();
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            String qid_key = getKey(qid, jedis);
+            if (qid_key != null) {
+                String qid_a_key = qid_key + ":a";
+                Set<String> aid_keys = jedis.zrange(qid_a_key, 0L, -1L);
+                for (String aid_key : aid_keys) {
+                    aids.add(Long.parseLong(aid_key));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (jedis != null)
+                jedis.close();
+        }
+        return aids;
     }
 
     public void insertQuestion(Question question) {
@@ -63,6 +88,7 @@ public class QuestionDaoImpl extends RedisDao {
             Set<String> qids = jedis.zrange(TOP_LIST_KEY, offset, offset + limit);
             for (String qid_key : qids) {
                 getKey(Long.parseLong(qid_key), jedis);
+                Question question = getQuestion(qid_key, jedis);
                 questions.add(JSON.parseObject(jedis.get(qid_key), Question.class));
             }
         } catch (Exception e) {
@@ -78,21 +104,35 @@ public class QuestionDaoImpl extends RedisDao {
         return questionDao.selectFollowCount(qid);
     }
 
-    public JSONObject getQuestionInfo(Long qid, Long uid) {
-        JSONObject jsonObject = new JSONObject();
+    private boolean getFollowed(String qid_f_key, String uid_key, Jedis jedis) {
+        return jedis.sismember(qid_f_key, uid_key);
+    }
+
+    private long getFollowCount(String qid_f_key, Jedis jedis) {
+        return jedis.scard(qid_f_key);
+    }
+
+    private double getViewCount(String qid_key, Jedis jedis) {
+        return jedis.zscore(TOP_LIST_KEY, qid_key);
+    }
+
+    public QuestionInfo getQuestionInfo(Long qid, Long uid) {
+        QuestionInfo questionInfo = new QuestionInfo();
         Jedis jedis = null;
         try {
             jedis = getJedis();
             String qid_key = getKey(qid, jedis);
             if (qid_key != null) {
                 jedis.zincrby(TOP_LIST_KEY, 1.0, qid_key);
-                Question question = JSON.parseObject(jedis.get(qid_key), Question.class);
-                jsonObject.put("question", question);
+                Question question = getQuestion(qid_key, jedis);
+                questionInfo.setQuestion(question);
                 String qid_f_key = qid_key + ":f";
-                jsonObject.put("viewCount", jedis.zscore(TOP_LIST_KEY, qid_key));
-                jsonObject.put("followCount", jedis.scard(qid_f_key));
-                jsonObject.put("followed", uid != null ? jedis.sismember(qid_f_key, uid.toString()) : false);
-                jsonObject.put("questioned", question.getUid().equals(uid));
+                questionInfo.setFollowCount(getFollowCount(qid_f_key, jedis));
+                questionInfo.setViewCount(getViewCount(qid_key, jedis));
+                questionInfo.setQuestioned(question.getUid().equals(uid));
+                if (uid != null) {
+                    questionInfo.setFollowed(getFollowed(qid_f_key, uid.toString(), jedis));
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -100,7 +140,7 @@ public class QuestionDaoImpl extends RedisDao {
             if (jedis != null)
                 jedis.close();
         }
-        return jsonObject;
+        return questionInfo;
     }
 
     public Integer insertFollow(Long qid, Long uid) {
@@ -143,19 +183,47 @@ public class QuestionDaoImpl extends RedisDao {
         return res;
     }
 
+    public void insertAnswer(String qid_key, String aid_key) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            jedis.zadd(qid_key + ":a", 0.0, aid_key);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (jedis != null)
+                jedis.close();
+        }
+    }
+
+    public boolean deleteAnswer(String qid_key, String aid_key) {
+        boolean res = false;
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            res = jedis.zrem(qid_key + ":a", aid_key) == 1L;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (jedis != null)
+                jedis.close();
+        }
+        return res;
+    }
+
     public List selectFollowsByUid(Long uid) {
         return null;
     }
 
     @Value("${t_question}")
-    int t_question;
+    int database;
     final static String TOP_LIST_KEY = "t";
 
     //    final static String VIEW_LIST_KEY = "v";
     @Override
     protected Jedis getJedis() {
         Jedis jedis = super.getJedis();
-        jedis.select(t_question);
+        jedis.select(database);
         return jedis;
     }
 
@@ -167,5 +235,9 @@ public class QuestionDaoImpl extends RedisDao {
             jedis.set(qid_key, question != null ? JSON.toJSONString(question) : "", setParams_30m);
         }
         return jedis.strlen(qid_key) == 0L ? null : qid_key;
+    }
+
+    public Answer selectAnswerByUid(Long qid, Long uid) {
+        return questionDao.selectAnswerByUid(qid, uid);
     }
 }

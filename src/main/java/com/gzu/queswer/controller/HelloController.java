@@ -2,7 +2,10 @@ package com.gzu.queswer.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gzu.queswer.model.*;
-import com.gzu.queswer.service.*;
+import com.gzu.queswer.service.AnswerService;
+import com.gzu.queswer.service.ReviewService;
+import com.gzu.queswer.service.TopicService;
+import com.gzu.queswer.service.UserService;
 import com.gzu.queswer.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 public class HelloController {
@@ -68,35 +70,31 @@ public class HelloController {
     }
 
     @RequestMapping("/deleteAnswer")
-    public Integer deleteAnswer(Long aid, Long uid) {
+    public boolean deleteAnswer(Long aid, Long uid) {
         return answerService.deleteAnswer(aid, uid);
     }
 
     @RequestMapping("/addAttitude")
-    public Integer addAttitude(@RequestBody Attitude attitude) {
+    public boolean addAttitude(@RequestBody Attitude attitude) {
         return answerService.insertAttitude(attitude);
     }
 
     @RequestMapping("/deleteAttitude")
-    public Integer deleteAttitude(long aid, long uid) {
+    public boolean deleteAttitude(long aid, long uid) {
         return answerService.deleteAttitude(aid, uid);
     }
 
 
-    @RequestMapping("getAnswerList")
-    public List getAnswerList(Long qid,Long uid) {
-        List list = answerService.getAnswerList(qid);
-        userService.setUserInfo(list,uid);
+    @RequestMapping("getAnswers")
+    public List getAnswers(Long qid,Long uid) {
+        List list = answerService.getAnswers(qid,uid);
         return list;
     }
 
-    @RequestMapping("getAttitude")
-    public Map getAttitude(Long aid, Long uid) {
-        return answerService.getAttitude(aid, uid);
-    }
 
     @RequestMapping("addReview")
     public Long addReview(@RequestBody Review review) {
+        review.setReview_time(DateUtil.getUnixTime());
         return reviewService.addReview(review);
     }
 
@@ -106,37 +104,13 @@ public class HelloController {
     }
 
     @RequestMapping("deleteReview")
-    public Integer deleteReview(Long rid, Long uid) {
+    public boolean deleteReview(Long rid, Long uid) {
         return reviewService.deleteReview(rid, uid);
     }
 
-    @RequestMapping("getReviewList")
-    public List getReviewList(Long aid,Long uid) {
-        List<UserInfoApi> reviews = reviewService.getReviewList(aid);
-        //通过aid获取回答者和qid
-        Map answerer=reviewService.selectAnswererByAid(aid);
-        Long qid= (Long) answerer.get("qid");
-        //通过qid获取提问者
-        Map questioner=reviewService.selectQuestionerByQid(qid);
-        Long answerer_uid=(Long) answerer.get("uid");
-        Long questioner_uid=(Long) questioner.get("uid");
-        Boolean answerer_anonymous=(Boolean)answerer.get("anonymous") ;
-        Boolean questioner_anonymous=(Boolean)questioner.get("anonymous") ;
-        for(UserInfoApi userInfoApi:reviews){
-            Review review= (Review) userInfoApi;
-            review.setAnonymous(false);
-            if(questioner_uid==review.getUid()){
-                review.setQuestioner(true);
-                review.setAnonymous(questioner_anonymous);
-            }
-            if(answerer_uid==review.getUid()){
-                review.setAnonymous(answerer_anonymous);
-                review.setAnswerer(true);
-                review.setQuestioner(false);
-            }
-        }
-        userService.setUserInfo(reviews,uid);
-        return reviews;
+    @RequestMapping("getReviews")
+    public List getReviews(Long aid,Long uid) {
+        return reviewService.getReviews(aid,uid);
     }
 
     @Autowired

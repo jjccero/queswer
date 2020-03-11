@@ -1,5 +1,6 @@
 package com.gzu.queswer.dao;
 
+import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Question;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -28,4 +29,8 @@ public interface QuestionDao {
     Boolean isQuestioned(@Param("qid") Long qid, @Param("uid") Long uid);
 
     List selectFollowsByUid(@Param("uid") Long uid);
+
+    Answer selectAnswerByUid(@Param("qid") Long qid, @Param("uid") Long uid);
+
+    List selectAidsByQid(Long qid);
 }

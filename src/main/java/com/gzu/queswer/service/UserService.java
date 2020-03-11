@@ -1,10 +1,9 @@
 package com.gzu.queswer.service;
 
-import com.gzu.queswer.dao.UserInfoDao;
 import com.gzu.queswer.dao.UserDao;
+import com.gzu.queswer.dao.UserInfoDao;
 import com.gzu.queswer.model.User;
 import com.gzu.queswer.model.UserInfo;
-import com.gzu.queswer.model.UserInfoApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -50,30 +49,35 @@ public class UserService {
         return userDao.selectSupportersByUid(support_uid);
     }
 
-    public void setUserInfo(UserInfoApi userInfoApi, Long uid) {
-        if (userInfoApi == null) return;
-        UserInfo userInfo;
-        Boolean anonymous = userInfoApi.getAnonymous();
-        if (anonymous && !uid.equals(userInfoApi.getUid())) {
-            userInfo = new UserInfo();
-            userInfo.setNickname("匿名用户");
-            userInfo.setUid(null);
-            userInfo.setIntro(null);
-            userInfoApi.setUid(null);
-        } else {
-            userInfo = userInfoDao.getUserInfo(userInfoApi.getUid());
-            if (userInfo == null) {
-                userInfo = userDao.selectUserInfoByUid(userInfoApi.getUid());
-                userInfoDao.setUserInfo(userInfo);
-            }
-        }
-        userInfo.setAnonymous(anonymous);
-        userInfoApi.setUserInfo(userInfo);
+    public UserInfo getUserInfo(Long uid) {
+        return userInfoDao.getUserInfo(uid);
     }
 
-    public void setUserInfo(List<UserInfoApi> list, Long uid) {
-        for (UserInfoApi userInfoApi : list) {
-            setUserInfo(userInfoApi, uid);
-        }
-    }
+//    public void setUserInfo(JSONObject jsonObject, Long uid) {
+//        if (jsonObject == null) return;
+//        UserInfo userInfo;
+//        Boolean anonymous = jsonObject.getBoolean("anonymous");
+//        Long uid2=jsonObject.getLong("uid");
+//        if (anonymous && !uid.equals(uid2)) {
+//            userInfo = new UserInfo();
+//            userInfo.setNickname("匿名用户");
+//            userInfo.setUid(null);
+//            userInfo.setIntro(null);
+//            jsonObject.put("uid",null);
+//        } else {
+//            userInfo = userInfoDao.getUserInfo(uid2);
+//            if (userInfo == null) {
+//                userInfo = userDao.selectUserInfoByUid(uid2);
+//                userInfoDao.setUserInfo(userInfo);
+//            }
+//        }
+//        userInfo.setAnonymous(anonymous);
+//        jsonObject.put("userInfo",userInfo);
+//    }
+//
+//    public void setUserInfo(JSONArray jsonArray, Long uid) {
+//        for(Object jsonObject:jsonArray){
+//            setUserInfo((JSONObject) jsonObject,uid);
+//        }
+//    }
 }

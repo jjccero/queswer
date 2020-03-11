@@ -73,10 +73,10 @@
         FROM t_answer
         WHERE qid = #{qid}
     </select>
-    <select id="selectAnswerByUid" resultType="com.gzu.queswer.model.Answer">
-        SELECT aid,qid,uid,answer, answer_time,anonymous
-        FROM t_answer
-        WHERE qid = #{qid}
-          AND uid = #{uid};
+
+    <select id="selectRidsByAid" resultType="Long">
+        SELECT rid
+        from t_review
+        WHERE aid = #{aid};
     </select>
 </mapper>

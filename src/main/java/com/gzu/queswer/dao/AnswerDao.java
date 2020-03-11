@@ -31,9 +31,8 @@ public interface AnswerDao {
     @Deprecated
     List selectAnswersByQid(@Param("qid") Long qid);
 
-    Answer selectAnswerByUid(@Param("qid") Long qid, @Param("uid") Long uid);
-
     Answer selectAnswerbyAid(Long aid);
 
-    List<Long> selectAidsByQid(Long qid);
+    @Deprecated
+    List<Long> selectRidsByAid(Long aid);
 }

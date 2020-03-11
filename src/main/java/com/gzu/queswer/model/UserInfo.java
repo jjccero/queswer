@@ -8,14 +8,6 @@ public class UserInfo implements Serializable {
     private Boolean anonymous;
     private String intro;
 
-    public String getIntro() {
-        return intro;
-    }
-
-    public void setIntro(String intro) {
-        this.intro = intro;
-    }
-
     public Long getUid() {
         return uid;
     }
@@ -40,4 +32,20 @@ public class UserInfo implements Serializable {
         this.anonymous = anonymous;
     }
 
+    public String getIntro() {
+        return intro;
+    }
+
+    public void setIntro(String intro) {
+        this.intro = intro;
+    }
+
+    public final static UserInfo defaultUserInfo;
+    static {
+        defaultUserInfo=new UserInfo();
+        defaultUserInfo.setNickname("匿名用户");
+        defaultUserInfo.setIntro("猜猜我是谁");
+        defaultUserInfo.setUid(null);
+        defaultUserInfo.setAnonymous(true);
+    }
 }

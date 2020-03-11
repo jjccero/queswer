@@ -3,8 +3,18 @@
 <mapper namespace="com.gzu.queswer.dao.ReviewDao">
     <insert id="insertReview" useGeneratedKeys="true" keyProperty="rid">
         INSERT INTO t_review (review_time, aid, uid, review, reply_rid, deleted)
-        VALUES (now(), #{aid}, #{uid}, #{review}, #{reply_rid}, False);
+        VALUES (#{review_time}, #{aid}, #{uid}, #{review}, #{reply_rid}, False);
     </insert>
+    <select id="selectReviewByRid" resultType="com.gzu.queswer.model.Review">
+        SELECT rid,
+               review_time,
+               aid,
+               uid,
+               IF(deleted = FALSE, review, null) review,
+               reply_rid,
+               deleted
+        FROM t_review WHERE rid=#{rid};
+    </select>
     <delete id="deleteReviewByRid">
         UPDATE t_review
         SET deleted=1
@@ -16,21 +26,19 @@
         WHERE rid = #{rid}
           AND uid = #{uid};
     </delete>
-    <select id="selectReviewsByAid" resultType="com.gzu.queswer.model.Review">
-        SELECT rid,
-               UNIX_TIMESTAMP(review_time)   review_time,
-               aid,
-               uid,
-               IF(deleted = FALSE, review, null) review,
-               reply_rid,
-               deleted
+    <select id="selectRidsByAid" resultType="Long">
+        SELECT rid
         FROM t_review
         WHERE aid = #{aid};
     </select>
     <select id="selectAnswererByAid" resultType="hashmap">
-        SELECT qid,uid,anonymous FROM t_answer WHERE aid=#{aid};
+        SELECT qid,uid,anonymous
+        FROM t_answer
+        WHERE aid = #{aid};
     </select>
     <select id="selectQuestionerByQid" resultType="hashmap">
-        SELECT uid,anonymous FROM t_question WHERE qid=#{qid};
+        SELECT uid,anonymous
+        FROM t_question
+        WHERE qid = #{qid};
     </select>
 </mapper>

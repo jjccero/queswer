@@ -1,31 +1,22 @@
 package com.gzu.queswer.model;
 
-public class Review extends UserInfoApi {
+public class Review {
     private Long rid;
     private Long reply_rid;
     private Long review_time;
     private Long aid;
     private String review;
+    private Boolean deleted;
+    private Long uid;
 
-    public boolean isQuestioner() {
-        return isQuestioner;
+    public Long getUid() {
+        return uid;
     }
 
-    public void setQuestioner(boolean questioner) {
-        isQuestioner = questioner;
+    public void setUid(Long uid) {
+        this.uid = uid;
     }
 
-    private boolean isQuestioner=false;
-
-    public boolean isAnswerer() {
-        return isAnswerer;
-    }
-
-    public void setAnswerer(boolean answerer) {
-        isAnswerer = answerer;
-    }
-
-    private boolean isAnswerer=false;
     public Long getRid() {
         return rid;
     }
@@ -74,5 +65,5 @@ public class Review extends UserInfoApi {
         this.deleted = deleted;
     }
 
-    private Boolean deleted;
+
 }
