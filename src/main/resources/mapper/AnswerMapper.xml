@@ -13,10 +13,9 @@
     <update id="updateAnswer">
         UPDATE t_answer
         SET answer=#{answer},
-            answer_time=#{answer_time},
+            modify_answer_time=#{modify_answer_time},
             anonymous=#{anonymous}
         WHERE aid = #{aid}
-          AND uid = #{uid}
     </update>
     <delete id="deleteAnswer">
         DELETE

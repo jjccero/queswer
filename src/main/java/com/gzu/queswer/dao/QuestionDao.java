@@ -32,5 +32,6 @@ public interface QuestionDao {
 
     Answer selectAnswerByUid(@Param("qid") Long qid, @Param("uid") Long uid);
 
+    @Deprecated
     List selectAidsByQid(Long qid);
 }

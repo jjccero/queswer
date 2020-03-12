@@ -1,6 +1,8 @@
-package com.gzu.queswer.dao;
+package com.gzu.queswer.dao.daoImpl;
 
 import com.alibaba.fastjson.JSON;
+import com.gzu.queswer.dao.AnswerDao;
+import com.gzu.queswer.dao.RedisDao;
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Attitude;
 import com.gzu.queswer.model.info.AnswerInfo;
@@ -82,6 +84,27 @@ public class AnswerDaoImpl extends RedisDao {
 
     public boolean updateAnswer(Answer answer) {
         boolean res = false;
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            String aid_key = getKey(answer.getAid(), jedis);
+            if (aid_key != null) {
+                Answer old_answer = getAnswer(aid_key, jedis);
+                if (old_answer.getUid().equals(answer.getUid())) {
+                    old_answer.setAnonymous(answer.getAnonymous());
+                    old_answer.setAnswer(answer.getAnswer());
+                    old_answer.setModify_answer_time(answer.getModify_answer_time());
+                    jedis.set(aid_key, JSON.toJSONString(old_answer), setParams_30m);
+                    answerDao.updateAnswer(old_answer);
+                    res = true;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (jedis != null)
+                jedis.close();
+        }
         return res;
     }
 

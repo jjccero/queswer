@@ -1,6 +1,6 @@
 package com.gzu.queswer.service;
 
-import com.gzu.queswer.dao.ReviewDaoImpl;
+import com.gzu.queswer.dao.daoImpl.ReviewDaoImpl;
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Question;
 import com.gzu.queswer.model.Review;
@@ -23,9 +23,9 @@ public class ReviewService {
     @Autowired
     QuestionService questionService;
 
-    public Long addReview(Review review) {
+    public Long insertReview(Review review) {
         reviewDaoImpl.insertReview(review);
-        return answerService.addReview(review);
+        return answerService.insertReview(review);
     }
 
     public Integer deleteReviewSuper(Long rid) {
@@ -53,15 +53,13 @@ public class ReviewService {
             if (question_uid.equals(review_uid)) {
                 reviewInfo.setQuestioned(true);
                 reviewInfo.setAnonymous(questioner_anonymous);
-            }
-            else {
-                if (answer_uid.equals(review_uid)) {
-                    reviewInfo.setAnonymous(answerer_anonymous);
-                    reviewInfo.setAnswered(true);
-                }
+            } else reviewInfo.setQuestioned(false);
+            if (answer_uid.equals(review_uid)) {
                 reviewInfo.setQuestioned(false);
-            }
-            setUserInfo(reviewInfo,uid);
+                reviewInfo.setAnswered(true);
+                reviewInfo.setAnonymous(answerer_anonymous);
+            } else reviewInfo.setAnswered(false);
+            setUserInfo(reviewInfo, uid);
             reviewInfos.add(reviewInfo);
         }
         return reviewInfos;
@@ -80,4 +78,9 @@ public class ReviewService {
         }
         reviewInfo.setUserInfo(userInfo);
     }
+
+    public boolean updateApprove(Long rid, Long uid,Boolean approve){
+        return reviewDaoImpl.updateApprove(rid,uid,approve);
+    }
+
 }

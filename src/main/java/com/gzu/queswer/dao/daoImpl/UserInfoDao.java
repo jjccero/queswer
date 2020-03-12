@@ -1,7 +1,9 @@
-package com.gzu.queswer.dao;
+package com.gzu.queswer.dao.daoImpl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.gzu.queswer.dao.RedisDao;
+import com.gzu.queswer.dao.UserDao;
 import com.gzu.queswer.model.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

@@ -5,6 +5,7 @@ public class Answer {
     private Long uid;
     private Long qid;
     private Long answer_time;
+    private Long modify_answer_time;
     private String answer;
     private Boolean anonymous;
 
@@ -54,5 +55,13 @@ public class Answer {
 
     public void setAnonymous(Boolean anonymous) {
         this.anonymous = anonymous;
+    }
+
+    public Long getModify_answer_time() {
+        return modify_answer_time;
+    }
+
+    public void setModify_answer_time(Long modify_answer_time) {
+        this.modify_answer_time = modify_answer_time;
     }
 }

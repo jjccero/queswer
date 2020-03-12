@@ -1,7 +1,7 @@
 package com.gzu.queswer.service;
 
 import com.gzu.queswer.dao.UserDao;
-import com.gzu.queswer.dao.UserInfoDao;
+import com.gzu.queswer.dao.daoImpl.UserInfoDao;
 import com.gzu.queswer.model.User;
 import com.gzu.queswer.model.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;

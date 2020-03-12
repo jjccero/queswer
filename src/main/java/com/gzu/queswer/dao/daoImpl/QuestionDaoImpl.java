@@ -1,6 +1,8 @@
-package com.gzu.queswer.dao;
+package com.gzu.queswer.dao.daoImpl;
 
 import com.alibaba.fastjson.JSON;
+import com.gzu.queswer.dao.QuestionDao;
+import com.gzu.queswer.dao.RedisDao;
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Question;
 import com.gzu.queswer.model.info.QuestionInfo;

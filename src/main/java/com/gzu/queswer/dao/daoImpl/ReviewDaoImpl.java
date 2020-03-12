@@ -1,6 +1,8 @@
-package com.gzu.queswer.dao;
+package com.gzu.queswer.dao.daoImpl;
 
 import com.alibaba.fastjson.JSON;
+import com.gzu.queswer.dao.RedisDao;
+import com.gzu.queswer.dao.ReviewDao;
 import com.gzu.queswer.model.Review;
 import com.gzu.queswer.model.info.ReviewInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,14 +41,34 @@ public class ReviewDaoImpl extends RedisDao {
         return false;
     }
 
-    public boolean approveReview(Long rid, Long uid) {
+    public boolean insertApprove(Long rid, Long uid) {
         boolean res = false;
         Jedis jedis = null;
         try {
             jedis = getJedis();
             String rid_key = getKey(rid, jedis);
             if (rid_key != null) {
-                jedis.sadd(rid_key + ":a", uid.toString());
+
+                res = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (jedis != null)
+                jedis.close();
+        }
+        return res;
+    }
+
+    public boolean updateApprove(Long rid, Long uid, Boolean approve) {
+        boolean res = false;
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            String rid_key = getKey(rid, jedis);
+            if (rid_key != null) {
+                if (approve) jedis.sadd(rid_key + ":a", uid.toString());
+                else jedis.srem(rid_key + ":a", uid.toString());
                 res = true;
             }
         } catch (Exception e) {

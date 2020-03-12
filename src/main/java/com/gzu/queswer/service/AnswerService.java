@@ -1,6 +1,6 @@
 package com.gzu.queswer.service;
 
-import com.gzu.queswer.dao.AnswerDaoImpl;
+import com.gzu.queswer.dao.daoImpl.AnswerDaoImpl;
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Attitude;
 import com.gzu.queswer.model.Review;
@@ -73,12 +73,11 @@ public class AnswerService {
         return answerDaoImpl.selectAnswerByAid(aid);
     }
 
-
     public List selectRidsByAid(Long aid) {
         return answerDaoImpl.selectRidsByAid(aid);
     }
 
-    public Long addReview(Review review) {
+    public Long insertReview(Review review) {
         Long rid = review.getRid();
         if (rid != null) {
             answerDaoImpl.addReview(review.getAid().toString(), rid.toString());

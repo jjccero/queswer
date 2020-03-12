@@ -1,6 +1,6 @@
 package com.gzu.queswer.service;
 
-import com.gzu.queswer.dao.QuestionDaoImpl;
+import com.gzu.queswer.dao.daoImpl.QuestionDaoImpl;
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Question;
 import com.gzu.queswer.model.UserInfo;
