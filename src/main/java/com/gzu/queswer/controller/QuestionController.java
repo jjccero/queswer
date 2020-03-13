@@ -35,12 +35,12 @@ public class QuestionController {
 
     @RequestMapping(value = "getQuestions", method = RequestMethod.GET)
     public List getQuestions(int offset, int limit, Long uid) {
-        return questionService.selectQuestions(offset, limit,uid);
+        return questionService.selectQuestions(offset, limit, uid);
     }
 
     @RequestMapping("getQuestion")
-    public QuestionInfo getQuestion(Long qid, Long uid,Long aid) {
-        return questionService.getQuestionInfo(qid,uid,aid,true);
+    public QuestionInfo getQuestion(Long qid, Long aid, Long uid) {
+        return questionService.getQuestionInfo(qid, aid, uid, true);
     }
 
     @RequestMapping("insertFollow")
@@ -52,7 +52,6 @@ public class QuestionController {
     public Integer deleteFollow(Long qid, Long uid) {
         return questionService.deleteFollow(qid, uid);
     }
-
 
 
 }

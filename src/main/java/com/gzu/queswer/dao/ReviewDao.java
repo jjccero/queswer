@@ -14,6 +14,7 @@ public interface ReviewDao {
 
     Integer deleteReviewByRid(@Param("rid") Long rid);
 
+    @Deprecated
     Integer deleteReviewByUid(@Param("rid") Long rid, @Param("uid") Long uid);
 
     List selectRidsByAid(@Param("aid") Long aid);

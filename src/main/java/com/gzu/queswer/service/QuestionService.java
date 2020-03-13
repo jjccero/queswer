@@ -28,25 +28,26 @@ public class QuestionService {
         return question.getQid();
     }
 
-    public QuestionInfo getQuestionInfo(Long qid, Long aid,Long uid,boolean user_answer) {
+    public QuestionInfo getQuestionInfo(Long qid, Long aid, Long uid, boolean user_answer) {
         QuestionInfo questionInfo = questionDaoImpl.getQuestionInfo(qid, uid);
         questionInfo.setTopics(topicService.selectQuestionTopics(qid));
-        if (aid != null) questionInfo.setDefaultAnswer(answerService.getAnswerInfo(aid, uid));
-        if(uid!=null&&user_answer){
-            Long user_aid = questionDaoImpl.selectAidByUid(qid, uid);
+        Long user_aid = null;
+        if (uid != null && user_answer) {
+            user_aid = questionDaoImpl.selectAidByUid(qid, uid);
             if (user_aid != null) questionInfo.setUserAnswer(answerService.getAnswerInfo(user_aid, uid));
         }
+        if (aid != user_aid && aid != null) questionInfo.setDefaultAnswer(answerService.getAnswerInfo(aid, uid));
         setUserInfo(questionInfo, uid);
         return questionInfo;
     }
 
-    public List selectQuestions(int offset, int limit,Long uid) {
-        Set<String> qid_keys=questionDaoImpl.getQids(offset,limit);
-        List<QuestionInfo> questionInfos=new ArrayList<>();
-        for(String qid_key:qid_keys){
-            Long qid=Long.parseLong(qid_key);
-            Long aid=questionDaoImpl.getTopAid(qid);
-            QuestionInfo questionInfo=getQuestionInfo(qid,aid,uid,false);
+    public List selectQuestions(int offset, int limit, Long uid) {
+        Set<String> qid_keys = questionDaoImpl.getQids(offset, limit);
+        List<QuestionInfo> questionInfos = new ArrayList<>();
+        for (String qid_key : qid_keys) {
+            Long qid = Long.parseLong(qid_key);
+            Long aid = questionDaoImpl.getTopAid(qid);
+            QuestionInfo questionInfo = getQuestionInfo(qid, aid, uid, false);
             questionInfos.add(questionInfo);
         }
         return questionInfos;

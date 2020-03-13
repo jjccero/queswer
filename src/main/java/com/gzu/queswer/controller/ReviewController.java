@@ -15,15 +15,10 @@ public class ReviewController {
     @Autowired
     private ReviewService reviewService;
 
-    @RequestMapping("addReview")
-    public Long addReview(@RequestBody Review review) {
+    @RequestMapping("insertReview")
+    public Long insertReview(@RequestBody Review review) {
         review.setReview_time(DateUtil.getUnixTime());
         return reviewService.insertReview(review);
-    }
-
-    @RequestMapping("deleteReviewSuper")
-    public Integer deleteReviewSuper(Long rid) {
-        return reviewService.deleteReviewSuper(rid);
     }
 
     @RequestMapping("deleteReview")

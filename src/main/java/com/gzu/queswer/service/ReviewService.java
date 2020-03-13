@@ -28,10 +28,6 @@ public class ReviewService {
         return answerService.insertReview(review);
     }
 
-    public Integer deleteReviewSuper(Long rid) {
-        return reviewDaoImpl.deleteReviewByRid(rid);
-    }
-
     public boolean deleteReview(Long rid, Long uid) {
         return reviewDaoImpl.deleteReviewByUid(rid, uid);
     }

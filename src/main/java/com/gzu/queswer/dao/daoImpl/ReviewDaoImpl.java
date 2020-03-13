@@ -33,23 +33,22 @@ public class ReviewDaoImpl extends RedisDao {
         return rid;
     }
 
-    public Integer deleteReviewByRid(Long rid) {
-        return null;
-    }
 
     public boolean deleteReviewByUid(Long rid, Long uid) {
-        return false;
-    }
-
-    public boolean insertApprove(Long rid, Long uid) {
         boolean res = false;
         Jedis jedis = null;
         try {
             jedis = getJedis();
             String rid_key = getKey(rid, jedis);
             if (rid_key != null) {
-
-                res = true;
+                Review review=getReview(rid_key,jedis);
+                if(review.getUid().equals(uid)){
+                    review.setReview(null);
+                    review.setDeleted(true);
+                    jedis.set(rid_key,JSON.toJSONString(review),setParams_30m);
+                    reviewDao.deleteReviewByRid(rid);
+                    res = true;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
