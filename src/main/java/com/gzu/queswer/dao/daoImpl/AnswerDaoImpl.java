@@ -44,7 +44,7 @@ public class AnswerDaoImpl extends RedisDao {
             jedis = getJedis();
             String aid_key = getKey(aid, jedis);
             if (aid_key != null) {
-                String aid_r_key = aid_key + ":r";
+                String aid_r_key = getAid_r_key(aid_key);
                 Set<String> rid_keys = jedis.zrange(aid_r_key, 0L, -1L);
                 for (String rid_key : rid_keys) {
                     rids.add(Long.parseLong(rid_key));
@@ -108,7 +108,7 @@ public class AnswerDaoImpl extends RedisDao {
         return res;
     }
 
-    public boolean insertAttitude(Attitude attitude) {
+    public boolean updateAttitude(Attitude attitude) {
         boolean res = false;
         Jedis jedis = null;
         try {
@@ -184,17 +184,19 @@ public class AnswerDaoImpl extends RedisDao {
     }
 
     public AnswerInfo getAnswerInfo(Long aid, Long uid) {
-        AnswerInfo answerInfo = new AnswerInfo();
+        AnswerInfo answerInfo = null;
         Jedis jedis = null;
         try {
             jedis = getJedis();
             String aid_key = getKey(aid, jedis);
             if (aid_key != null) {
+                answerInfo = new AnswerInfo();
                 answerInfo.setAnswer(getAnswer(aid_key, jedis));
                 String aid1 = aid_key + ":1";
                 String aid0 = aid_key + ":0";
                 answerInfo.setAgree(jedis.scard(aid1));
                 answerInfo.setAgainst(jedis.scard(aid0));
+                answerInfo.setReviewCount(jedis.zcard(getAid_r_key(aid_key)));
                 Boolean attituded = null;
                 if (uid != null) {
                     String uid_field = uid.toString();
@@ -236,12 +238,16 @@ public class AnswerDaoImpl extends RedisDao {
         Jedis jedis = null;
         try {
             jedis = getJedis();
-            jedis.zadd(aid_key + ":r", 0.0, rid_key);
+            jedis.zadd(getAid_r_key(aid_key), 0.0, rid_key);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             if (jedis != null)
                 jedis.close();
         }
+    }
+
+    private String getAid_r_key(String aid_key){
+        return aid_key+":r";
     }
 }

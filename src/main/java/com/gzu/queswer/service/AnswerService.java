@@ -36,8 +36,8 @@ public class AnswerService {
         return answerDaoImpl.updateAnswer(answer);
     }
 
-    public boolean insertAttitude(Attitude attitude) {
-        return answerDaoImpl.insertAttitude(attitude);
+    public boolean updateAttitude(Attitude attitude) {
+        return answerDaoImpl.updateAttitude(attitude);
     }
 
     public boolean deleteAttitude(long aid, long uid) {
@@ -55,7 +55,14 @@ public class AnswerService {
         return answerInfos;
     }
 
+    public AnswerInfo getAnswerInfo(Long aid, Long uid) {
+        AnswerInfo answerInfo = answerDaoImpl.getAnswerInfo(aid, uid);
+        setUserInfo(answerInfo, uid);
+        return answerInfo;
+    }
+
     public void setUserInfo(AnswerInfo answerInfo, Long uid) {
+        if (answerInfo == null) return;
         UserInfo userInfo;
         Answer answer = answerInfo.getAnswer();
         Boolean anonymous = answer.getAnonymous();

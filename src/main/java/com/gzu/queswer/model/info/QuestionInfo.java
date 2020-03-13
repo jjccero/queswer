@@ -1,6 +1,5 @@
 package com.gzu.queswer.model.info;
 
-import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Question;
 import com.gzu.queswer.model.Topic;
 import com.gzu.queswer.model.UserInfoApi;
@@ -13,8 +12,10 @@ public class QuestionInfo extends UserInfoApi {
     private Long followCount;
     private Boolean followed;
     private Boolean questioned;
-    private Answer answer;
+    private AnswerInfo defaultAnswer;
+    private AnswerInfo userAnswer;
     private List<Topic> topics;
+    private Long answerCount;
 
     public Question getQuestion() {
         return question;
@@ -56,12 +57,20 @@ public class QuestionInfo extends UserInfoApi {
         this.questioned = questioned;
     }
 
-    public Answer getAnswer() {
-        return answer;
+    public AnswerInfo getDefaultAnswer() {
+        return defaultAnswer;
     }
 
-    public void setAnswer(Answer answer) {
-        this.answer = answer;
+    public void setDefaultAnswer(AnswerInfo defaultAnswer) {
+        this.defaultAnswer = defaultAnswer;
+    }
+
+    public AnswerInfo getUserAnswer() {
+        return userAnswer;
+    }
+
+    public void setUserAnswer(AnswerInfo userAnswer) {
+        this.userAnswer = userAnswer;
     }
 
     public List<Topic> getTopics() {
@@ -70,5 +79,13 @@ public class QuestionInfo extends UserInfoApi {
 
     public void setTopics(List<Topic> topics) {
         this.topics = topics;
+    }
+
+    public Long getAnswerCount() {
+        return answerCount;
+    }
+
+    public void setAnswerCount(Long answerCount) {
+        this.answerCount = answerCount;
     }
 }

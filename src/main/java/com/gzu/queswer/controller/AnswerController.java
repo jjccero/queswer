@@ -17,29 +17,29 @@ public class AnswerController {
     @Autowired
     private AnswerService answerService;
 
-    @RequestMapping(value = "/addAnswer", method = RequestMethod.POST)
-    public Long addAnswer(@RequestBody Answer answer) {
+    @RequestMapping(value = "insertAnswer", method = RequestMethod.POST)
+    public Long insertAnswer(@RequestBody Answer answer) {
         answer.setAnswer_time(DateUtil.getUnixTime());
         answer.setAid(null);
         if(answer.getAnonymous()==null) answer.setAnonymous(false);
         return answerService.insertAnswer(answer);
     }
 
-    @RequestMapping(value = "/updateAnswer", method = RequestMethod.POST)
+    @RequestMapping(value = "updateAnswer", method = RequestMethod.POST)
     public boolean updateAnswer(@RequestBody Answer answer) {
         answer.setModify_answer_time(DateUtil.getUnixTime());
         if(answer.getAnonymous()==null) answer.setAnonymous(false);
         return answerService.updateAnswer(answer);
     }
 
-    @RequestMapping("/deleteAnswer")
+    @RequestMapping("deleteAnswer")
     public boolean deleteAnswer(Long aid, Long uid) {
         return answerService.deleteAnswer(aid, uid);
     }
 
-    @RequestMapping("/addAttitude")
-    public boolean addAttitude(@RequestBody Attitude attitude) {
-        return answerService.insertAttitude(attitude);
+    @RequestMapping("updateAttitude")
+    public boolean updateAttitude(@RequestBody Attitude attitude) {
+        return answerService.updateAttitude(attitude);
     }
 
     @RequestMapping("/deleteAttitude")

@@ -8,7 +8,7 @@ public class AnswerInfo extends UserInfoApi {
     private Boolean attituded;
     private Long agree;
     private Long against;
-
+    private Long reviewCount;
     public Boolean getAttituded() {
         return attituded;
     }
@@ -39,5 +39,13 @@ public class AnswerInfo extends UserInfoApi {
 
     public void setAnswer(Answer answer) {
         this.answer = answer;
+    }
+
+    public Long getReviewCount() {
+        return reviewCount;
+    }
+
+    public void setReviewCount(Long reviewCount) {
+        this.reviewCount = reviewCount;
     }
 }

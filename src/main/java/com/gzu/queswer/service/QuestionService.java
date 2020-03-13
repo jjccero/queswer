@@ -8,7 +8,9 @@ import com.gzu.queswer.model.info.QuestionInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class QuestionService {
@@ -18,22 +20,36 @@ public class QuestionService {
     UserService userService;
     @Autowired
     TopicService topicService;
+    @Autowired
+    AnswerService answerService;
 
     public Long insertQuestion(Question question) {
         questionDaoImpl.insertQuestion(question);
         return question.getQid();
     }
 
-    public QuestionInfo getQuestionInfo(Long qid, Long uid) {
+    public QuestionInfo getQuestionInfo(Long qid, Long aid,Long uid,boolean user_answer) {
         QuestionInfo questionInfo = questionDaoImpl.getQuestionInfo(qid, uid);
         questionInfo.setTopics(topicService.selectQuestionTopics(qid));
-        questionInfo.setAnswer(questionDaoImpl.selectAnswerByUid(qid, uid));
+        if (aid != null) questionInfo.setDefaultAnswer(answerService.getAnswerInfo(aid, uid));
+        if(uid!=null&&user_answer){
+            Long user_aid = questionDaoImpl.selectAidByUid(qid, uid);
+            if (user_aid != null) questionInfo.setUserAnswer(answerService.getAnswerInfo(user_aid, uid));
+        }
         setUserInfo(questionInfo, uid);
         return questionInfo;
     }
 
-    public List selectQuestions(int offset, int limit) {
-        return questionDaoImpl.selectQuestions(offset, limit);
+    public List selectQuestions(int offset, int limit,Long uid) {
+        Set<String> qid_keys=questionDaoImpl.getQids(offset,limit);
+        List<QuestionInfo> questionInfos=new ArrayList<>();
+        for(String qid_key:qid_keys){
+            Long qid=Long.parseLong(qid_key);
+            Long aid=questionDaoImpl.getTopAid(qid);
+            QuestionInfo questionInfo=getQuestionInfo(qid,aid,uid,false);
+            questionInfos.add(questionInfo);
+        }
+        return questionInfos;
     }
 
     @Deprecated
@@ -54,6 +70,7 @@ public class QuestionService {
     }
 
     public void setUserInfo(QuestionInfo questionInfo, Long uid) {
+        if (questionInfo == null) return;
         Question question = questionInfo.getQuestion();
         UserInfo userInfo;
         Boolean anonymous = question.getAnonymous();

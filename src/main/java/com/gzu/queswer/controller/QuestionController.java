@@ -26,8 +26,8 @@ public class QuestionController {
     @Autowired
     AnswerService answerService;
 
-    @RequestMapping(value = "addQuestion", method = RequestMethod.POST)
-    public Long addQuestion(@RequestBody Question question) {
+    @RequestMapping(value = "insertQuestion", method = RequestMethod.POST)
+    public Long insertQuestion(@RequestBody Question question) {
         question.setQid(null);
         question.setQuestion_time(DateUtil.getUnixTime());
         return questionService.insertQuestion(question);
@@ -35,17 +35,16 @@ public class QuestionController {
 
     @RequestMapping(value = "getQuestions", method = RequestMethod.GET)
     public List getQuestions(int offset, int limit, Long uid) {
-        List<Question> questions = questionService.selectQuestions(offset, limit);
-        return questions;
+        return questionService.selectQuestions(offset, limit,uid);
     }
 
     @RequestMapping("getQuestion")
-    public QuestionInfo getQuestion(Long qid, Long uid) {
-        return questionService.getQuestionInfo(qid,uid);
+    public QuestionInfo getQuestion(Long qid, Long uid,Long aid) {
+        return questionService.getQuestionInfo(qid,uid,aid,true);
     }
 
-    @RequestMapping("addFollow")
-    public Integer addFollow(Long qid, Long uid) {
+    @RequestMapping("insertFollow")
+    public Integer insertFollow(Long qid, Long uid) {
         return questionService.insertFollow(qid, uid);
     }
 
@@ -54,10 +53,6 @@ public class QuestionController {
         return questionService.deleteFollow(qid, uid);
     }
 
-    @RequestMapping(value = "getOpptunities", method = RequestMethod.GET)
-    public List getOpptunities(int offset, int limit) {
-        return null;
-    }
 
 
 }
