@@ -34,8 +34,8 @@ public class QuestionController {
     }
 
     @RequestMapping(value = "getQuestions", method = RequestMethod.GET)
-    public List getQuestions(int offset, int limit, Long uid) {
-        return questionService.selectQuestions(offset, limit, uid);
+    public List getQuestions(int offset, int count, Long uid) {
+        return questionService.selectQuestions(offset, count, uid);
     }
 
     @RequestMapping("getQuestion")

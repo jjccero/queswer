@@ -82,12 +82,12 @@ public class QuestionDaoImpl extends RedisDao {
         }
     }
 
-    public Set getQids(int offset, int limit) {
+    public Set getQids(int offset, int count) {
         Set<String> qids = null;
         Jedis jedis = null;
         try {
             jedis = getJedis();
-            qids = jedis.zrange(TOP_LIST_KEY, offset, offset + limit);
+            qids = jedis.zrevrangeByScore(TOP_LIST_KEY,Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, offset,count);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -95,25 +95,6 @@ public class QuestionDaoImpl extends RedisDao {
                 jedis.close();
         }
         return qids;
-    }
-
-    public Long getDefaultAid(String qid_key) {
-        Long aid = null;
-        Jedis jedis = null;
-        try {
-            jedis = getJedis();
-            Set<String> aid_set = jedis.zrevrangeByScore(qid_key, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 0, 1);
-            Iterator<String> iterator = aid_set.iterator();
-            if (iterator.hasNext()) {
-                aid = Long.parseLong(aid_set.iterator().next());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (jedis != null)
-                jedis.close();
-        }
-        return aid;
     }
 
     public Integer selectFollowCount(Long qid) {

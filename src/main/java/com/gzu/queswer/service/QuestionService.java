@@ -41,8 +41,8 @@ public class QuestionService {
         return questionInfo;
     }
 
-    public List selectQuestions(int offset, int limit, Long uid) {
-        Set<String> qid_keys = questionDaoImpl.getQids(offset, limit);
+    public List selectQuestions(int offset, int count, Long uid) {
+        Set<String> qid_keys = questionDaoImpl.getQids(offset, count);
         List<QuestionInfo> questionInfos = new ArrayList<>();
         for (String qid_key : qid_keys) {
             Long qid = Long.parseLong(qid_key);
