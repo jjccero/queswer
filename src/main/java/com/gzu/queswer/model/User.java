@@ -8,6 +8,7 @@ public class User {
     private Short authority;
     private String nickname;
     private Short sex;
+    private Boolean avater;
 
     public String getIntro() {
         return intro;
@@ -19,7 +20,7 @@ public class User {
 
     private String intro;
     public final static Short superUser = new Short((short) 1);
-    public final static Short normalUser = new Short((short)0);
+    public final static Short normalUser = new Short((short) 0);
 
     public Long getUid() {
         return uid;
@@ -77,10 +78,19 @@ public class User {
         this.sex = sex;
     }
 
-    public void setSuperUser(){
+    public void setSuperUser() {
         setAuthority(superUser);
     }
-    public void setNormalUser(){
+
+    public void setNormalUser() {
         setAuthority(normalUser);
+    }
+
+    public Boolean getAvater() {
+        return avater;
+    }
+
+    public void setAvater(Boolean avater) {
+        this.avater = avater;
     }
 }

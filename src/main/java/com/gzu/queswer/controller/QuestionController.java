@@ -44,12 +44,12 @@ public class QuestionController {
     }
 
     @RequestMapping("insertFollow")
-    public Integer insertFollow(Long qid, Long uid) {
+    public boolean insertFollow(Long qid, Long uid) {
         return questionService.insertFollow(qid, uid);
     }
 
     @RequestMapping("deleteFollow")
-    public Integer deleteFollow(Long qid, Long uid) {
+    public boolean deleteFollow(Long qid, Long uid) {
         return questionService.deleteFollow(qid, uid);
     }
 

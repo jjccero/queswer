@@ -58,12 +58,12 @@ public class QuestionService {
         return questionDaoImpl.selectFollowCount(qid);
     }
 
-    public Integer insertFollow(Long qid, Long uid) {
-        return questionDaoImpl.insertFollow(qid, uid);
+    public boolean insertFollow(Long qid, Long uid) {
+        return questionDaoImpl.insertFollow(qid, uid)==1;
     }
 
-    public Integer deleteFollow(Long qid, Long uid) {
-        return questionDaoImpl.deleteFollow(qid, uid);
+    public boolean deleteFollow(Long qid, Long uid) {
+        return questionDaoImpl.deleteFollow(qid, uid)==1;
     }
 
     public List selectFollowsByUid(Long uid) {

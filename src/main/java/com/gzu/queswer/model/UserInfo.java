@@ -7,6 +7,7 @@ public class UserInfo implements Serializable {
     private String nickname;
     private Boolean anonymous;
     private String intro;
+    private Boolean avater;
 
     public Long getUid() {
         return uid;
@@ -41,11 +42,21 @@ public class UserInfo implements Serializable {
     }
 
     public final static UserInfo defaultUserInfo;
+
     static {
-        defaultUserInfo=new UserInfo();
+        defaultUserInfo = new UserInfo();
         defaultUserInfo.setNickname("匿名用户");
         defaultUserInfo.setIntro("猜猜我是谁");
         defaultUserInfo.setUid(null);
         defaultUserInfo.setAnonymous(true);
+        defaultUserInfo.setAvater(null);
+    }
+
+    public Boolean getAvater() {
+        return avater;
+    }
+
+    public void setAvater(Boolean avater) {
+        this.avater = avater;
     }
 }
