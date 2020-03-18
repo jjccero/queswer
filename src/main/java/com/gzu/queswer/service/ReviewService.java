@@ -24,8 +24,7 @@ public class ReviewService {
     QuestionService questionService;
 
     public Long insertReview(Review review) {
-        reviewDaoImpl.insertReview(review);
-        return answerService.insertReview(review);
+        return reviewDaoImpl.insertReview(review);
     }
 
     public boolean deleteReview(Long rid, Long uid) {

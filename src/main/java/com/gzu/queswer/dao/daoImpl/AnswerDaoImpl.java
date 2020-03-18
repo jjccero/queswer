@@ -7,7 +7,6 @@ import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Attitude;
 import com.gzu.queswer.model.info.AnswerInfo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
@@ -21,13 +20,17 @@ public class AnswerDaoImpl extends RedisDao {
     @Autowired
     private AnswerDao answerDao;
 
-    public void insertAnswer(Answer answer) {
+    public Long insertAnswer(Answer answer) {
         answerDao.insertAnswer(answer);
-        if (answer.getAid() != null) {
+        Long aid = answer.getAid();
+        if (aid != null) {
             Jedis jedis = null;
             try {
                 jedis = getJedis();
-                jedis.set(answer.getAid().toString(), JSON.toJSONString(answer), setParams_30m);
+                String aid_key = aid.toString();
+                jedis.set(aid_key, JSON.toJSONString(answer), setParams_30m);
+                jedis.select(t_question);
+                jedis.zadd(answer.getQid().toString() + ":a", 0.0, aid_key);
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -35,6 +38,7 @@ public class AnswerDaoImpl extends RedisDao {
                     jedis.close();
             }
         }
+        return aid;
     }
 
     public List selectRidsByAid(Long aid) {
@@ -44,7 +48,7 @@ public class AnswerDaoImpl extends RedisDao {
             jedis = getJedis();
             String aid_key = getKey(aid, jedis);
             if (aid_key != null) {
-                String aid_r_key = getAid_r_key(aid_key);
+                String aid_r_key = aid_key + ":r";
                 Set<String> rid_keys = jedis.zrange(aid_r_key, 0L, -1L);
                 for (String rid_key : rid_keys) {
                     rids.add(Long.parseLong(rid_key));
@@ -67,10 +71,20 @@ public class AnswerDaoImpl extends RedisDao {
             String aid_key = aid.toString();
             Answer answer = getAnswer(aid_key, jedis);
             if (answer != null && answer.getUid().equals(uid)) {
-                jedis.del(aid_key + ":1");
-                jedis.del(aid_key + ":0");
-                jedis.del(aid_key);
-                answerDao.deleteAnswer(aid, uid);
+                //删除回答 赞同表 反对表
+                jedis.del(aid_key, aid_key + ":1", aid_key + ":0");
+                jedis.select(t_question);
+                //从问题表里删除aid
+                res = jedis.zrem(answer.getQid().toString() + ":a", aid_key) == 1L;
+                answerDao.deleteAnswerByAid(aid);
+                String aid_r_key = aid_key + ":r";
+                Set<String> rid_keys = jedis.zrange(aid_r_key, 0, -1);
+                jedis.del(aid_r_key);
+                jedis.select(t_review);
+                for (String rid_key : rid_keys) {
+                    //删除评论以及赞
+                    jedis.del(rid_key, rid_key + ":a");
+                }
                 res = true;
             }
         } catch (Exception e) {
@@ -147,9 +161,9 @@ public class AnswerDaoImpl extends RedisDao {
             if (aid_key != null) {
                 String aid1 = aid_key + ":1";
                 String aid0 = aid_key + ":0";
-                String uid_field = uid.toString();
-                jedis.srem(aid1, uid_field);
-                jedis.srem(aid0, uid_field);
+                String uid_member = uid.toString();
+                jedis.srem(aid1, uid_member);
+                jedis.srem(aid0, uid_member);
                 res = true;
             }
         } catch (Exception e) {
@@ -196,7 +210,7 @@ public class AnswerDaoImpl extends RedisDao {
                 String aid0 = aid_key + ":0";
                 answerInfo.setAgree(jedis.scard(aid1));
                 answerInfo.setAgainst(jedis.scard(aid0));
-                answerInfo.setReviewCount(jedis.zcard(getAid_r_key(aid_key)));
+                answerInfo.setReviewCount(jedis.zcard(aid_key + ":r"));
                 Boolean attituded = null;
                 if (uid != null) {
                     String uid_field = uid.toString();
@@ -224,30 +238,11 @@ public class AnswerDaoImpl extends RedisDao {
         return jedis.strlen(aid_key) == 0L ? null : aid_key;
     }
 
-    @Value("${t_answer}")
-    int database;
-
     @Override
-    protected Jedis getJedis() {
+    public Jedis getJedis() {
         Jedis jedis = super.getJedis();
-        jedis.select(database);
+        jedis.select(t_answer);
         return jedis;
     }
 
-    public void addReview(String aid_key, String rid_key) {
-        Jedis jedis = null;
-        try {
-            jedis = getJedis();
-            jedis.zadd(getAid_r_key(aid_key), 0.0, rid_key);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (jedis != null)
-                jedis.close();
-        }
-    }
-
-    private String getAid_r_key(String aid_key){
-        return aid_key+":r";
-    }
 }

@@ -6,7 +6,6 @@ import com.gzu.queswer.dao.RedisDao;
 import com.gzu.queswer.model.Question;
 import com.gzu.queswer.model.info.QuestionInfo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import redis.clients.jedis.Jedis;
 
@@ -204,47 +203,16 @@ public class QuestionDaoImpl extends RedisDao {
         return res;
     }
 
-    public void insertAnswer(String qid_key, String aid_key) {
-        Jedis jedis = null;
-        try {
-            jedis = getJedis();
-            jedis.zadd(qid_key + ":a", 0.0, aid_key);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (jedis != null)
-                jedis.close();
-        }
-    }
-
-    public boolean deleteAnswer(String qid_key, String aid_key) {
-        boolean res = false;
-        Jedis jedis = null;
-        try {
-            jedis = getJedis();
-            res = jedis.zrem(qid_key + ":a", aid_key) == 1L;
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (jedis != null)
-                jedis.close();
-        }
-        return res;
-    }
-
     public List selectFollowsByUid(Long uid) {
         return null;
     }
 
-    @Value("${t_question}")
-    int database;
     final static String TOP_LIST_KEY = "t";
 
-    //    final static String VIEW_LIST_KEY = "v";
     @Override
-    protected Jedis getJedis() {
+    public Jedis getJedis() {
         Jedis jedis = super.getJedis();
-        jedis.select(database);
+        jedis.select(t_question);
         return jedis;
     }
 

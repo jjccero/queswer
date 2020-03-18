@@ -12,25 +12,14 @@ public interface QuestionDao {
 
     void insertQuestion(Question question);
 
-    @Deprecated
-    List selectQuestions(@Param("offset") int offset, @Param("limit") int limit);
-
     Integer selectFollowCount(@Param("qid") Long qid);
 
     Integer insertFollow(@Param("qid") Long qid, @Param("uid") Long uid);
 
     Integer deleteFollow(@Param("qid") Long qid, @Param("uid") Long uid);
 
-    @Deprecated
-    Boolean isFollowed(@Param("qid") Long qid, @Param("uid") Long uid);
-
-    @Deprecated
-    Boolean isQuestioned(@Param("qid") Long qid, @Param("uid") Long uid);
-
     List selectFollowsByUid(@Param("uid") Long uid);
 
     Long selectAidByUid(@Param("qid") Long qid, @Param("uid") Long uid);
 
-    @Deprecated
-    List selectAidsByQid(Long qid);
 }

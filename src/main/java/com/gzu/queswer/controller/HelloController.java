@@ -28,6 +28,11 @@ public class HelloController {
 //        return SecurityUtil.getPublicKey();
 //    }
 
+    @RequestMapping(value = "/deleteCache")
+    public int deleteCache() {
+        return 1;
+    }
+
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public User login(@RequestBody JSONObject loginForm) {
         String username = loginForm.getString("username");

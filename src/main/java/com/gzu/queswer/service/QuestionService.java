@@ -1,7 +1,6 @@
 package com.gzu.queswer.service;
 
 import com.gzu.queswer.dao.daoImpl.QuestionDaoImpl;
-import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Question;
 import com.gzu.queswer.model.UserInfo;
 import com.gzu.queswer.model.info.QuestionInfo;
@@ -93,15 +92,5 @@ public class QuestionService {
         return questionDaoImpl.selectQuestionByQid(qid);
     }
 
-    public Long insertAnswer(Answer answer) {
-        Long aid = answer.getAid();
-        if (aid != null) {
-            questionDaoImpl.insertAnswer(answer.getQid().toString(), aid.toString());
-        }
-        return aid;
-    }
 
-    public boolean deleteAnswer(Answer answer) {
-        return questionDaoImpl.deleteAnswer(answer.getQid().toString(), answer.getAid().toString());
-    }
 }

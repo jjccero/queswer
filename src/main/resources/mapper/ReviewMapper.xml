@@ -20,25 +20,9 @@
         SET deleted=1
         WHERE rid = #{rid};
     </delete>
-    <delete id="deleteReviewByUid">
-        UPDATE t_review
-        SET deleted=1
-        WHERE rid = #{rid}
-          AND uid = #{uid};
-    </delete>
     <select id="selectRidsByAid" resultType="Long">
         SELECT rid
         FROM t_review
         WHERE aid = #{aid};
-    </select>
-    <select id="selectAnswererByAid" resultType="hashmap">
-        SELECT qid,uid,anonymous
-        FROM t_answer
-        WHERE aid = #{aid};
-    </select>
-    <select id="selectQuestionerByQid" resultType="hashmap">
-        SELECT uid,anonymous
-        FROM t_question
-        WHERE qid = #{qid};
     </select>
 </mapper>

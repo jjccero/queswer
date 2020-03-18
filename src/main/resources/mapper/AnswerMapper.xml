@@ -5,11 +5,6 @@
         INSERT INTO t_answer (answer_time, uid, qid, answer, anonymous)
         VALUES (#{answer_time}, #{uid}, #{qid}, #{answer}, #{anonymous})
     </insert>
-    <select id="selectAnswerbyAid" resultType="com.gzu.queswer.model.Answer">
-        SELECT aid,qid,uid,answer,answer_time answer_time,anonymous
-        FROM t_answer
-        WHERE aid = #{aid}
-    </select>
     <update id="updateAnswer">
         UPDATE t_answer
         SET answer=#{answer},
@@ -17,65 +12,14 @@
             anonymous=#{anonymous}
         WHERE aid = #{aid}
     </update>
-    <delete id="deleteAnswer">
+    <delete id="deleteAnswerByAid">
         DELETE
         FROM t_answer
         WHERE aid = #{aid}
-          AND uid = #{uid}
     </delete>
-    <insert id="insertAttitude">
-        INSERT INTO t_attitude (aid, uid, attitude)
-        VALUES (#{aid}, #{uid}, #{attitude})
-        ON DUPLICATE KEY UPDATE
-            attitude=#{attitude}
-    </insert>
-    <delete id="deleteAttitude">
-        DELETE
-        FROM t_attitude
-        WHERE aid = #{aid}
-          AND uid = #{uid}
-    </delete>
-    <select id="selectAttitudeByAid" resultType="Integer">
-        SELECT count(*)
-        FROM t_attitude
-        WHERE aid = #{aid}
-          AND attitude = TRUE
-        UNION ALL
-        SELECT count(*)
-        FROM t_attitude
-        WHERE aid = #{aid}
-          AND attitude = FALSE
-    </select>
-    <select id="selectAttitudesByAid" resultType="com.gzu.queswer.model.Attitude">
-        SELECT *
-        FROM t_attitude
-        WHERE aid = #{aid};
-    </select>
-    <select id="selectAttitudeByUid" resultType="Boolean">
-        SELECT attitude
-        FROM t_attitude
-        WHERE aid = #{aid}
-          AND uid = #{uid}
-    </select>
-    <select id="selectAnswersByQid" resultType="com.gzu.queswer.model.Answer">
+    <select id="selectAnswerbyAid" resultType="com.gzu.queswer.model.Answer">
         SELECT aid,qid,uid,answer,answer_time answer_time,anonymous
         FROM t_answer
-        WHERE qid = #{qid}
-    </select>
-    <select id="selectAidsByQid" resultType="Long">
-        SELECT aid
-        FROM t_answer
-        WHERE qid = #{qid}
-    </select>
-    <select id="selectAnswerCountByAid" resultType="Integer">
-        SELECT COUNT(*)
-        FROM t_answer
-        WHERE qid = #{qid}
-    </select>
-
-    <select id="selectRidsByAid" resultType="Long">
-        SELECT rid
-        from t_review
-        WHERE aid = #{aid};
+        WHERE aid = #{aid}
     </select>
 </mapper>

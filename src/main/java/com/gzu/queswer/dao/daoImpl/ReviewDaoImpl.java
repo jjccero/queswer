@@ -6,7 +6,6 @@ import com.gzu.queswer.dao.ReviewDao;
 import com.gzu.queswer.model.Review;
 import com.gzu.queswer.model.info.ReviewInfo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import redis.clients.jedis.Jedis;
 
@@ -21,8 +20,11 @@ public class ReviewDaoImpl extends RedisDao {
         if (rid != null) {
             Jedis jedis = null;
             try {
+                String rid_key=rid.toString();
                 jedis = getJedis();
-                jedis.set(rid.toString(), JSON.toJSONString(review), setParams_30m);
+                jedis.set(rid_key, JSON.toJSONString(review), setParams_30m);
+                jedis.select(t_answer);
+                jedis.zadd(review.getAid().toString() + ":r", 0.0, rid_key);
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -107,9 +109,6 @@ public class ReviewDaoImpl extends RedisDao {
         return JSON.parseObject(jedis.get(rid_key), Review.class);
     }
 
-    @Value("${t_review}")
-    int database;
-
     @Override
     public String getKey(Long rid, Jedis jedis) {
         String rid_key = rid.toString();
@@ -121,9 +120,9 @@ public class ReviewDaoImpl extends RedisDao {
     }
 
     @Override
-    protected Jedis getJedis() {
+    public Jedis getJedis() {
         Jedis jedis = super.getJedis();
-        jedis.select(database);
+        jedis.select(t_review);
         return jedis;
     }
 }

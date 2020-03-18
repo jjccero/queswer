@@ -6,7 +6,6 @@ import com.gzu.queswer.dao.RedisDao;
 import com.gzu.queswer.dao.UserDao;
 import com.gzu.queswer.model.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import redis.clients.jedis.Jedis;
 
@@ -44,13 +43,11 @@ public class UserInfoDao extends RedisDao {
         return jedis.strlen(uid_key) == 0L ? null : uid_key;
     }
 
-    @Value("${t_userInfo}")
-    int database;
 
     @Override
     public Jedis getJedis() {
         Jedis jedis = super.getJedis();
-        jedis.select(database);
+        jedis.select(t_userInfo);
         return jedis;
     }
 

@@ -10,7 +10,10 @@ public class RedisDao {
     final protected static SetParams setParams_30m;
     final protected static int second_60s = 60;
     final protected static int second_30m = 1800;
-
+    final protected static int t_answer=0;
+    final protected static int t_userInfo=1;
+    final protected static int t_question=2;
+    final protected static int t_review=3;
     static {
         setParams_60s = new SetParams();
         setParams_60s.ex(second_60s);
@@ -28,7 +31,7 @@ public class RedisDao {
                 jedis.close();
         }
     }
-    protected Jedis getJedis(){
+    public Jedis getJedis(){
         return RedisUtil.getJedis();
     }
 

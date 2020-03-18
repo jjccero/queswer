@@ -3,7 +3,6 @@ package com.gzu.queswer.service;
 import com.gzu.queswer.dao.daoImpl.AnswerDaoImpl;
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Attitude;
-import com.gzu.queswer.model.Review;
 import com.gzu.queswer.model.UserInfo;
 import com.gzu.queswer.model.info.AnswerInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +22,11 @@ public class AnswerService {
     UserService userService;
 
     public Long insertAnswer(Answer answer) {
-        answerDaoImpl.insertAnswer(answer);
-        return questionService.insertAnswer(answer);
+        return answerDaoImpl.insertAnswer(answer);
     }
 
     public boolean deleteAnswer(Long aid, Long uid) {
-        Answer answer = answerDaoImpl.selectAnswerByAid(aid);
-        return answer != null && answer.getUid().equals(uid) && questionService.deleteAnswer(answer) && answerDaoImpl.deleteAnswer(aid, uid);
+        return answerDaoImpl.deleteAnswer(aid, uid);
     }
 
     public boolean updateAnswer(Answer answer) {
@@ -84,11 +81,4 @@ public class AnswerService {
         return answerDaoImpl.selectRidsByAid(aid);
     }
 
-    public Long insertReview(Review review) {
-        Long rid = review.getRid();
-        if (rid != null) {
-            answerDaoImpl.addReview(review.getAid().toString(), rid.toString());
-        }
-        return rid;
-    }
 }
