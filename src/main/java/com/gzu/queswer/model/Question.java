@@ -1,9 +1,10 @@
 package com.gzu.queswer.model;
 
-public class Question{
+public class Question {
     private Long qid;
     private Long uid;
-    private Long question_time;
+    private Long gmt_create;
+    private Long gmt_modify;
     private String question;
     private String detail;
     private Boolean anonymous;
@@ -22,14 +23,6 @@ public class Question{
 
     public void setUid(Long uid) {
         this.uid = uid;
-    }
-
-    public Long getQuestion_time() {
-        return question_time;
-    }
-
-    public void setQuestion_time(Long question_time) {
-        this.question_time = question_time;
     }
 
     public String getQuestion() {
@@ -56,4 +49,19 @@ public class Question{
         this.anonymous = anonymous;
     }
 
+    public Long getGmt_create() {
+        return gmt_create;
+    }
+
+    public void setGmt_create(Long gmt_create) {
+        this.gmt_create = gmt_create;
+    }
+
+    public Long getGmt_modify() {
+        return gmt_modify;
+    }
+
+    public void setGmt_modify(Long gmt_modify) {
+        this.gmt_modify = gmt_modify;
+    }
 }

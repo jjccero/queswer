@@ -2,13 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.gzu.queswer.dao.QuestionDao">
     <select id="selectQuestionByQid" resultType="com.gzu.queswer.model.Question">
-        SELECT qid,question,detail,uid,question_time,anonymous
+        SELECT qid,question,detail,uid,gmt_create,gmt_modify,anonymous
         FROM t_question
         WHERE qid = #{qid};
     </select>
     <insert id="insertQuestion" useGeneratedKeys="true" keyProperty="qid">
-        INSERT INTO t_question (question_time, question, detail, uid, anonymous)
-        VALUES (#{question_time}, #{question}, #{detail}, #{uid}, #{anonymous});
+        INSERT INTO t_question (gmt_create, question, detail, uid, anonymous)
+        VALUES (#{gmt_create}, #{question}, #{detail}, #{uid}, #{anonymous});
     </insert>
     <select id="selectFollowCount" resultType="Integer">
         SELECT COUNT(*)

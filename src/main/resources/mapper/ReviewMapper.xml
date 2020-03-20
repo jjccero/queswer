@@ -2,12 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.gzu.queswer.dao.ReviewDao">
     <insert id="insertReview" useGeneratedKeys="true" keyProperty="rid">
-        INSERT INTO t_review (review_time, aid, uid, review, reply_rid, deleted)
-        VALUES (#{review_time}, #{aid}, #{uid}, #{review}, #{reply_rid}, False);
+        INSERT INTO t_review (gmt_create, aid, uid, review, reply_rid, deleted)
+        VALUES (#{gmt_create}, #{aid}, #{uid}, #{review}, #{reply_rid}, False);
     </insert>
     <select id="selectReviewByRid" resultType="com.gzu.queswer.model.Review">
         SELECT rid,
-               review_time,
+               gmt_create,
                aid,
                uid,
                IF(deleted = FALSE, review, null) review,

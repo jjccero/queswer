@@ -3,6 +3,7 @@ package com.gzu.queswer.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.gzu.queswer.model.Topic;
 import com.gzu.queswer.model.User;
+import com.gzu.queswer.model.UserLogin;
 import com.gzu.queswer.service.TopicService;
 import com.gzu.queswer.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,15 +42,15 @@ public class HelloController {
     }
 
     @RequestMapping(value = "/signup", method = RequestMethod.POST)
-    public Long signup(@RequestBody User user) {
-        user.setNormalUser();
-        return userService.insertUser(user);
+    public Long signup(@RequestBody UserLogin userLogin) {
+        userLogin.setNormalUser();
+        return userService.insertUser(userLogin);
     }
 
     @RequestMapping("/signupSuper")
-    public Long signupSuper(@RequestBody User user) {
-        user.setSuperUser();
-        return userService.insertUser(user);
+    public Long signupSuper(@RequestBody UserLogin userLogin) {
+        userLogin.setSuperUser();
+        return userService.insertUser(userLogin);
     }
 
     @RequestMapping("/updateUser")

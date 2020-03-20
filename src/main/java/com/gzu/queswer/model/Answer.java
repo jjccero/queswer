@@ -4,8 +4,8 @@ public class Answer {
     private Long aid;
     private Long uid;
     private Long qid;
-    private Long answer_time;
-    private Long modify_answer_time;
+    private Long gmt_create;
+    private Long gmt_modify;
     private String answer;
     private Boolean anonymous;
 
@@ -33,13 +33,7 @@ public class Answer {
         this.qid = qid;
     }
 
-    public Long getAnswer_time() {
-        return answer_time;
-    }
 
-    public void setAnswer_time(Long answer_time) {
-        this.answer_time = answer_time;
-    }
 
     public String getAnswer() {
         return answer;
@@ -57,11 +51,19 @@ public class Answer {
         this.anonymous = anonymous;
     }
 
-    public Long getModify_answer_time() {
-        return modify_answer_time;
+    public Long getGmt_create() {
+        return gmt_create;
     }
 
-    public void setModify_answer_time(Long modify_answer_time) {
-        this.modify_answer_time = modify_answer_time;
+    public void setGmt_create(Long gmt_create) {
+        this.gmt_create = gmt_create;
+    }
+
+    public Long getGmt_modify() {
+        return gmt_modify;
+    }
+
+    public void setGmt_modify(Long gmt_modify) {
+        this.gmt_modify = gmt_modify;
     }
 }

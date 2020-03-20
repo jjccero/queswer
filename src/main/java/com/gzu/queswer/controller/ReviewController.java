@@ -17,7 +17,7 @@ public class ReviewController {
 
     @RequestMapping("insertReview")
     public Long insertReview(@RequestBody Review review) {
-        review.setReview_time(DateUtil.getUnixTime());
+        review.setGmt_create(DateUtil.getUnixTime());
         return reviewService.insertReview(review);
     }
 

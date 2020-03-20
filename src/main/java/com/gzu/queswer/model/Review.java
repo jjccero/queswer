@@ -3,11 +3,19 @@ package com.gzu.queswer.model;
 public class Review {
     private Long rid;
     private Long reply_rid;
-    private Long review_time;
+    private Long gmt_create;
     private Long aid;
     private String review;
     private Boolean deleted;
     private Long uid;
+
+    public Long getGmt_create() {
+        return gmt_create;
+    }
+
+    public void setGmt_create(Long gmt_create) {
+        this.gmt_create = gmt_create;
+    }
 
     public Long getUid() {
         return uid;
@@ -31,14 +39,6 @@ public class Review {
 
     public void setReply_rid(Long reply_rid) {
         this.reply_rid = reply_rid;
-    }
-
-    public Long getReview_time() {
-        return review_time;
-    }
-
-    public void setReview_time(Long review_time) {
-        this.review_time = review_time;
     }
 
     public Long getAid() {

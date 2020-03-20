@@ -4,6 +4,8 @@ import com.gzu.queswer.dao.UserDao;
 import com.gzu.queswer.dao.daoImpl.UserInfoDao;
 import com.gzu.queswer.model.User;
 import com.gzu.queswer.model.UserInfo;
+import com.gzu.queswer.model.UserLogin;
+import com.gzu.queswer.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,20 +19,22 @@ public class UserService {
     private UserDao userDao;
     @Autowired
     private UserInfoDao userInfoDao;
-    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    final static PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     public User login(String username, String password) {
-        User user = userDao.selectUserByUsername(username);
-        if (user == null) return null;
-        String _password = user.getPassword();
-        user.setPassword(null);
-        return passwordEncoder.matches(password, _password) ? user : null;
+        User user=null;
+        UserLogin userLogin=userDao.selectUserLoginByUsername(username);
+        if (userLogin != null&&passwordEncoder.matches(password,userLogin.getPassword())) {
+            user= userDao.selectUserByUid(userLogin.getUid());
+        }
+        return user;
     }
 
-    public Long insertUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userDao.insertUser(user);
-        return user.getUid();
+    public Long insertUser(UserLogin userLogin) {
+        userLogin.setGmt_create(DateUtil.getUnixTime());
+        userLogin.setPassword(passwordEncoder.encode(userLogin.getPassword()));
+        userDao.insertUser(userLogin);
+        return userLogin.getUid();
     }
 
     public Integer updateUser(User user) {
@@ -53,31 +57,4 @@ public class UserService {
         return userInfoDao.getUserInfo(uid);
     }
 
-//    public void setUserInfo(JSONObject jsonObject, Long uid) {
-//        if (jsonObject == null) return;
-//        UserInfo userInfo;
-//        Boolean anonymous = jsonObject.getBoolean("anonymous");
-//        Long uid2=jsonObject.getLong("uid");
-//        if (anonymous && !uid.equals(uid2)) {
-//            userInfo = new UserInfo();
-//            userInfo.setNickname("匿名用户");
-//            userInfo.setUid(null);
-//            userInfo.setIntro(null);
-//            jsonObject.put("uid",null);
-//        } else {
-//            userInfo = userInfoDao.getUserInfo(uid2);
-//            if (userInfo == null) {
-//                userInfo = userDao.selectUserInfoByUid(uid2);
-//                userInfoDao.setUserInfo(userInfo);
-//            }
-//        }
-//        userInfo.setAnonymous(anonymous);
-//        jsonObject.put("userInfo",userInfo);
-//    }
-//
-//    public void setUserInfo(JSONArray jsonArray, Long uid) {
-//        for(Object jsonObject:jsonArray){
-//            setUserInfo((JSONObject) jsonObject,uid);
-//        }
-//    }
 }

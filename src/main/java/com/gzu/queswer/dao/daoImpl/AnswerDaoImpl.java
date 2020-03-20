@@ -107,7 +107,7 @@ public class AnswerDaoImpl extends RedisDao {
                 if (old_answer.getUid().equals(answer.getUid())) {
                     old_answer.setAnonymous(answer.getAnonymous());
                     old_answer.setAnswer(answer.getAnswer());
-                    old_answer.setModify_answer_time(answer.getModify_answer_time());
+                    old_answer.setGmt_modify(answer.getGmt_modify());
                     jedis.set(aid_key, JSON.toJSONString(old_answer), setParams_30m);
                     answerDao.updateAnswer(old_answer);
                     res = true;

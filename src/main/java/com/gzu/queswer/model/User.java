@@ -2,13 +2,12 @@ package com.gzu.queswer.model;
 
 public class User {
     private Long uid;
-    private Long signup_time;
-    private String username;
-    private String password;
+    private Long gmt_create;
     private Short authority;
     private String nickname;
     private Short sex;
     private Boolean avater;
+    private String intro;
 
     public String getIntro() {
         return intro;
@@ -18,9 +17,6 @@ public class User {
         this.intro = intro;
     }
 
-    private String intro;
-    public final static Short superUser = new Short((short) 1);
-    public final static Short normalUser = new Short((short) 0);
 
     public Long getUid() {
         return uid;
@@ -28,34 +24,6 @@ public class User {
 
     public void setUid(Long uid) {
         this.uid = uid;
-    }
-
-    public Long getSignup_time() {
-        return signup_time;
-    }
-
-    public void setSignup_time(Long signup_time) {
-        this.signup_time = signup_time;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Short getAuthority() {
-        return authority;
     }
 
     public void setAuthority(Short authority) {
@@ -78,12 +46,16 @@ public class User {
         this.sex = sex;
     }
 
-    public void setSuperUser() {
-        setAuthority(superUser);
+    public Long getGmt_create() {
+        return gmt_create;
     }
 
-    public void setNormalUser() {
-        setAuthority(normalUser);
+    public void setGmt_create(Long gmt_create) {
+        this.gmt_create = gmt_create;
+    }
+
+    public Short getAuthority() {
+        return authority;
     }
 
     public Boolean getAvater() {
@@ -93,4 +65,6 @@ public class User {
     public void setAvater(Boolean avater) {
         this.avater = avater;
     }
+
+
 }

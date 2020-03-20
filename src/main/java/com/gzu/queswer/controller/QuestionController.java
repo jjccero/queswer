@@ -29,7 +29,7 @@ public class QuestionController {
     @RequestMapping(value = "insertQuestion", method = RequestMethod.POST)
     public Long insertQuestion(@RequestBody Question question) {
         question.setQid(null);
-        question.setQuestion_time(DateUtil.getUnixTime());
+        question.setGmt_create(DateUtil.getUnixTime());
         return questionService.insertQuestion(question);
     }
 

@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.gzu.queswer.dao.UserDao">
-    <select id="selectUserByUsername" resultType="com.gzu.queswer.model.User">
-        SELECT uid,signup_time,username,password,authority,nickname,sex,intro,avater
+    <select id="selectUserByUid" resultType="com.gzu.queswer.model.User">
+        SELECT uid,gmt_create,username,authority,nickname,sex,intro,avater
+        FROM t_user
+        WHERE uid=#{uid};
+    </select>
+    <select id="selectUserLoginByUsername" resultType="com.gzu.queswer.model.UserLogin">
+        SELECT uid,password
         FROM t_user
         WHERE username = #{username};
     </select>
@@ -12,13 +17,14 @@
         WHERE uid = #{uid};
     </select>
     <insert id="insertUser" useGeneratedKeys="true" keyProperty="uid">
-        INSERT INTO t_user(signup_time, username, password, authority, nickname, sex,intro)
-        VALUES (#{signup_time}, #{username}, #{password}, #{authority}, #{nickname}, #{sex},#{intro})
+        INSERT INTO t_user(gmt_create, username, password, authority)
+        VALUES (#{gmt_create}, #{username}, #{password}, #{authority});
     </insert>
-    <update id="updateUser">
+    <update id="updateUserByUid">
         UPDATE t_user
         SET nickname=#{nickname},
-            sex=#{sex}
+            sex=#{sex},
+            intro=#{intro}
         WHERE uid = #{uid};
     </update>
     <insert id="insertSupport">

@@ -19,7 +19,7 @@ public class AnswerController {
 
     @RequestMapping(value = "insertAnswer", method = RequestMethod.POST)
     public Long insertAnswer(@RequestBody Answer answer) {
-        answer.setAnswer_time(DateUtil.getUnixTime());
+        answer.setGmt_create(DateUtil.getUnixTime());
         answer.setAid(null);
         if(answer.getAnonymous()==null) answer.setAnonymous(false);
         return answerService.insertAnswer(answer);
@@ -27,7 +27,7 @@ public class AnswerController {
 
     @RequestMapping(value = "updateAnswer", method = RequestMethod.POST)
     public boolean updateAnswer(@RequestBody Answer answer) {
-        answer.setModify_answer_time(DateUtil.getUnixTime());
+        answer.setGmt_modify(DateUtil.getUnixTime());
         if(answer.getAnonymous()==null) answer.setAnonymous(false);
         return answerService.updateAnswer(answer);
     }
