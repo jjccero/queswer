@@ -1,21 +1,15 @@
 package com.gzu.queswer.model;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
     private Long uid;
+    private String nickname;
+    private String intro;
+    private Boolean avater;
     private Long gmt_create;
     private Short authority;
-    private String nickname;
     private Short sex;
-    private Boolean avater;
-    private String intro;
-
-    public String getIntro() {
-        return intro;
-    }
-
-    public void setIntro(String intro) {
-        this.intro = intro;
-    }
 
 
     public Long getUid() {
@@ -26,10 +20,6 @@ public class User {
         this.uid = uid;
     }
 
-    public void setAuthority(Short authority) {
-        this.authority = authority;
-    }
-
     public String getNickname() {
         return nickname;
     }
@@ -38,12 +28,20 @@ public class User {
         this.nickname = nickname;
     }
 
-    public Short getSex() {
-        return sex;
+    public String getIntro() {
+        return intro;
     }
 
-    public void setSex(Short sex) {
-        this.sex = sex;
+    public void setIntro(String intro) {
+        this.intro = intro;
+    }
+
+    public Boolean getAvater() {
+        return avater;
+    }
+
+    public void setAvater(Boolean avater) {
+        this.avater = avater;
     }
 
     public Long getGmt_create() {
@@ -58,12 +56,16 @@ public class User {
         return authority;
     }
 
-    public Boolean getAvater() {
-        return avater;
+    public void setAuthority(Short authority) {
+        this.authority = authority;
     }
 
-    public void setAvater(Boolean avater) {
-        this.avater = avater;
+    public Short getSex() {
+        return sex;
+    }
+
+    public void setSex(Short sex) {
+        this.sex = sex;
     }
 
 

@@ -2,11 +2,11 @@ package com.gzu.queswer.model.info;
 
 import com.gzu.queswer.model.Question;
 import com.gzu.queswer.model.Topic;
-import com.gzu.queswer.model.UserInfoApi;
+import com.gzu.queswer.model.UserApi;
 
 import java.util.List;
 
-public class QuestionInfo extends UserInfoApi {
+public class QuestionInfo extends UserApi {
     private Question question;
     private Double viewCount;
     private Long followCount;

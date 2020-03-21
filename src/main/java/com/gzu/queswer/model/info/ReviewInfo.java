@@ -1,9 +1,9 @@
 package com.gzu.queswer.model.info;
 
 import com.gzu.queswer.model.Review;
-import com.gzu.queswer.model.UserInfoApi;
+import com.gzu.queswer.model.UserApi;
 
-public class ReviewInfo extends UserInfoApi {
+public class ReviewInfo extends UserApi {
     private Review review;
     private Boolean questioned;
     private Boolean answered;

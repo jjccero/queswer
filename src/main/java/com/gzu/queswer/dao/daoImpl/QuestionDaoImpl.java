@@ -86,7 +86,7 @@ public class QuestionDaoImpl extends RedisDao {
         Jedis jedis = null;
         try {
             jedis = getJedis();
-            qids = jedis.zrevrangeByScore(TOP_LIST_KEY,Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, offset,count);
+            qids = jedis.zrevrangeByScore(TOP_LIST_KEY, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, offset, count);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -107,6 +107,7 @@ public class QuestionDaoImpl extends RedisDao {
     private long getFollowCount(String qid_f_key, Jedis jedis) {
         return jedis.scard(qid_f_key);
     }
+
     private long getAnswerCount(String qid_a_key, Jedis jedis) {
         return jedis.zcard(qid_a_key);
     }
@@ -120,7 +121,7 @@ public class QuestionDaoImpl extends RedisDao {
         Jedis jedis = null;
         try {
             jedis = getJedis();
-            Set<String> aid_set = jedis.zrevrangeByScore(qid.toString()+":a", Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 0, 1);
+            Set<String> aid_set = jedis.zrevrangeByScore(qid.toString() + ":a", Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 0, 1);
             Iterator<String> iterator = aid_set.iterator();
             if (iterator.hasNext()) {
                 aid = Long.parseLong(aid_set.iterator().next());
@@ -134,7 +135,7 @@ public class QuestionDaoImpl extends RedisDao {
         return aid;
     }
 
-    public QuestionInfo getQuestionInfo(Long qid, Long uid) {
+    public QuestionInfo getQuestionInfo(Long qid, Long uid, boolean view) {
         QuestionInfo questionInfo = null;
         Jedis jedis = null;
         try {
@@ -142,14 +143,14 @@ public class QuestionDaoImpl extends RedisDao {
             String qid_key = getKey(qid, jedis);
             if (qid_key != null) {
                 questionInfo = new QuestionInfo();
-                jedis.zincrby(TOP_LIST_KEY, 1.0, qid_key);
+                if (view) jedis.zincrby(TOP_LIST_KEY, 1.0, qid_key);
                 Question question = getQuestion(qid_key, jedis);
                 questionInfo.setQuestion(question);
                 String qid_f_key = qid_key + ":f";
                 questionInfo.setFollowCount(getFollowCount(qid_f_key, jedis));
                 questionInfo.setViewCount(getViewCount(qid_key, jedis));
                 questionInfo.setQuestioned(question.getUid().equals(uid));
-                questionInfo.setAnswerCount(getAnswerCount(qid_key+":a",jedis));
+                questionInfo.setAnswerCount(getAnswerCount(qid_key + ":a", jedis));
                 if (uid != null) {
                     questionInfo.setFollowed(getFollowed(qid_f_key, uid.toString(), jedis));
                 }

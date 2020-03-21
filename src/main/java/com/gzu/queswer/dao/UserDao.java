@@ -1,7 +1,6 @@
 package com.gzu.queswer.dao;
 
 import com.gzu.queswer.model.User;
-import com.gzu.queswer.model.UserInfo;
 import com.gzu.queswer.model.UserLogin;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -21,9 +20,7 @@ public interface UserDao {
 
     List selectSupportersByUid(@Param("support_uid") Long support_uid);
 
-    UserInfo selectUserInfoByUid(@Param("uid") Long uid);
+    User selectUserByUid(@Param("uid") Long uid);
 
     UserLogin selectUserLoginByUsername(String username);
-
-    User selectUserByUid(Long uid);
 }

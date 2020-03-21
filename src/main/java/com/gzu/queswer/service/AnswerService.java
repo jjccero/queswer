@@ -3,7 +3,7 @@ package com.gzu.queswer.service;
 import com.gzu.queswer.dao.daoImpl.AnswerDaoImpl;
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Attitude;
-import com.gzu.queswer.model.UserInfo;
+import com.gzu.queswer.model.info.UserInfo;
 import com.gzu.queswer.model.info.AnswerInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

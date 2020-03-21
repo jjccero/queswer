@@ -2,7 +2,7 @@ package com.gzu.queswer.service;
 
 import com.gzu.queswer.dao.daoImpl.QuestionDaoImpl;
 import com.gzu.queswer.model.Question;
-import com.gzu.queswer.model.UserInfo;
+import com.gzu.queswer.model.info.UserInfo;
 import com.gzu.queswer.model.info.QuestionInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,8 +27,8 @@ public class QuestionService {
         return question.getQid();
     }
 
-    public QuestionInfo getQuestionInfo(Long qid, Long aid, Long uid, boolean user_answer) {
-        QuestionInfo questionInfo = questionDaoImpl.getQuestionInfo(qid, uid);
+    public QuestionInfo getQuestionInfo(Long qid, Long aid, Long uid, boolean user_answer,boolean view) {
+        QuestionInfo questionInfo = questionDaoImpl.getQuestionInfo(qid, uid,view);
         questionInfo.setTopics(topicService.selectQuestionTopics(qid));
         Long user_aid = null;
         if (uid != null && user_answer) {
@@ -46,7 +46,7 @@ public class QuestionService {
         for (String qid_key : qid_keys) {
             Long qid = Long.parseLong(qid_key);
             Long aid = questionDaoImpl.getTopAid(qid);
-            QuestionInfo questionInfo = getQuestionInfo(qid, aid, uid, false);
+            QuestionInfo questionInfo = getQuestionInfo(qid, aid, uid, false,false);
             questionInfos.add(questionInfo);
         }
         return questionInfos;

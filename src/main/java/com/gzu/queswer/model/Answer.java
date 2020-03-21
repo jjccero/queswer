@@ -33,8 +33,6 @@ public class Answer {
         this.qid = qid;
     }
 
-
-
     public String getAnswer() {
         return answer;
     }

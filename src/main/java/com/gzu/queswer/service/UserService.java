@@ -3,8 +3,8 @@ package com.gzu.queswer.service;
 import com.gzu.queswer.dao.UserDao;
 import com.gzu.queswer.dao.daoImpl.UserInfoDao;
 import com.gzu.queswer.model.User;
-import com.gzu.queswer.model.UserInfo;
 import com.gzu.queswer.model.UserLogin;
+import com.gzu.queswer.model.info.UserInfo;
 import com.gzu.queswer.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -40,7 +40,6 @@ public class UserService {
     public Integer updateUser(User user) {
         return userDao.updateUser(user);
     }
-
     public Integer insertSupport(Long uid, Long support_uid) {
         return userDao.insertSupport(uid, support_uid);
     }

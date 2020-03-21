@@ -1,8 +1,10 @@
 package com.gzu.queswer.model;
 
+import com.gzu.queswer.model.info.UserInfo;
+
 import java.io.Serializable;
 
-public class UserInfoApi implements Serializable {
+public class UserApi implements Serializable {
     private UserInfo userInfo;
 
     public UserInfo getUserInfo() {

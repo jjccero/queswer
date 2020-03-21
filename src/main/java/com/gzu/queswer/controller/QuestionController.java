@@ -40,7 +40,7 @@ public class QuestionController {
 
     @RequestMapping("getQuestion")
     public QuestionInfo getQuestion(Long qid, Long aid, Long uid) {
-        return questionService.getQuestionInfo(qid, aid, uid, true);
+        return questionService.getQuestionInfo(qid, aid, uid, true,true);
     }
 
     @RequestMapping("insertFollow")

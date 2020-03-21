@@ -1,9 +1,9 @@
 package com.gzu.queswer.model.info;
 
 import com.gzu.queswer.model.Answer;
-import com.gzu.queswer.model.UserInfoApi;
+import com.gzu.queswer.model.UserApi;
 
-public class AnswerInfo extends UserInfoApi {
+public class AnswerInfo extends UserApi {
     private Answer answer;
     private Boolean attituded;
     private Long agree;
