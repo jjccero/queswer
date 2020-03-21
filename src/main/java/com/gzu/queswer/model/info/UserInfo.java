@@ -5,7 +5,6 @@ import com.gzu.queswer.model.User;
 public class UserInfo {
     public final static UserInfo defaultUserInfo;
     private User user;
-
     static {
         User defaultUser = new User();
         defaultUser.setNickname("匿名用户");

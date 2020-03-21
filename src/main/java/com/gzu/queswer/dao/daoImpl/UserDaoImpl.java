@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import redis.clients.jedis.Jedis;
 
 @Repository
-public class UserInfoDao extends RedisDao {
+public class UserDaoImpl extends RedisDao {
 
     public UserInfo getUserInfo(Long uid) {
         Jedis jedis = null;
@@ -40,13 +40,12 @@ public class UserInfoDao extends RedisDao {
     @Override
     public String getKey(Long uid, Jedis jedis) {
         String uid_key = uid.toString();
-        if (jedis.expire(uid_key, second_60s) == 0L) {
+        if (jedis.expire(uid_key, second_30m) == 0L) {
             User user = userdao.selectUserByUid(uid);
             jedis.set(uid_key, user != null ? JSON.toJSONString(user) : "", setParams_30m);
         }
         return jedis.strlen(uid_key) == 0L ? null : uid_key;
     }
-
 
     @Override
     public Jedis getJedis() {

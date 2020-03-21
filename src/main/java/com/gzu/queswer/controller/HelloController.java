@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.gzu.queswer.model.Topic;
 import com.gzu.queswer.model.User;
 import com.gzu.queswer.model.UserLogin;
+import com.gzu.queswer.model.info.UserInfo;
 import com.gzu.queswer.service.TopicService;
 import com.gzu.queswer.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +64,10 @@ public class HelloController {
         return userService.selectSupportersByUid(support_uid);
     }
 
-
+    @RequestMapping(value = "selectUserInfo")
+    public UserInfo selectUserInfo(Long people_uid,Long uid){
+        return userService.getUserInfo(people_uid);
+    }
     @Autowired
     TopicService topicService;
 

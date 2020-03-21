@@ -1,7 +1,7 @@
 package com.gzu.queswer.service;
 
 import com.gzu.queswer.dao.UserDao;
-import com.gzu.queswer.dao.daoImpl.UserInfoDao;
+import com.gzu.queswer.dao.daoImpl.UserDaoImpl;
 import com.gzu.queswer.model.User;
 import com.gzu.queswer.model.UserLogin;
 import com.gzu.queswer.model.info.UserInfo;
@@ -18,7 +18,7 @@ public class UserService {
     @Autowired
     private UserDao userDao;
     @Autowired
-    private UserInfoDao userInfoDao;
+    private UserDaoImpl userDaoImpl;
 
     final static PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     public User login(String username, String password) {
@@ -36,7 +36,6 @@ public class UserService {
         userDao.insertUser(userLogin);
         return userLogin.getUid();
     }
-
     public Integer updateUser(User user) {
         return userDao.updateUser(user);
     }
@@ -53,7 +52,7 @@ public class UserService {
     }
 
     public UserInfo getUserInfo(Long uid) {
-        return userInfoDao.getUserInfo(uid);
+        return userDaoImpl.getUserInfo(uid);
     }
 
 }
