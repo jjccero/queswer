@@ -27,7 +27,7 @@ public class QuestionService {
         return question.getQid();
     }
 
-    public QuestionInfo getQuestionInfo(Long qid, Long aid, Long uid, boolean user_answer,boolean view) {
+    public QuestionInfo selectQuestionInfo(Long qid, Long aid, Long uid, boolean user_answer, boolean view) {
         QuestionInfo questionInfo = questionDaoImpl.getQuestionInfo(qid, uid,view);
         questionInfo.setTopics(topicService.selectQuestionTopics(qid));
         Long user_aid = null;
@@ -39,14 +39,20 @@ public class QuestionService {
         setUserInfo(questionInfo, uid);
         return questionInfo;
     }
-
+    public QuestionInfo selectQuestionInfo(Long qid, Long uid) {
+        QuestionInfo questionInfo = questionDaoImpl.getQuestionInfo(qid, uid,false);
+        questionInfo.setTopics(topicService.selectQuestionTopics(qid));
+        questionInfo.setDefaultAnswer(answerService.getAnswerInfo(questionDaoImpl.getTopAid(qid), uid));
+        setUserInfo(questionInfo, uid);
+        return questionInfo;
+    }
     public List selectQuestions(int offset, int count, Long uid) {
         Set<String> qid_keys = questionDaoImpl.getQids(offset, count);
         List<QuestionInfo> questionInfos = new ArrayList<>();
         for (String qid_key : qid_keys) {
             Long qid = Long.parseLong(qid_key);
             Long aid = questionDaoImpl.getTopAid(qid);
-            QuestionInfo questionInfo = getQuestionInfo(qid, aid, uid, false,false);
+            QuestionInfo questionInfo = selectQuestionInfo(qid, aid, uid, false,false);
             questionInfos.add(questionInfo);
         }
         return questionInfos;

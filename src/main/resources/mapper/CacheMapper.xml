@@ -5,4 +5,8 @@
         SELECT aid
         from t_answer
     </select>
+    <select id="selectQuestionIndexs" resultType="com.gzu.queswer.model.QuestionIndex">
+        SELECT qid,question
+        FROM t_question
+    </select>
 </mapper>
