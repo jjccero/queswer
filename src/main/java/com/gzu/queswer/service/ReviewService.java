@@ -68,7 +68,7 @@ public class ReviewService {
             userInfo = UserInfo.defaultUserInfo;
             review.setUid(null);
         } else {
-            userInfo = userService.getUserInfo(review.getUid());
+            userInfo = userService.selectUserInfo(review.getUid(),uid);
             userInfo.setAnonymous(anonymous);
         }
         reviewInfo.setUserInfo(userInfo);

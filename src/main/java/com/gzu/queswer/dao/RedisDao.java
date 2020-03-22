@@ -15,6 +15,7 @@ public class RedisDao {
     final protected static int t_question=2;
     final protected static int t_review=3;
     final protected static int t_question_index=4;
+    final protected static int t_user_index=5;
     static {
         setParams_60s = new SetParams();
         setParams_60s.ex(second_60s);

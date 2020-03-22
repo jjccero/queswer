@@ -2,59 +2,82 @@ package com.gzu.queswer.dao.daoImpl;
 
 import com.gzu.queswer.dao.CacheDao;
 import com.gzu.queswer.dao.RedisDao;
-import com.gzu.queswer.model.QuestionIndex;
+import com.gzu.queswer.model.StringIndex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.ScanParams;
+import redis.clients.jedis.ScanResult;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Repository
 public class CacheDaoImpl extends RedisDao {
     @Autowired
     CacheDao cacheDao;
-    public void createIndex(){
+    public boolean createIndex(){
+        boolean res=false;
         Jedis jedis = null;
         try {
-            jedis = getJedis();
+            jedis = getJedis(t_question_index);
             jedis.flushDB();
-            List<QuestionIndex> questionIndices=cacheDao.selectQuestionIndexs();
-            for(QuestionIndex questionIndex:questionIndices){
-                jedis.sadd(questionIndex.getQuestion(),questionIndex.getQid().toString());
+            List<StringIndex> indexs=cacheDao.selectQuestionIndexs();
+            for(StringIndex stringIndex :indexs){
+                jedis.sadd(stringIndex.getK().toLowerCase(), stringIndex.getV().toString());
             }
+            jedis.select(t_user_index);
+            jedis.flushDB();
+            indexs=cacheDao.selectUserIndexs();
+            for(StringIndex stringIndex :indexs){
+                jedis.sadd(stringIndex.getK().toLowerCase(), stringIndex.getV().toString());
+            }
+            res=true;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             if (jedis != null)
                 jedis.close();
         }
+        return res;
     }
     public List<Long> selectQidsByQuestion(String question){
-        List<Long> qids=new ArrayList<>();
+        return selectIndex(question,t_question_index);
+    }
+    public List<Long> selectIndex(String k,int database){
+        List<Long> ids=new ArrayList<>();
         Jedis jedis = null;
         try {
-            jedis = getJedis();
-            Set<String> questionIndexKeys= jedis.keys("*"+question+"*");
-            for(String questionIndexKey:questionIndexKeys){
-                Set<String> qidKeys=jedis.smembers(questionIndexKey);
-                for(String qidKey:qidKeys){
-                    qids.add(Long.parseLong(qidKey));
+            jedis = getJedis(database);
+            String cursor= ScanParams.SCAN_POINTER_START;
+            String match="*"+k.toLowerCase()+"*";
+            ScanParams scanParams=new ScanParams();
+            scanParams.match(match);
+            scanParams.count(100);
+            do{
+                ScanResult<String> scanResult=jedis.scan(cursor,scanParams);
+                cursor=scanResult.getCursor();
+                List<String> indexKeys=scanResult.getResult();
+                for(String indexKey:indexKeys){
+                    Set<String> keys=jedis.smembers(indexKey);
+                    for(String key:keys){
+                        ids.add(Long.parseLong(key));
+                    }
                 }
-            }
+            }while (!cursor.equals(ScanParams.SCAN_POINTER_START));
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             if (jedis != null)
                 jedis.close();
         }
-        return qids;
+        return ids;
     }
-    @Override
-    public Jedis getJedis() {
+    public List<Long> selectUserInfosByNickname(String nickname){
+        return selectIndex(nickname,t_user_index);
+    }
+    public Jedis getJedis(int database) {
         Jedis jedis = super.getJedis();
-        jedis.select(t_question_index);
+        jedis.select(database);
         return jedis;
     }
 }

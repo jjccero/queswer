@@ -13,7 +13,7 @@ import redis.clients.jedis.Jedis;
 @Repository
 public class UserDaoImpl extends RedisDao {
 
-    public UserInfo getUserInfo(Long uid) {
+    public UserInfo selectUserInfo(Long uid,Long user_uid) {
         Jedis jedis = null;
         UserInfo userInfo = new UserInfo();
         try {

@@ -22,18 +22,4 @@
             intro=#{intro}
         WHERE uid = #{uid};
     </update>
-    <insert id="insertSupport">
-        INSERT INTO t_support
-        VALUES (#{uid}, #{support_uid});
-    </insert>
-    <select id="selectSupportsByUid" resultType="Long">
-        SELECT support_uid uid
-        FROM t_support
-        WHERE uid = #{uid};
-    </select>
-    <select id="selectSupportersByUid" resultType="Long">
-        SELECT uid
-        FROM t_support
-        WHERE support_uid = #{support_uid};
-    </select>
 </mapper>

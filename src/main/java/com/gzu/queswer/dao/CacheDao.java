@@ -8,4 +8,5 @@ import java.util.List;
 public interface CacheDao {
     List selectAids();
     List selectQuestionIndexs();
+    List selectUserIndexs();
 }

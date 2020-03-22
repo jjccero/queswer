@@ -28,7 +28,7 @@ public class QuestionService {
     }
 
     public QuestionInfo selectQuestionInfo(Long qid, Long aid, Long uid, boolean user_answer, boolean view) {
-        QuestionInfo questionInfo = questionDaoImpl.getQuestionInfo(qid, uid,view);
+        QuestionInfo questionInfo = questionDaoImpl.getQuestionInfo(qid, uid, view);
         questionInfo.setTopics(topicService.selectQuestionTopics(qid));
         Long user_aid = null;
         if (uid != null && user_answer) {
@@ -39,20 +39,23 @@ public class QuestionService {
         setUserInfo(questionInfo, uid);
         return questionInfo;
     }
+
     public QuestionInfo selectQuestionInfo(Long qid, Long uid) {
-        QuestionInfo questionInfo = questionDaoImpl.getQuestionInfo(qid, uid,false);
+        QuestionInfo questionInfo = questionDaoImpl.getQuestionInfo(qid, uid, false);
         questionInfo.setTopics(topicService.selectQuestionTopics(qid));
-        questionInfo.setDefaultAnswer(answerService.getAnswerInfo(questionDaoImpl.getTopAid(qid), uid));
+        Long aid = questionDaoImpl.getTopAid(qid);
+        if (aid != null) questionInfo.setDefaultAnswer(answerService.getAnswerInfo(aid, uid));
         setUserInfo(questionInfo, uid);
         return questionInfo;
     }
+
     public List selectQuestions(int offset, int count, Long uid) {
         Set<String> qid_keys = questionDaoImpl.getQids(offset, count);
         List<QuestionInfo> questionInfos = new ArrayList<>();
         for (String qid_key : qid_keys) {
             Long qid = Long.parseLong(qid_key);
             Long aid = questionDaoImpl.getTopAid(qid);
-            QuestionInfo questionInfo = selectQuestionInfo(qid, aid, uid, false,false);
+            QuestionInfo questionInfo = selectQuestionInfo(qid, aid, uid, false, false);
             questionInfos.add(questionInfo);
         }
         return questionInfos;
@@ -64,11 +67,11 @@ public class QuestionService {
     }
 
     public boolean insertFollow(Long qid, Long uid) {
-        return questionDaoImpl.insertFollow(qid, uid)==1;
+        return questionDaoImpl.insertFollow(qid, uid) == 1;
     }
 
     public boolean deleteFollow(Long qid, Long uid) {
-        return questionDaoImpl.deleteFollow(qid, uid)==1;
+        return questionDaoImpl.deleteFollow(qid, uid) == 1;
     }
 
     public List selectFollowsByUid(Long uid) {
@@ -84,7 +87,7 @@ public class QuestionService {
             userInfo = UserInfo.defaultUserInfo;
             question.setUid(null);
         } else {
-            userInfo = userService.getUserInfo(question.getUid());
+            userInfo = userService.selectUserInfo(question.getUid(),uid);
             userInfo.setAnonymous(anonymous);
         }
         questionInfo.setUserInfo(userInfo);

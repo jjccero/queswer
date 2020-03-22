@@ -60,14 +60,9 @@ public class HelloController {
         return userService.updateUser(user);
     }
 
-    @RequestMapping("/getFansList")
-    public List getFansList(Long support_uid) {
-        return userService.selectSupportersByUid(support_uid);
-    }
-
     @RequestMapping(value = "selectUserInfo")
     public UserInfo selectUserInfo(Long people_uid, Long uid) {
-        return userService.getUserInfo(people_uid);
+        return userService.selectUserInfo(people_uid, uid);
     }
 
     @Autowired
@@ -89,11 +84,16 @@ public class HelloController {
 
     @RequestMapping("createIndex")
     public boolean createIndex() {
-        cacheService.createIndex();
-        return true;
+        return cacheService.createIndex();
     }
-    @RequestMapping("selectQuestionInfosByQuestion")
-    public List selectQuestionInfosByQuestion(String question,Long uid){
+
+    @RequestMapping("searchQuestionInfos")
+    public List searchQuestionInfos(String question, Long uid) {
         return cacheService.selectQuestionInfosByQuestion(question, uid);
+    }
+
+    @RequestMapping("searchUserInfos")
+    public List searchUserInfos(String nickname, Long uid) {
+        return cacheService.selectUserInfosByNickname(nickname, uid);
     }
 }

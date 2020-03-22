@@ -11,8 +11,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class UserService {
     @Autowired
@@ -39,20 +37,9 @@ public class UserService {
     public Integer updateUser(User user) {
         return userDao.updateUser(user);
     }
-    public Integer insertSupport(Long uid, Long support_uid) {
-        return userDao.insertSupport(uid, support_uid);
-    }
 
-    public List selectSupportsByUid(Long uid) {
-        return userDao.selectSupportsByUid(uid);
-    }
-
-    public List selectSupportersByUid(Long support_uid) {
-        return userDao.selectSupportersByUid(support_uid);
-    }
-
-    public UserInfo getUserInfo(Long uid) {
-        return userDaoImpl.getUserInfo(uid);
+    public UserInfo selectUserInfo(Long uid, Long user_uid) {
+        return userDaoImpl.selectUserInfo(uid,user_uid);
     }
 
 }

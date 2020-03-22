@@ -67,7 +67,7 @@ public class AnswerService {
             userInfo = UserInfo.defaultUserInfo;
             answer.setUid(null);
         } else {
-            userInfo = userService.getUserInfo(answer.getUid());
+            userInfo = userService.selectUserInfo(answer.getUid(),uid);
             userInfo.setAnonymous(anonymous);
         }
         answerInfo.setUserInfo(userInfo);
