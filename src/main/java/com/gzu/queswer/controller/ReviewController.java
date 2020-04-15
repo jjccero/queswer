@@ -20,19 +20,19 @@ public class ReviewController {
     }
 
     @GetMapping("/deleteReview")
-    public boolean deleteReview(Long rid, Long uid) {
-        return reviewService.deleteReview(rid, uid);
+    public boolean deleteReview(Long rId, Long uId) {
+        return reviewService.deleteReview(rId, uId);
     }
 
     @GetMapping("/getReviews")
-    public List getReviews(Long aid, Long uid) {
-        return reviewService.getReviews(aid, uid);
+    public List getReviews(Long aId, Long uId) {
+        return reviewService.getReviews(aId, uId);
     }
 
     @GetMapping("/updateApprove")
-    public boolean updateApprove(Long rid, Long uid,Boolean approve){
-        if(rid==null||uid==null||approve==null) return false;
-        return reviewService.updateApprove(rid, uid,approve);
+    public boolean updateApprove(Long rId, Long uId,Boolean approve){
+        if(rId==null||uId==null||approve==null) return false;
+        return reviewService.updateApprove(rId, uId,approve);
     }
 
 }

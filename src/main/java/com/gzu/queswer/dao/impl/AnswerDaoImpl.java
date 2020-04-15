@@ -6,6 +6,7 @@ import com.gzu.queswer.dao.RedisDao;
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Attitude;
 import com.gzu.queswer.model.info.AnswerInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import redis.clients.jedis.Jedis;
@@ -16,24 +17,25 @@ import java.util.List;
 import java.util.Set;
 
 @Repository
+@Slf4j
 public class AnswerDaoImpl extends RedisDao {
     @Autowired
     private AnswerDao answerDao;
 
     public Long insertAnswer(Answer answer) {
         answerDao.insertAnswer(answer);
-        Long aid = answer.getAnsId();
-        if (aid != null) {
+        Long aId = answer.getaId();
+        if (aId != null) {
             try (Jedis jedis = getJedis()) {
-                String aid_key = aid.toString();
-                jedis.set(aid_key, JSON.toJSONString(answer), setParams_30m);
+                String aidKey = aId.toString();
+                jedis.set(aidKey, JSON.toJSONString(answer), setParams_30m);
                 jedis.select(t_question);
-                jedis.zadd(answer.getqId().toString() + ":a", 0.0, aid_key);
+                jedis.zadd(answer.getqId().toString() + ":a", 0.0, aidKey);
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error(e.getMessage());
             }
         }
-        return aid;
+        return aId;
     }
 
     public List selectRidsByAid(Long aid) {
@@ -48,7 +50,7 @@ public class AnswerDaoImpl extends RedisDao {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         }
         return rids;
     }
@@ -76,7 +78,7 @@ public class AnswerDaoImpl extends RedisDao {
                 res = true;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         }
         return res;
     }
@@ -86,7 +88,7 @@ public class AnswerDaoImpl extends RedisDao {
         Jedis jedis = null;
         try {
             jedis = getJedis();
-            String aid_key = getKey(answer.getAnsId(), jedis);
+            String aid_key = getKey(answer.getaId(), jedis);
             if (aid_key != null) {
                 Answer old_answer = getAnswer(aid_key, jedis);
                 if (old_answer.getuId().equals(answer.getuId())) {
@@ -99,7 +101,7 @@ public class AnswerDaoImpl extends RedisDao {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         } finally {
             if (jedis != null)
                 jedis.close();
@@ -129,7 +131,7 @@ public class AnswerDaoImpl extends RedisDao {
                 res = true;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         } finally {
             if (jedis != null)
                 jedis.close();
@@ -139,9 +141,7 @@ public class AnswerDaoImpl extends RedisDao {
 
     public boolean deleteAttitude(Long aid, Long uid) {
         boolean res = false;
-        Jedis jedis = null;
-        try {
-            jedis = getJedis();
+        try (Jedis jedis = getJedis()) {
             String aid_key = getKey(aid, jedis);
             if (aid_key != null) {
                 String aid1 = aid_key + ":1";
@@ -152,10 +152,7 @@ public class AnswerDaoImpl extends RedisDao {
                 res = true;
             }
         } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (jedis != null)
-                jedis.close();
+            log.error(e.getMessage());
         }
         return res;
     }
@@ -170,7 +167,7 @@ public class AnswerDaoImpl extends RedisDao {
                 answer = getAnswer(aid_key, jedis);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         } finally {
             if (jedis != null)
                 jedis.close();
@@ -205,7 +202,7 @@ public class AnswerDaoImpl extends RedisDao {
                 answerInfo.setAttituded(attituded);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         } finally {
             if (jedis != null)
                 jedis.close();

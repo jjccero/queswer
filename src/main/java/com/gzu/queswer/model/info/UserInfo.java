@@ -2,7 +2,9 @@ package com.gzu.queswer.model.info;
 
 import com.gzu.queswer.model.User;
 
-public class UserInfo {
+import java.io.Serializable;
+
+public class UserInfo implements Serializable {
 
     private User user;
     private Boolean anonymous;

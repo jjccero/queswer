@@ -48,8 +48,8 @@ public class HelloController {
     }
 
     @GetMapping(value = "/selectUserInfo")
-    public UserInfo selectUserInfo(Long people_uid, Long uid) {
-        return userService.selectUserInfo(people_uid, uid);
+    public UserInfo selectUserInfo(Long peopleUId, Long uId) {
+        return userService.selectUserInfo(peopleUId, uId);
     }
 
     @Autowired
@@ -75,12 +75,12 @@ public class HelloController {
     }
 
     @GetMapping("/searchQuestionInfos")
-    public List searchQuestionInfos(String question, Long uid) {
-        return cacheService.selectQuestionInfosByQuestion(question, uid);
+    public List searchQuestionInfos(String title, Long uId) {
+        return cacheService.selectQuestionInfosByQuestion(title, uId);
     }
 
     @GetMapping("/searchUserInfos")
-    public List searchUserInfos(String nickname, Long uid) {
-        return cacheService.selectUserInfosByNickname(nickname, uid);
+    public List searchUserInfos(String nickname, Long uId) {
+        return cacheService.selectUserInfosByNickname(nickname, uId);
     }
 }

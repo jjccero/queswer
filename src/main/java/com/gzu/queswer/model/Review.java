@@ -1,6 +1,8 @@
 package com.gzu.queswer.model;
 
-public class Review {
+import java.io.Serializable;
+
+public class Review implements Serializable {
     private Long rId;
     private Long replyRId;
     private Long gmtCreate;

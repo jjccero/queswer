@@ -7,12 +7,12 @@
         WHERE username = #{username};
     </select>
     <select id="selectUserByUid" resultType="com.gzu.queswer.model.User">
-        SELECT uId,gmtCreate,username,authority,nickname,sex,intro,avater
+        SELECT u_id,gmt_create,username,authority,nickname,sex,intro,avater
         FROM t_user
-        WHERE uId=#{uId};
+        WHERE u_id=#{uId};
     </select>
     <insert id="insertUser" useGeneratedKeys="true" keyProperty="uId">
-        INSERT INTO t_user(gmtCreate, username, password, authority)
+        INSERT INTO t_user(gmt_create, username, password, authority)
         VALUES (#{gmtCreate}, #{username}, #{password}, #{authority});
     </insert>
     <update id="updateUserByUid">
@@ -20,6 +20,6 @@
         SET nickname=#{nickname},
             sex=#{sex},
             intro=#{intro}
-        WHERE uId = #{uId};
+        WHERE u_id = #{uId};
     </update>
 </mapper>

@@ -2,27 +2,27 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.gzu.queswer.dao.ReviewDao">
     <insert id="insertReview" useGeneratedKeys="true" keyProperty="rId">
-        INSERT INTO t_review (gmtCreate, ansId, uId, review, replyRId, deleted)
-        VALUES (#{gmtCreate}, #{ansId}, #{uId}, #{review}, #{replyRId}, False);
+        INSERT INTO t_review (gmtCreate, aId, uId, review, replyRId, deleted)
+        VALUES (#{gmtCreate}, #{aId}, #{uId}, #{review}, #{replyRId}, False);
     </insert>
     <select id="selectReviewByRid" resultType="com.gzu.queswer.model.Review">
-        SELECT rId,
-               gmtCreate,
-               ansId,
-               uId,
-               IF(deleted = FALSE, review, null) review,
-               replyRId,
+        SELECT r_id,
+               gmt_Create,
+               a_id,
+               u_id,
+               IF(deleted = FALSE, revi, null) revi,
+               reply_r_id,
                deleted
-        FROM t_review WHERE rId=#{rId};
+        FROM t_review WHERE r_id=#{rId};
     </select>
     <delete id="deleteReviewByRid">
         UPDATE t_review
         SET deleted=1
-        WHERE rId = #{rId};
+        WHERE r_id = #{rId};
     </delete>
     <select id="selectRidsByAid" resultType="Long">
-        SELECT rId
+        SELECT r_id
         FROM t_review
-        WHERE ansId = #{ansId};
+        WHERE a_id = #{aId};
     </select>
 </mapper>

@@ -1,6 +1,8 @@
 package com.gzu.queswer.model;
 
-public class Topic {
+import java.io.Serializable;
+
+public class Topic implements Serializable {
     private Long tId;
     private String topicName;
 

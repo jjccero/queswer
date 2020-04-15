@@ -1,6 +1,8 @@
 package com.gzu.queswer.model;
 
-public class Attitude {
+import java.io.Serializable;
+
+public class Attitude implements Serializable {
     private Long aId;
     private Long uId;
     private Boolean atti;

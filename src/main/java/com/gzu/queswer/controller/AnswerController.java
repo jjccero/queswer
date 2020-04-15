@@ -17,7 +17,7 @@ public class AnswerController {
     @PostMapping(value = "/insertAnswer")
     public Long insertAnswer(@RequestBody Answer answer) {
         answer.setGmtCreate(DateUtil.getUnixTime());
-        answer.setAnsId(null);
+        answer.setaId(null);
         if (answer.getAnonymous() == null) answer.setAnonymous(false);
         return answerService.insertAnswer(answer);
     }
@@ -30,8 +30,8 @@ public class AnswerController {
     }
 
     @GetMapping("/deleteAnswer")
-    public boolean deleteAnswer(Long aid, Long uid) {
-        return answerService.deleteAnswer(aid, uid);
+    public boolean deleteAnswer(Long aId, Long uId) {
+        return answerService.deleteAnswer(aId, uId);
     }
 
     @PostMapping("/updateAttitude")
@@ -40,13 +40,13 @@ public class AnswerController {
     }
 
     @GetMapping("/deleteAttitude")
-    public boolean deleteAttitude(long aid, long uid) {
-        return answerService.deleteAttitude(aid, uid);
+    public boolean deleteAttitude(long aId, long uId) {
+        return answerService.deleteAttitude(aId, uId);
     }
 
 
     @GetMapping("/getAnswers")
-    public List getAnswers(Long qid, Long uid) {
-        return answerService.getAnswers(qid, uid);
+    public List getAnswers(Long qId, Long uId) {
+        return answerService.getAnswers(qId, uId);
     }
 }

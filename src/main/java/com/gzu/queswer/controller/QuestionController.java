@@ -31,23 +31,23 @@ public class QuestionController {
     }
 
     @GetMapping(value = "/getQuestions")
-    public List getQuestions(int offset, int count, Long uid) {
-        return questionService.selectQuestions(offset, count, uid);
+    public List getQuestions(int offset, int count, Long uId) {
+        return questionService.selectQuestions(offset, count, uId);
     }
 
     @GetMapping("/getQuestion")
-    public QuestionInfo getQuestion(Long qid, Long aid, Long uid) {
-        return questionService.selectQuestionInfo(qid, aid, uid, true,true);
+    public QuestionInfo getQuestion(Long qId, Long aId, Long uId) {
+        return questionService.selectQuestionInfo(qId, aId, uId, true, true);
     }
 
     @GetMapping("/insertFollow")
-    public boolean insertFollow(Long qid, Long uid) {
-        return questionService.insertFollow(qid, uid);
+    public boolean insertFollow(Long qId, Long uId) {
+        return questionService.insertFollow(qId, uId);
     }
 
     @GetMapping("/deleteFollow")
-    public boolean deleteFollow(Long qid, Long uid) {
-        return questionService.deleteFollow(qid, uid);
+    public boolean deleteFollow(Long qId, Long uId) {
+        return questionService.deleteFollow(qId, uId);
     }
 
 

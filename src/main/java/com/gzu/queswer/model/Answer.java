@@ -1,7 +1,9 @@
 package com.gzu.queswer.model;
 
-public class Answer {
-    private Long ansId;
+import java.io.Serializable;
+
+public class Answer implements Serializable {
+    private Long aId;
     private Long uId;
     private Long qId;
     private Long gmtCreate;
@@ -9,12 +11,12 @@ public class Answer {
     private String ans;
     private Boolean anonymous;
 
-    public Long getAnsId() {
-        return ansId;
+    public Long getaId() {
+        return aId;
     }
 
-    public void setAnsId(Long ansId) {
-        this.ansId = ansId;
+    public void setaId(Long aId) {
+        this.aId = aId;
     }
 
     public Long getuId() {

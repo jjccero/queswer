@@ -2,15 +2,15 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.gzu.queswer.dao.CacheDao">
     <select id="selectAids" resultType="Long">
-        SELECT ansId
+        SELECT a_id
         from t_answer
     </select>
     <select id="selectQuestionIndexs" resultType="com.gzu.queswer.model.StringIndex">
-        SELECT qId v,title k
+        SELECT q_id v,title k
         FROM t_question
     </select>
     <select id="selectUserIndexs" resultType="com.gzu.queswer.model.StringIndex">
-        SELECT uId v,nickname k
+        SELECT u_id v,nickname k
         FROM t_user
     </select>
 </mapper>
