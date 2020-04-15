@@ -2,38 +2,38 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.gzu.queswer.dao.QuestionDao">
     <select id="selectQuestionByQid" resultType="com.gzu.queswer.model.Question">
-        SELECT qid,question,detail,uid,gmt_create,gmt_modify,anonymous
+        SELECT qId,title,detail,uId,gmtCreate,gmtModify,anonymous
         FROM t_question
-        WHERE qid = #{qid};
+        WHERE qId = #{qId};
     </select>
-    <insert id="insertQuestion" useGeneratedKeys="true" keyProperty="qid">
-        INSERT INTO t_question (gmt_create, question, detail, uid, anonymous)
-        VALUES (#{gmt_create}, #{question}, #{detail}, #{uid}, #{anonymous});
+    <insert id="insertQuestion" useGeneratedKeys="true" keyProperty="qId">
+        INSERT INTO t_question (gmtCreate, title, detail, uId, anonymous)
+        VALUES (#{gmtCreate}, #{title}, #{detail}, #{uId}, #{anonymous});
     </insert>
     <select id="selectFollowCount" resultType="Integer">
         SELECT COUNT(*)
         FROM t_follow
-        WHERE qid = #{qid};
+        WHERE qId = #{qId};
     </select>
     <insert id="insertFollow">
-        INSERT INTO t_follow (qid, uid)
-        VALUES (#{qid}, #{uid})
+        INSERT INTO t_follow (qId, uId)
+        VALUES (#{qId}, #{uId})
     </insert>
     <delete id="deleteFollow">
         DELETE
         FROM t_follow
-        WHERE qid = #{qid}
-          AND uid = #{uid};
+        WHERE qId = #{qId}
+          AND uId = #{uId};
     </delete>
     <select id="selectFollowsByUid" resultType="Long">
-        SELECT qid
+        SELECT qId
         FROM t_follow
-        WHERE uid = #{uid};
+        WHERE uId = #{uId};
     </select>
     <select id="selectAidByUid" resultType="Long">
-        SELECT aid
+        SELECT ansId
         FROM t_answer
-        WHERE qid = #{qid}
-          AND uid = #{uid};
+        WHERE qId = #{qId}
+          AND uId = #{uId};
     </select>
 </mapper>

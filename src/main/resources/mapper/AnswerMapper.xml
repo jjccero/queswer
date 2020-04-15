@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.gzu.queswer.dao.AnswerDao">
-    <insert id="insertAnswer" useGeneratedKeys="true" keyProperty="aid">
-        INSERT INTO t_answer (gmt_create, uid, qid, answer, anonymous)
-        VALUES (#{gmt_create}, #{uid}, #{qid}, #{answer}, #{anonymous})
+    <insert id="insertAnswer" useGeneratedKeys="true" keyProperty="ansId">
+        INSERT INTO t_answer (gmtCreate, uId, qId, ans, anonymous)
+        VALUES (#{gmtCreate}, #{uId}, #{qId}, #{ans}, #{anonymous})
     </insert>
     <update id="updateAnswer">
         UPDATE t_answer
-        SET answer=#{answer},
-            gmt_modify=#{gmt_modify},
+        SET ans=#{ans},
+            gmtModify=#{gmtModify},
             anonymous=#{anonymous}
-        WHERE aid = #{aid}
+        WHERE ansId = #{ansId}
     </update>
     <delete id="deleteAnswerByAid">
         DELETE
         FROM t_answer
-        WHERE aid = #{aid}
+        WHERE ansId = #{ansId}
     </delete>
     <select id="selectAnswerbyAid" resultType="com.gzu.queswer.model.Answer">
-        SELECT aid,qid,uid,answer,gmt_create,gmt_modify,anonymous
+        SELECT ansId,qId,uId,ans,gmtCreate,gmtModify,anonymous
         FROM t_answer
-        WHERE aid = #{aid}
+        WHERE ansId = #{ansId}
     </select>
 </mapper>

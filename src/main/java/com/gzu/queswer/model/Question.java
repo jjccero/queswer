@@ -1,36 +1,36 @@
 package com.gzu.queswer.model;
 
 public class Question {
-    private Long qid;
-    private Long uid;
-    private Long gmt_create;
-    private Long gmt_modify;
-    private String question;
+    private Long qId;
+    private Long uId;
+    private Long gmtCreate;
+    private Long gmtModify;
+    private String title;
     private String detail;
     private Boolean anonymous;
 
-    public Long getQid() {
-        return qid;
+    public Long getqId() {
+        return qId;
     }
 
-    public void setQid(Long qid) {
-        this.qid = qid;
+    public void setqId(Long qId) {
+        this.qId = qId;
     }
 
-    public Long getUid() {
-        return uid;
+    public Long getuId() {
+        return uId;
     }
 
-    public void setUid(Long uid) {
-        this.uid = uid;
+    public void setuId(Long uId) {
+        this.uId = uId;
     }
 
-    public String getQuestion() {
-        return question;
+    public String getTitle() {
+        return title;
     }
 
-    public void setQuestion(String question) {
-        this.question = question;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDetail() {
@@ -49,19 +49,19 @@ public class Question {
         this.anonymous = anonymous;
     }
 
-    public Long getGmt_create() {
-        return gmt_create;
+    public Long getGmtCreate() {
+        return gmtCreate;
     }
 
-    public void setGmt_create(Long gmt_create) {
-        this.gmt_create = gmt_create;
+    public void setGmtCreate(Long gmtCreate) {
+        this.gmtCreate = gmtCreate;
     }
 
-    public Long getGmt_modify() {
-        return gmt_modify;
+    public Long getGmtModify() {
+        return gmtModify;
     }
 
-    public void setGmt_modify(Long gmt_modify) {
-        this.gmt_modify = gmt_modify;
+    public void setGmtModify(Long gmtModify) {
+        this.gmtModify = gmtModify;
     }
 }

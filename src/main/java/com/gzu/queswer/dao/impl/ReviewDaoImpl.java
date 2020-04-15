@@ -1,4 +1,4 @@
-package com.gzu.queswer.dao.daoImpl;
+package com.gzu.queswer.dao.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.gzu.queswer.dao.RedisDao;
@@ -16,7 +16,7 @@ public class ReviewDaoImpl extends RedisDao {
 
     public Long insertReview(Review review) {
         reviewDao.insertReview(review);
-        Long rid = review.getRid();
+        Long rid = review.getrId();
         if (rid != null) {
             Jedis jedis = null;
             try {
@@ -24,7 +24,7 @@ public class ReviewDaoImpl extends RedisDao {
                 jedis = getJedis();
                 jedis.set(rid_key, JSON.toJSONString(review), setParams_30m);
                 jedis.select(t_answer);
-                jedis.zadd(review.getAid().toString() + ":r", 0.0, rid_key);
+                jedis.zadd(review.getaId().toString() + ":r", 0.0, rid_key);
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -44,7 +44,7 @@ public class ReviewDaoImpl extends RedisDao {
             String rid_key = getKey(rid, jedis);
             if (rid_key != null) {
                 Review review=getReview(rid_key,jedis);
-                if(review.getUid().equals(uid)){
+                if(review.getuId().equals(uid)){
                     review.setReview(null);
                     review.setDeleted(true);
                     jedis.set(rid_key,JSON.toJSONString(review),setParams_30m);

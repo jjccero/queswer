@@ -1,6 +1,6 @@
 package com.gzu.queswer.service;
 
-import com.gzu.queswer.dao.daoImpl.CacheDaoImpl;
+import com.gzu.queswer.dao.impl.CacheDaoImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

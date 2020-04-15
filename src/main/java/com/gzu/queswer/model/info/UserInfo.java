@@ -32,13 +32,13 @@ public class UserInfo {
         this.supportCount = supportCount;
     }
 
-    public final static UserInfo defaultUserInfo;
+    public static final UserInfo defaultUserInfo;
 
     static {
         User defaultUser = new User();
         defaultUser.setNickname("匿名用户");
         defaultUser.setIntro("猜猜我是谁");
-        defaultUser.setUid(null);
+        defaultUser.setuId(null);
         defaultUser.setAvater(null);
         defaultUserInfo = new UserInfo();
         defaultUserInfo.setUser(defaultUser);

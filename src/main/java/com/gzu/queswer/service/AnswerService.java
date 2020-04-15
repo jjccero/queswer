@@ -1,6 +1,6 @@
 package com.gzu.queswer.service;
 
-import com.gzu.queswer.dao.daoImpl.AnswerDaoImpl;
+import com.gzu.queswer.dao.impl.AnswerDaoImpl;
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Attitude;
 import com.gzu.queswer.model.info.UserInfo;
@@ -63,11 +63,11 @@ public class AnswerService {
         UserInfo userInfo;
         Answer answer = answerInfo.getAnswer();
         Boolean anonymous = answer.getAnonymous();
-        if (anonymous && !answer.getUid().equals(uid)) {
+        if (anonymous && !answer.getuId().equals(uid)) {
             userInfo = UserInfo.defaultUserInfo;
-            answer.setUid(null);
+            answer.setuId(null);
         } else {
-            userInfo = userService.selectUserInfo(answer.getUid(),uid);
+            userInfo = userService.selectUserInfo(answer.getuId(),uid);
             userInfo.setAnonymous(anonymous);
         }
         answerInfo.setUserInfo(userInfo);

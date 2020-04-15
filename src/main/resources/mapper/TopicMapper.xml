@@ -8,15 +8,15 @@
     <select id="selectTopicByTid" resultType="com.gzu.queswer.model.Topic">
         SELECT *
         FROM t_topic
-        WHERE tid = #{tid};
+        WHERE tId = #{tId};
     </select>
-    <insert id="insertTopic" useGeneratedKeys="true" keyProperty="tid">
-        INSERT INTO t_topic (topic_name)
-        VALUES (#{topic_name});
+    <insert id="insertTopic" useGeneratedKeys="true" keyProperty="tId">
+        INSERT INTO t_topic (topicName)
+        VALUES (#{topicName});
     </insert>
     <select id="selectQuestionTopics" resultType="Long">
-        SELECT tid
+        SELECT tId
         FROM t_question_topic
-        WHERE qid = #{qid};
+        WHERE qId = #{qId};
     </select>
 </mapper>

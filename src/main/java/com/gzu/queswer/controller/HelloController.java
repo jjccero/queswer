@@ -9,10 +9,7 @@ import com.gzu.queswer.service.CacheService;
 import com.gzu.queswer.service.TopicService;
 import com.gzu.queswer.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,46 +18,36 @@ public class HelloController {
     @Autowired
     private UserService userService;
 
-//    @RequestMapping("/img/{img}")
-//    public void getImg(@PathVariable("img")String imgPath, HttpServletResponse response){
-//        System.out.println(imgPath);
-//    }
-
-//    @RequestMapping("/")
-//    public String getPublicKey() {
-//        return SecurityUtil.getPublicKey();
-//    }
-
-    @RequestMapping(value = "/deleteCache")
+    @GetMapping(value = "/deleteCache")
     public int deleteCache() {
         return 1;
     }
 
-    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    @PostMapping(value = "/login")
     public User login(@RequestBody JSONObject loginForm) {
         String username = loginForm.getString("username");
         String password = loginForm.getString("password");
         return userService.login(username, password);
     }
 
-    @RequestMapping(value = "/signup", method = RequestMethod.POST)
+    @PostMapping(value = "/signup")
     public Long signup(@RequestBody UserLogin userLogin) {
         userLogin.setNormalUser();
         return userService.insertUser(userLogin);
     }
 
-    @RequestMapping("/signupSuper")
+    @PostMapping("/signupSuper")
     public Long signupSuper(@RequestBody UserLogin userLogin) {
         userLogin.setSuperUser();
         return userService.insertUser(userLogin);
     }
 
-    @RequestMapping("/updateUser")
+    @PostMapping("/updateUser")
     public Integer updateUser(@RequestBody User user) {
         return userService.updateUser(user);
     }
 
-    @RequestMapping(value = "selectUserInfo")
+    @GetMapping(value = "/selectUserInfo")
     public UserInfo selectUserInfo(Long people_uid, Long uid) {
         return userService.selectUserInfo(people_uid, uid);
     }
@@ -68,12 +55,12 @@ public class HelloController {
     @Autowired
     TopicService topicService;
 
-    @RequestMapping("getTopicList")
+    @GetMapping("/getTopicList")
     public List getTopicList() {
         return topicService.selectTopics();
     }
 
-    @RequestMapping("addTopic")
+    @PostMapping("addTopic")
     public Long addTopic(@RequestBody Topic topic) {
         return topicService.insertTopic(topic);
     }
@@ -82,17 +69,17 @@ public class HelloController {
     @Autowired
     CacheService cacheService;
 
-    @RequestMapping("createIndex")
+    @GetMapping("/createIndex")
     public boolean createIndex() {
         return cacheService.createIndex();
     }
 
-    @RequestMapping("searchQuestionInfos")
+    @GetMapping("/searchQuestionInfos")
     public List searchQuestionInfos(String question, Long uid) {
         return cacheService.selectQuestionInfosByQuestion(question, uid);
     }
 
-    @RequestMapping("searchUserInfos")
+    @GetMapping("/searchUserInfos")
     public List searchUserInfos(String nickname, Long uid) {
         return cacheService.selectUserInfosByNickname(nickname, uid);
     }

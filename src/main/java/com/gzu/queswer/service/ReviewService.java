@@ -1,6 +1,6 @@
 package com.gzu.queswer.service;
 
-import com.gzu.queswer.dao.daoImpl.ReviewDaoImpl;
+import com.gzu.queswer.dao.impl.ReviewDaoImpl;
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Question;
 import com.gzu.queswer.model.Review;
@@ -35,15 +35,15 @@ public class ReviewService {
         List<Long> rids = answerService.selectRidsByAid(aid);
         List<ReviewInfo> reviewInfos = new ArrayList<>();
         Answer answer = answerService.selectAnswerByAid(aid);
-        Question question = questionService.selectQuestionByQid(answer.getQid());
-        Long answer_uid = answer.getUid();
-        Long question_uid = question.getUid();
+        Question question = questionService.selectQuestionByQid(answer.getqId());
+        Long answer_uid = answer.getuId();
+        Long question_uid = question.getuId();
         Boolean answerer_anonymous = answer.getAnonymous();
         Boolean questioner_anonymous = question.getAnonymous();
         for (Long rid : rids) {
             ReviewInfo reviewInfo = reviewDaoImpl.getReviewInfo(rid, uid);
             Review review = reviewInfo.getReview();
-            Long review_uid = review.getUid();
+            Long review_uid = review.getuId();
             reviewInfo.setAnonymous(false);
             if (question_uid.equals(review_uid)) {
                 reviewInfo.setQuestioned(true);
@@ -64,11 +64,11 @@ public class ReviewService {
         Review review = reviewInfo.getReview();
         UserInfo userInfo;
         Boolean anonymous = reviewInfo.getAnonymous();
-        if (anonymous && !review.getUid().equals(uid)) {
+        if (anonymous && !review.getuId().equals(uid)) {
             userInfo = UserInfo.defaultUserInfo;
-            review.setUid(null);
+            review.setuId(null);
         } else {
-            userInfo = userService.selectUserInfo(review.getUid(),uid);
+            userInfo = userService.selectUserInfo(review.getuId(),uid);
             userInfo.setAnonymous(anonymous);
         }
         reviewInfo.setUserInfo(userInfo);

@@ -3,21 +3,21 @@ package com.gzu.queswer.model;
 import java.io.Serializable;
 
 public class User implements Serializable {
-    private Long uid;
+    private Long uId;
     private String nickname;
     private String intro;
     private Boolean avater;
-    private Long gmt_create;
+    private Long gmtCreate;
     private Short authority;
     private Short sex;
 
 
-    public Long getUid() {
-        return uid;
+    public Long getuId() {
+        return uId;
     }
 
-    public void setUid(Long uid) {
-        this.uid = uid;
+    public void setuId(Long uId) {
+        this.uId = uId;
     }
 
     public String getNickname() {
@@ -44,12 +44,12 @@ public class User implements Serializable {
         this.avater = avater;
     }
 
-    public Long getGmt_create() {
-        return gmt_create;
+    public Long getGmtCreate() {
+        return gmtCreate;
     }
 
-    public void setGmt_create(Long gmt_create) {
-        this.gmt_create = gmt_create;
+    public void setGmtCreate(Long gmtCreate) {
+        this.gmtCreate = gmtCreate;
     }
 
     public Short getAuthority() {

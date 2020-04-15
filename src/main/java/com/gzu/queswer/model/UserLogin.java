@@ -1,18 +1,18 @@
 package com.gzu.queswer.model;
 
 public class UserLogin {
-    private Long uid;
+    private Long uId;
     private String username;
     private String password;
-    private Long gmt_create;
+    private Long gmtCreate;
     private Short authority;
 
-    public Long getUid() {
-        return uid;
+    public Long getuId() {
+        return uId;
     }
 
-    public void setUid(Long uid) {
-        this.uid = uid;
+    public void setuId(Long uId) {
+        this.uId = uId;
     }
 
     public String getPassword() {
@@ -31,30 +31,30 @@ public class UserLogin {
         this.username = username;
     }
 
-    public Long getGmt_create() {
-        return gmt_create;
+    public Long getGmtCreate() {
+        return gmtCreate;
     }
 
-    public void setGmt_create(Long gmt_create) {
-        this.gmt_create = gmt_create;
+    public void setGmtCreate(Long gmtCreate) {
+        this.gmtCreate = gmtCreate;
     }
 
     public Short getAuthority() {
         return authority;
     }
 
-    public void setAuthority(Short authority) {
+    private void setAuthority(Short authority) {
         this.authority = authority;
     }
 
     public void setSuperUser() {
-        setAuthority(superUser);
+        setAuthority(SUPER_USER);
     }
 
     public void setNormalUser() {
-        setAuthority(normalUser);
+        setAuthority(NORMAL_USER);
     }
 
-    public final static Short superUser = new Short((short) 1);
-    public final static Short normalUser = new Short((short) 0);
+    private static final Short SUPER_USER = (short) 1;
+    private static final Short NORMAL_USER = (short) 0;
 }

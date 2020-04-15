@@ -1,4 +1,4 @@
-package com.gzu.queswer.dao.daoImpl;
+package com.gzu.queswer.dao.impl;
 
 import com.gzu.queswer.dao.CacheDao;
 import com.gzu.queswer.dao.RedisDao;

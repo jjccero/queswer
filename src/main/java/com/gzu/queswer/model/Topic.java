@@ -1,22 +1,22 @@
 package com.gzu.queswer.model;
 
 public class Topic {
-    private Long tid;
-    private String topic_name;
+    private Long tId;
+    private String topicName;
 
-    public Long getTid() {
-        return tid;
+    public Long gettId() {
+        return tId;
     }
 
-    public void setTid(Long tid) {
-        this.tid = tid;
+    public void settId(Long tId) {
+        this.tId = tId;
     }
 
-    public String getTopic_name() {
-        return topic_name;
+    public String getTopicName() {
+        return topicName;
     }
 
-    public void setTopic_name(String topic_name) {
-        this.topic_name = topic_name;
+    public void setTopicName(String topicName) {
+        this.topicName = topicName;
     }
 }

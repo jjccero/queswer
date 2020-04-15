@@ -1,4 +1,4 @@
-package com.gzu.queswer.dao.daoImpl;
+package com.gzu.queswer.dao.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.gzu.queswer.dao.AnswerDao;
@@ -22,20 +22,15 @@ public class AnswerDaoImpl extends RedisDao {
 
     public Long insertAnswer(Answer answer) {
         answerDao.insertAnswer(answer);
-        Long aid = answer.getAid();
+        Long aid = answer.getAnsId();
         if (aid != null) {
-            Jedis jedis = null;
-            try {
-                jedis = getJedis();
+            try (Jedis jedis = getJedis()) {
                 String aid_key = aid.toString();
                 jedis.set(aid_key, JSON.toJSONString(answer), setParams_30m);
                 jedis.select(t_question);
-                jedis.zadd(answer.getQid().toString() + ":a", 0.0, aid_key);
+                jedis.zadd(answer.getqId().toString() + ":a", 0.0, aid_key);
             } catch (Exception e) {
                 e.printStackTrace();
-            } finally {
-                if (jedis != null)
-                    jedis.close();
             }
         }
         return aid;
@@ -43,9 +38,7 @@ public class AnswerDaoImpl extends RedisDao {
 
     public List selectRidsByAid(Long aid) {
         List<Long> rids = new ArrayList<>();
-        Jedis jedis = null;
-        try {
-            jedis = getJedis();
+        try (Jedis jedis = getJedis()) {
             String aid_key = getKey(aid, jedis);
             if (aid_key != null) {
                 String aid_r_key = aid_key + ":r";
@@ -56,26 +49,21 @@ public class AnswerDaoImpl extends RedisDao {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            if (jedis != null)
-                jedis.close();
         }
         return rids;
     }
 
     public boolean deleteAnswer(Long aid, Long uid) {
         boolean res = false;
-        Jedis jedis = null;
-        try {
-            jedis = getJedis();
+        try (Jedis jedis = getJedis()) {
             String aid_key = aid.toString();
             Answer answer = getAnswer(aid_key, jedis);
-            if (answer != null && answer.getUid().equals(uid)) {
+            if (answer != null && answer.getuId().equals(uid)) {
                 //删除回答 赞同表 反对表
                 jedis.del(aid_key, aid_key + ":1", aid_key + ":0");
                 jedis.select(t_question);
                 //从问题表里删除aid
-                res = jedis.zrem(answer.getQid().toString() + ":a", aid_key) == 1L;
+                res = jedis.zrem(answer.getqId().toString() + ":a", aid_key) == 1L;
                 answerDao.deleteAnswerByAid(aid);
                 String aid_r_key = aid_key + ":r";
                 Set<String> rid_keys = jedis.zrange(aid_r_key, 0, -1);
@@ -89,9 +77,6 @@ public class AnswerDaoImpl extends RedisDao {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            if (jedis != null)
-                jedis.close();
         }
         return res;
     }
@@ -101,13 +86,13 @@ public class AnswerDaoImpl extends RedisDao {
         Jedis jedis = null;
         try {
             jedis = getJedis();
-            String aid_key = getKey(answer.getAid(), jedis);
+            String aid_key = getKey(answer.getAnsId(), jedis);
             if (aid_key != null) {
                 Answer old_answer = getAnswer(aid_key, jedis);
-                if (old_answer.getUid().equals(answer.getUid())) {
+                if (old_answer.getuId().equals(answer.getuId())) {
                     old_answer.setAnonymous(answer.getAnonymous());
-                    old_answer.setAnswer(answer.getAnswer());
-                    old_answer.setGmt_modify(answer.getGmt_modify());
+                    old_answer.setAns(answer.getAns());
+                    old_answer.setGmtModify(answer.getGmtModify());
                     jedis.set(aid_key, JSON.toJSONString(old_answer), setParams_30m);
                     answerDao.updateAnswer(old_answer);
                     res = true;
@@ -127,13 +112,13 @@ public class AnswerDaoImpl extends RedisDao {
         Jedis jedis = null;
         try {
             jedis = getJedis();
-            String aid_key = getKey(attitude.getAid(), jedis);
+            String aid_key = getKey(attitude.getaId(), jedis);
             if (aid_key != null) {
                 Transaction transaction = jedis.multi();
                 String aid1 = aid_key + ":1";
                 String aid0 = aid_key + ":0";
-                String uid_field = attitude.getUid().toString();
-                if (attitude.getAttitude()) {
+                String uid_field = attitude.getuId().toString();
+                if (attitude.getAtti()) {
                     transaction.srem(aid0, uid_field);
                     transaction.sadd(aid1, uid_field);
                 } else {

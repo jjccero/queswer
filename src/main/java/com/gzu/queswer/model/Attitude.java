@@ -1,32 +1,32 @@
 package com.gzu.queswer.model;
 
 public class Attitude {
-    private Long aid;
-    private Long uid;
-    private Boolean attitude;
+    private Long aId;
+    private Long uId;
+    private Boolean atti;
 
-    public Long getAid() {
-        return aid;
+    public Long getaId() {
+        return aId;
     }
 
-    public void setAid(Long aid) {
-        this.aid = aid;
+    public void setaId(Long aId) {
+        this.aId = aId;
     }
 
-    public Long getUid() {
-        return uid;
+    public Long getuId() {
+        return uId;
     }
 
-    public void setUid(Long uid) {
-        this.uid = uid;
+    public void setuId(Long uId) {
+        this.uId = uId;
     }
 
-    public Boolean getAttitude() {
-        return attitude;
+    public Boolean getAtti() {
+        return atti;
     }
 
-    public void setAttitude(Boolean attitude) {
-        this.attitude = attitude;
+    public void setAtti(Boolean atti) {
+        this.atti = atti;
     }
 
 }

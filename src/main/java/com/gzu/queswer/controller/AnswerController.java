@@ -5,10 +5,7 @@ import com.gzu.queswer.model.Attitude;
 import com.gzu.queswer.service.AnswerService;
 import com.gzu.queswer.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -17,40 +14,39 @@ public class AnswerController {
     @Autowired
     private AnswerService answerService;
 
-    @RequestMapping(value = "insertAnswer", method = RequestMethod.POST)
+    @PostMapping(value = "/insertAnswer")
     public Long insertAnswer(@RequestBody Answer answer) {
-        answer.setGmt_create(DateUtil.getUnixTime());
-        answer.setAid(null);
-        if(answer.getAnonymous()==null) answer.setAnonymous(false);
+        answer.setGmtCreate(DateUtil.getUnixTime());
+        answer.setAnsId(null);
+        if (answer.getAnonymous() == null) answer.setAnonymous(false);
         return answerService.insertAnswer(answer);
     }
 
-    @RequestMapping(value = "updateAnswer", method = RequestMethod.POST)
+    @PostMapping(value = "/updateAnswer")
     public boolean updateAnswer(@RequestBody Answer answer) {
-        answer.setGmt_modify(DateUtil.getUnixTime());
-        if(answer.getAnonymous()==null) answer.setAnonymous(false);
+        answer.setGmtModify(DateUtil.getUnixTime());
+        if (answer.getAnonymous() == null) answer.setAnonymous(false);
         return answerService.updateAnswer(answer);
     }
 
-    @RequestMapping("deleteAnswer")
+    @GetMapping("/deleteAnswer")
     public boolean deleteAnswer(Long aid, Long uid) {
         return answerService.deleteAnswer(aid, uid);
     }
 
-    @RequestMapping("updateAttitude")
+    @PostMapping("/updateAttitude")
     public boolean updateAttitude(@RequestBody Attitude attitude) {
         return answerService.updateAttitude(attitude);
     }
 
-    @RequestMapping("/deleteAttitude")
+    @GetMapping("/deleteAttitude")
     public boolean deleteAttitude(long aid, long uid) {
         return answerService.deleteAttitude(aid, uid);
     }
 
 
-    @RequestMapping("getAnswers")
+    @GetMapping("/getAnswers")
     public List getAnswers(Long qid, Long uid) {
-        List list = answerService.getAnswers(qid,uid);
-        return list;
+        return answerService.getAnswers(qid, uid);
     }
 }

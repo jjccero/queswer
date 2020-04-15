@@ -1,4 +1,4 @@
-package com.gzu.queswer.dao.daoImpl;
+package com.gzu.queswer.dao.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.gzu.queswer.dao.QuestionDao;
@@ -65,11 +65,11 @@ public class QuestionDaoImpl extends RedisDao {
 
     public void insertQuestion(Question question) {
         questionDao.insertQuestion(question);
-        if (question.getQid() != null) {
+        if (question.getqId() != null) {
             Jedis jedis = null;
             try {
                 jedis = getJedis();
-                String qid_key = question.getQid().toString();
+                String qid_key = question.getqId().toString();
                 jedis.zadd(TOP_LIST_KEY, 0.0, qid_key);
                 jedis.set(qid_key, JSON.toJSONString(question), setParams_30m);
             } catch (Exception e) {
@@ -149,7 +149,7 @@ public class QuestionDaoImpl extends RedisDao {
                 String qid_f_key = qid_key + ":f";
                 questionInfo.setFollowCount(getFollowCount(qid_f_key, jedis));
                 questionInfo.setViewCount(getViewCount(qid_key, jedis));
-                questionInfo.setQuestioned(question.getUid().equals(uid));
+                questionInfo.setQuestioned(question.getuId().equals(uid));
                 questionInfo.setAnswerCount(getAnswerCount(qid_key + ":a", jedis));
                 if (uid != null) {
                     questionInfo.setFollowed(getFollowed(qid_f_key, uid.toString(), jedis));

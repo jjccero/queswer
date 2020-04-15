@@ -18,7 +18,7 @@ public class TopicService {
 
     public Long insertTopic(Topic topic) {
         topicDao.insertTopic(topic);
-        return topic.getTid();
+        return topic.gettId();
     }
 
     public Topic selectTopicByTid(Long tid) {

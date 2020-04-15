@@ -2,24 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.gzu.queswer.dao.UserDao">
     <select id="selectUserLoginByUsername" resultType="com.gzu.queswer.model.UserLogin">
-        SELECT uid,password
+        SELECT uId,password
         FROM t_user
         WHERE username = #{username};
     </select>
     <select id="selectUserByUid" resultType="com.gzu.queswer.model.User">
-        SELECT uid,gmt_create,username,authority,nickname,sex,intro,avater
+        SELECT uId,gmtCreate,username,authority,nickname,sex,intro,avater
         FROM t_user
-        WHERE uid=#{uid};
+        WHERE uId=#{uId};
     </select>
-    <insert id="insertUser" useGeneratedKeys="true" keyProperty="uid">
-        INSERT INTO t_user(gmt_create, username, password, authority)
-        VALUES (#{gmt_create}, #{username}, #{password}, #{authority});
+    <insert id="insertUser" useGeneratedKeys="true" keyProperty="uId">
+        INSERT INTO t_user(gmtCreate, username, password, authority)
+        VALUES (#{gmtCreate}, #{username}, #{password}, #{authority});
     </insert>
     <update id="updateUserByUid">
         UPDATE t_user
         SET nickname=#{nickname},
             sex=#{sex},
             intro=#{intro}
-        WHERE uid = #{uid};
+        WHERE uId = #{uId};
     </update>
 </mapper>

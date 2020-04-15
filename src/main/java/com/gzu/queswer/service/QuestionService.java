@@ -1,6 +1,6 @@
 package com.gzu.queswer.service;
 
-import com.gzu.queswer.dao.daoImpl.QuestionDaoImpl;
+import com.gzu.queswer.dao.impl.QuestionDaoImpl;
 import com.gzu.queswer.model.Question;
 import com.gzu.queswer.model.info.UserInfo;
 import com.gzu.queswer.model.info.QuestionInfo;
@@ -24,7 +24,7 @@ public class QuestionService {
 
     public Long insertQuestion(Question question) {
         questionDaoImpl.insertQuestion(question);
-        return question.getQid();
+        return question.getqId();
     }
 
     public QuestionInfo selectQuestionInfo(Long qid, Long aid, Long uid, boolean user_answer, boolean view) {
@@ -83,11 +83,11 @@ public class QuestionService {
         Question question = questionInfo.getQuestion();
         UserInfo userInfo;
         Boolean anonymous = question.getAnonymous();
-        if (anonymous && !question.getUid().equals(uid)) {
+        if (anonymous && !question.getuId().equals(uid)) {
             userInfo = UserInfo.defaultUserInfo;
-            question.setUid(null);
+            question.setuId(null);
         } else {
-            userInfo = userService.selectUserInfo(question.getUid(),uid);
+            userInfo = userService.selectUserInfo(question.getuId(),uid);
             userInfo.setAnonymous(anonymous);
         }
         questionInfo.setUserInfo(userInfo);

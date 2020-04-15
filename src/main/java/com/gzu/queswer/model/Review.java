@@ -1,60 +1,60 @@
 package com.gzu.queswer.model;
 
 public class Review {
-    private Long rid;
-    private Long reply_rid;
-    private Long gmt_create;
-    private Long aid;
-    private String review;
+    private Long rId;
+    private Long replyRId;
+    private Long gmtCreate;
+    private Long aId;
+    private String revi;
     private Boolean deleted;
-    private Long uid;
+    private Long uId;
 
-    public Long getGmt_create() {
-        return gmt_create;
+    public Long getGmtCreate() {
+        return gmtCreate;
     }
 
-    public void setGmt_create(Long gmt_create) {
-        this.gmt_create = gmt_create;
+    public void setGmtCreate(Long gmtCreate) {
+        this.gmtCreate = gmtCreate;
     }
 
-    public Long getUid() {
-        return uid;
+    public Long getuId() {
+        return uId;
     }
 
-    public void setUid(Long uid) {
-        this.uid = uid;
+    public void setuId(Long uId) {
+        this.uId = uId;
     }
 
-    public Long getRid() {
-        return rid;
+    public Long getrId() {
+        return rId;
     }
 
-    public void setRid(Long rid) {
-        this.rid = rid;
+    public void setrId(Long rId) {
+        this.rId = rId;
     }
 
-    public Long getReply_rid() {
-        return reply_rid;
+    public Long getReplyRId() {
+        return replyRId;
     }
 
-    public void setReply_rid(Long reply_rid) {
-        this.reply_rid = reply_rid;
+    public void setReplyRId(Long replyRId) {
+        this.replyRId = replyRId;
     }
 
-    public Long getAid() {
-        return aid;
+    public Long getaId() {
+        return aId;
     }
 
-    public void setAid(Long aid) {
-        this.aid = aid;
+    public void setaId(Long aId) {
+        this.aId = aId;
     }
 
     public String getReview() {
-        return review;
+        return revi;
     }
 
     public void setReview(String review) {
-        this.review = review;
+        this.revi = review;
     }
 
     public Boolean getDeleted() {

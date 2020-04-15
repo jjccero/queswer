@@ -1,44 +1,44 @@
 package com.gzu.queswer.model;
 
 public class Answer {
-    private Long aid;
-    private Long uid;
-    private Long qid;
-    private Long gmt_create;
-    private Long gmt_modify;
-    private String answer;
+    private Long ansId;
+    private Long uId;
+    private Long qId;
+    private Long gmtCreate;
+    private Long gmtModify;
+    private String ans;
     private Boolean anonymous;
 
-    public Long getAid() {
-        return aid;
+    public Long getAnsId() {
+        return ansId;
     }
 
-    public void setAid(Long aid) {
-        this.aid = aid;
+    public void setAnsId(Long ansId) {
+        this.ansId = ansId;
     }
 
-    public Long getUid() {
-        return uid;
+    public Long getuId() {
+        return uId;
     }
 
-    public void setUid(Long uid) {
-        this.uid = uid;
+    public void setuId(Long uId) {
+        this.uId = uId;
     }
 
-    public Long getQid() {
-        return qid;
+    public Long getqId() {
+        return qId;
     }
 
-    public void setQid(Long qid) {
-        this.qid = qid;
+    public void setqId(Long qId) {
+        this.qId = qId;
     }
 
-    public String getAnswer() {
-        return answer;
+    public String getAns() {
+        return ans;
     }
 
-    public void setAnswer(String answer) {
-        this.answer = answer;
+    public void setAns(String ans) {
+        this.ans = ans;
     }
 
     public Boolean getAnonymous() {
@@ -49,19 +49,19 @@ public class Answer {
         this.anonymous = anonymous;
     }
 
-    public Long getGmt_create() {
-        return gmt_create;
+    public Long getGmtCreate() {
+        return gmtCreate;
     }
 
-    public void setGmt_create(Long gmt_create) {
-        this.gmt_create = gmt_create;
+    public void setGmtCreate(Long gmtCreate) {
+        this.gmtCreate = gmtCreate;
     }
 
-    public Long getGmt_modify() {
-        return gmt_modify;
+    public Long getGmtModify() {
+        return gmtModify;
     }
 
-    public void setGmt_modify(Long gmt_modify) {
-        this.gmt_modify = gmt_modify;
+    public void setGmtModify(Long gmtModify) {
+        this.gmtModify = gmtModify;
     }
 }

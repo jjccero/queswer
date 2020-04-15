@@ -1,4 +1,4 @@
-package com.gzu.queswer.dao.daoImpl;
+package com.gzu.queswer.dao.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -14,19 +14,15 @@ import redis.clients.jedis.Jedis;
 public class UserDaoImpl extends RedisDao {
 
     public UserInfo selectUserInfo(Long uid,Long user_uid) {
-        Jedis jedis = null;
         UserInfo userInfo = new UserInfo();
-        try {
-            jedis = getJedis();
+        try (Jedis jedis = getJedis()) {
             String uid_key = getKey(uid, jedis);
             if (uid_key != null) {
-                userInfo.setUser(getUser(uid_key,jedis));
+                userInfo.setUser(getUser(uid_key, jedis));
             }
         } catch (Exception e) {
+
             e.printStackTrace();
-        } finally {
-            if (jedis != null)
-                jedis.close();
         }
         return userInfo;
     }

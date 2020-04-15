@@ -8,10 +8,7 @@ import com.gzu.queswer.service.TopicService;
 import com.gzu.queswer.service.UserService;
 import com.gzu.queswer.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,29 +23,29 @@ public class QuestionController {
     @Autowired
     AnswerService answerService;
 
-    @RequestMapping(value = "insertQuestion", method = RequestMethod.POST)
+    @PostMapping(value = "/insertQuestion")
     public Long insertQuestion(@RequestBody Question question) {
-        question.setQid(null);
-        question.setGmt_create(DateUtil.getUnixTime());
+        question.setqId(null);
+        question.setGmtCreate(DateUtil.getUnixTime());
         return questionService.insertQuestion(question);
     }
 
-    @RequestMapping(value = "getQuestions", method = RequestMethod.GET)
+    @GetMapping(value = "/getQuestions")
     public List getQuestions(int offset, int count, Long uid) {
         return questionService.selectQuestions(offset, count, uid);
     }
 
-    @RequestMapping("getQuestion")
+    @GetMapping("/getQuestion")
     public QuestionInfo getQuestion(Long qid, Long aid, Long uid) {
         return questionService.selectQuestionInfo(qid, aid, uid, true,true);
     }
 
-    @RequestMapping("insertFollow")
+    @GetMapping("/insertFollow")
     public boolean insertFollow(Long qid, Long uid) {
         return questionService.insertFollow(qid, uid);
     }
 
-    @RequestMapping("deleteFollow")
+    @GetMapping("/deleteFollow")
     public boolean deleteFollow(Long qid, Long uid) {
         return questionService.deleteFollow(qid, uid);
     }
