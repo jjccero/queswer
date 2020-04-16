@@ -93,7 +93,7 @@ public class QuestionService {
         questionInfo.setUserInfo(userInfo);
     }
 
-    public List selectAidsByQid(Long qid) {
+    public List<Long> selectAidsByQid(Long qid) {
         return questionDaoImpl.selectAidsByQid(qid);
     }
 

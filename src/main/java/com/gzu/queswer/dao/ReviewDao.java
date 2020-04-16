@@ -1,7 +1,6 @@
 package com.gzu.queswer.dao;
 
 import com.gzu.queswer.model.Review;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -11,9 +10,9 @@ public interface ReviewDao {
 
     void insertReview(Review review);
 
-    Integer deleteReviewByRid(@Param("rid") Long rid);
+    int deleteReviewByRid(Long rId);
 
-    List selectRidsByAid(@Param("aid") Long aid);
+    List selectRidsByAid(Long aId);
 
-    Review selectReviewByRid(Long rid);
+    Review selectReviewByRid(Long rId);
 }

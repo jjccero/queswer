@@ -19,13 +19,13 @@ public class CacheDaoImpl extends RedisDao {
         boolean res=false;
         Jedis jedis = null;
         try {
-            jedis = getJedis(t_question_index);
+            jedis = getJedis(T_QUESTION_INDEX);
             jedis.flushDB();
             List<StringIndex> indexs=cacheDao.selectQuestionIndexs();
             for(StringIndex stringIndex :indexs){
                 jedis.sadd(stringIndex.getK().toLowerCase(), stringIndex.getV().toString());
             }
-            jedis.select(t_user_index);
+            jedis.select(T_USER_INDEX);
             jedis.flushDB();
             indexs=cacheDao.selectUserIndexs();
             for(StringIndex stringIndex :indexs){
@@ -41,7 +41,7 @@ public class CacheDaoImpl extends RedisDao {
         return res;
     }
     public List<Long> selectQidsByQuestion(String question){
-        return selectIndex(question,t_question_index);
+        return selectIndex(question, T_QUESTION_INDEX);
     }
     public List<Long> selectIndex(String k,int database){
         List<Long> ids=new ArrayList<>();
@@ -73,7 +73,7 @@ public class CacheDaoImpl extends RedisDao {
         return ids;
     }
     public List<Long> selectUserInfosByNickname(String nickname){
-        return selectIndex(nickname,t_user_index);
+        return selectIndex(nickname, T_USER_INDEX);
     }
     public Jedis getJedis(int database) {
         Jedis jedis = super.getJedis();

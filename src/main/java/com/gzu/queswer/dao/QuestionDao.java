@@ -8,18 +8,18 @@ import java.util.List;
 
 @Repository
 public interface QuestionDao {
-    Question selectQuestionByQid(@Param("qid") Long qid);
+    Question selectQuestionByQid(@Param("qId") Long qId);
 
     void insertQuestion(Question question);
 
-    Integer selectFollowCount(@Param("qid") Long qid);
+    Integer selectFollowCount(@Param("qId") Long qId);
 
-    Integer insertFollow(@Param("qid") Long qid, @Param("uid") Long uid);
+    int insertFollow(@Param("qId") Long qId, @Param("uId") Long uId);
 
-    Integer deleteFollow(@Param("qid") Long qid, @Param("uid") Long uid);
+    int deleteFollow(@Param("qId") Long qId, @Param("uId") Long uId);
 
-    List selectFollowsByUid(@Param("uid") Long uid);
+    List selectFollowsByUid(@Param("uId") Long uId);
 
-    Long selectAidByUid(@Param("qid") Long qid, @Param("uid") Long uid);
+    Long selectAidByUid(@Param("qId") Long qId, @Param("uid") Long uId);
 
 }

@@ -28,8 +28,8 @@ public class AnswerDaoImpl extends RedisDao {
         if (aId != null) {
             try (Jedis jedis = getJedis()) {
                 String aidKey = aId.toString();
-                jedis.set(aidKey, JSON.toJSONString(answer), setParams_30m);
-                jedis.select(t_question);
+                jedis.set(aidKey, JSON.toJSONString(answer), SET_PARAMS_THIRTY_MINUTES);
+                jedis.select(DATABASE_QUESTION);
                 jedis.zadd(answer.getqId().toString() + ":a", 0.0, aidKey);
             } catch (Exception e) {
                 log.error(e.getMessage());
@@ -63,14 +63,14 @@ public class AnswerDaoImpl extends RedisDao {
             if (answer != null && answer.getuId().equals(uid)) {
                 //删除回答 赞同表 反对表
                 jedis.del(aid_key, aid_key + ":1", aid_key + ":0");
-                jedis.select(t_question);
+                jedis.select(DATABASE_QUESTION);
                 //从问题表里删除aid
                 res = jedis.zrem(answer.getqId().toString() + ":a", aid_key) == 1L;
                 answerDao.deleteAnswerByAid(aid);
                 String aid_r_key = aid_key + ":r";
                 Set<String> rid_keys = jedis.zrange(aid_r_key, 0, -1);
                 jedis.del(aid_r_key);
-                jedis.select(t_review);
+                jedis.select(DATABASE_REVIEW);
                 for (String rid_key : rid_keys) {
                     //删除评论以及赞
                     jedis.del(rid_key, rid_key + ":a");
@@ -95,7 +95,7 @@ public class AnswerDaoImpl extends RedisDao {
                     old_answer.setAnonymous(answer.getAnonymous());
                     old_answer.setAns(answer.getAns());
                     old_answer.setGmtModify(answer.getGmtModify());
-                    jedis.set(aid_key, JSON.toJSONString(old_answer), setParams_30m);
+                    jedis.set(aid_key, JSON.toJSONString(old_answer), SET_PARAMS_THIRTY_MINUTES);
                     answerDao.updateAnswer(old_answer);
                     res = true;
                 }
@@ -212,10 +212,10 @@ public class AnswerDaoImpl extends RedisDao {
 
     @Override
     public String getKey(Long aid, Jedis jedis) {
-        String aid_key = aid.toString();
-        if (jedis.expire(aid_key, second_30m) == 0L) {
+        String aid_key = PREFIX_ANSWER + aid.toString();
+        if (jedis.expire(aid_key, ONE_MINUTE) == 0L) {
             Answer answer = answerDao.selectAnswerbyAid(aid);
-            jedis.set(aid_key, answer != null ? JSON.toJSONString(answer) : "", setParams_30m);
+            jedis.set(aid_key, answer != null ? JSON.toJSONString(answer) : "", SET_PARAMS_ONE_MINUTE);
         }
         return jedis.strlen(aid_key) == 0L ? null : aid_key;
     }
@@ -223,7 +223,7 @@ public class AnswerDaoImpl extends RedisDao {
     @Override
     public Jedis getJedis() {
         Jedis jedis = super.getJedis();
-        jedis.select(t_answer);
+        jedis.select(DATABASE_ANSWER);
         return jedis;
     }
 

@@ -1,7 +1,6 @@
 package com.gzu.queswer.dao;
 
 import com.gzu.queswer.model.Topic;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,7 +11,7 @@ public interface TopicDao {
 
     List selectTopics();
 
-    Topic selectTopicByTid(@Param("tid") Long tid);
+    Topic selectTopicByTid(Long tId);
 
-    List selectQuestionTopics(@Param("qid") Long qid);
+    List selectQuestionTopics(Long qId);
 }

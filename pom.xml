@@ -55,6 +55,7 @@
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
+            <version>2.1.2</version>
         </dependency>
         <dependency>
             <groupId>cn.shuibo</groupId>
@@ -68,6 +69,11 @@
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 

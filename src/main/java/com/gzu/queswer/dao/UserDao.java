@@ -11,7 +11,7 @@ public interface UserDao {
 
     Integer updateUser(User user);
 
-    User selectUserByUid(Long uid);
+    User selectUserByUid(Long uId);
 
     UserLogin selectUserLoginByUsername(String username);
 }

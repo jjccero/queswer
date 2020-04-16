@@ -51,12 +51,12 @@ public class Review implements Serializable {
         this.aId = aId;
     }
 
-    public String getReview() {
+    public String getRevi() {
         return revi;
     }
 
-    public void setReview(String review) {
-        this.revi = review;
+    public void setRevi(String revi) {
+        this.revi = revi;
     }
 
     public Boolean getDeleted() {

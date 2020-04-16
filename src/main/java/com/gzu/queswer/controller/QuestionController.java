@@ -30,7 +30,7 @@ public class QuestionController {
         return questionService.insertQuestion(question);
     }
 
-    @GetMapping(value = "/getQuestions")
+    @GetMapping(value = "/queryQuestions")
     public List getQuestions(int offset, int count, Long uId) {
         return questionService.selectQuestions(offset, count, uId);
     }

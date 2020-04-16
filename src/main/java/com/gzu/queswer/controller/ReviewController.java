@@ -13,7 +13,7 @@ public class ReviewController {
     @Autowired
     private ReviewService reviewService;
 
-    @PostMapping("/insertReview")
+    @PostMapping("/saveReview")
     public Long insertReview(@RequestBody Review review) {
         review.setGmtCreate(DateUtil.getUnixTime());
         return reviewService.insertReview(review);
@@ -24,7 +24,7 @@ public class ReviewController {
         return reviewService.deleteReview(rId, uId);
     }
 
-    @GetMapping("/getReviews")
+    @GetMapping("/queryReviews")
     public List getReviews(Long aId, Long uId) {
         return reviewService.getReviews(aId, uId);
     }

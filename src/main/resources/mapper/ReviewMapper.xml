@@ -2,8 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.gzu.queswer.dao.ReviewDao">
     <insert id="insertReview" useGeneratedKeys="true" keyProperty="rId">
-        INSERT INTO t_review (gmtCreate, aId, uId, review, replyRId, deleted)
-        VALUES (#{gmtCreate}, #{aId}, #{uId}, #{review}, #{replyRId}, False);
+        INSERT INTO t_review (gmtCreate, aId, uId, revi, replyRId, deleted)
+        VALUES (#{gmtCreate}, #{aId}, #{uId}, #{revi}, #{replyRId}, False);
     </insert>
     <select id="selectReviewByRid" resultType="com.gzu.queswer.model.Review">
         SELECT r_id,

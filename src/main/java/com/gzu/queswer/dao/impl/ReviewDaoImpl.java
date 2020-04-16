@@ -5,14 +5,18 @@ import com.gzu.queswer.dao.RedisDao;
 import com.gzu.queswer.dao.ReviewDao;
 import com.gzu.queswer.model.Review;
 import com.gzu.queswer.model.info.ReviewInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import redis.clients.jedis.Jedis;
 
 @Repository
+@Slf4j
 public class ReviewDaoImpl extends RedisDao {
     @Autowired
     private ReviewDao reviewDao;
+    @Autowired
+    private AnswerDaoImpl answerDao;
 
     public Long insertReview(Review review) {
         reviewDao.insertReview(review);
@@ -20,13 +24,13 @@ public class ReviewDaoImpl extends RedisDao {
         if (rid != null) {
             Jedis jedis = null;
             try {
-                String rid_key=rid.toString();
+                String rIdKey = rid.toString();
                 jedis = getJedis();
-                jedis.set(rid_key, JSON.toJSONString(review), setParams_30m);
-                jedis.select(t_answer);
-                jedis.zadd(review.getaId().toString() + ":r", 0.0, rid_key);
+                jedis.set(rIdKey, JSON.toJSONString(review), SET_PARAMS_THIRTY_MINUTES);
+                jedis.select(DATABASE_ANSWER);
+                jedis.zadd(PREFIX_ANSWER + review.getaId().toString() + SUFFIX_REVIEWS, 0.0, rIdKey);
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error(e.getMessage());
             } finally {
                 if (jedis != null)
                     jedis.close();
@@ -38,91 +42,76 @@ public class ReviewDaoImpl extends RedisDao {
 
     public boolean deleteReviewByUid(Long rid, Long uid) {
         boolean res = false;
-        Jedis jedis = null;
-        try {
-            jedis = getJedis();
-            String rid_key = getKey(rid, jedis);
-            if (rid_key != null) {
-                Review review=getReview(rid_key,jedis);
-                if(review.getuId().equals(uid)){
-                    review.setReview(null);
+        try (Jedis jedis = getJedis()) {
+            String rIdKey = getKey(rid, jedis);
+            if (rIdKey != null) {
+                Review review = getReview(rIdKey, jedis);
+                if (review.getuId().equals(uid)) {
+                    review.setRevi(null);
                     review.setDeleted(true);
-                    jedis.set(rid_key,JSON.toJSONString(review),setParams_30m);
+                    jedis.set(rIdKey, JSON.toJSONString(review), SET_PARAMS_THIRTY_MINUTES);
                     reviewDao.deleteReviewByRid(rid);
                     res = true;
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (jedis != null)
-                jedis.close();
+            log.error(e.getMessage());
         }
         return res;
     }
 
     public boolean updateApprove(Long rid, Long uid, Boolean approve) {
         boolean res = false;
-        Jedis jedis = null;
-        try {
-            jedis = getJedis();
-            String rid_key = getKey(rid, jedis);
-            if (rid_key != null) {
-                if (approve) jedis.sadd(rid_key + ":a", uid.toString());
-                else jedis.srem(rid_key + ":a", uid.toString());
+        try (Jedis jedis = getJedis()) {
+            String rIdKey = getKey(rid, jedis);
+            if (rIdKey != null) {
+                if (Boolean.TRUE.equals(approve)) jedis.sadd(rIdKey + SUFFIX_APPROVES, uid.toString());
+                else jedis.srem(rIdKey + SUFFIX_APPROVES, uid.toString());
                 res = true;
             }
         } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (jedis != null)
-                jedis.close();
+            log.error(e.getMessage());
         }
         return res;
     }
 
     public ReviewInfo getReviewInfo(Long rid, Long uid) {
         ReviewInfo reviewInfo = new ReviewInfo();
-        Jedis jedis = null;
-        try {
-            jedis = getJedis();
-            String rid_key = getKey(rid, jedis);
-            if (rid_key != null) {
-                Review review = getReview(rid_key, jedis);
-                String rid_a_key = rid_key + ":a";
-                reviewInfo.setApproveCount(jedis.scard(rid_a_key));
+        try (Jedis jedis = getJedis()) {
+            String rIdKey = getKey(rid, jedis);
+            if (rIdKey != null) {
+                Review review = getReview(rIdKey, jedis);
+                String rIdAKey = rIdKey + SUFFIX_APPROVES;
+                reviewInfo.setApproveCount(jedis.scard(rIdAKey));
                 if (uid != null) {
-                    reviewInfo.setApproved(jedis.sismember(rid_a_key, uid.toString()));
+                    reviewInfo.setApproved(jedis.sismember(rIdAKey, uid.toString()));
                 }
                 reviewInfo.setReview(review);
             }
         } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (jedis != null)
-                jedis.close();
+            log.error(e.getMessage());
         }
         return reviewInfo;
     }
 
-    public Review getReview(String rid_key, Jedis jedis) {
-        return JSON.parseObject(jedis.get(rid_key), Review.class);
+    private Review getReview(String rIdKey, Jedis jedis) {
+        return JSON.parseObject(jedis.get(rIdKey), Review.class);
     }
 
     @Override
     public String getKey(Long rid, Jedis jedis) {
-        String rid_key = rid.toString();
-        if (jedis.expire(rid_key, second_30m) == 0L) {
+        String rIdKey = PREFIX_REVIEW + rid.toString();
+        if (jedis.expire(rIdKey, ONE_MINUTE) == 0L) {
             Review review = reviewDao.selectReviewByRid(rid);
-            jedis.set(rid_key, review != null ? JSON.toJSONString(review) : "", setParams_30m);
+            jedis.set(rIdKey, review != null ? JSON.toJSONString(review) : "", SET_PARAMS_ONE_MINUTE);
         }
-        return jedis.strlen(rid_key) == 0L ? null : rid_key;
+        return jedis.strlen(rIdKey) == 0L ? null : rIdKey;
     }
 
     @Override
     public Jedis getJedis() {
         Jedis jedis = super.getJedis();
-        jedis.select(t_review);
+        jedis.select(DATABASE_REVIEW);
         return jedis;
     }
 }
