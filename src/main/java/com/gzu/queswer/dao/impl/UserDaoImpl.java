@@ -44,11 +44,4 @@ public class UserDaoImpl extends RedisDao {
         return jedis.strlen(uIdKey) == 0L ? null : uIdKey;
     }
 
-    @Override
-    public Jedis getJedis() {
-        Jedis jedis = super.getJedis();
-        jedis.select(DATABASE_USER);
-        return jedis;
-    }
-
 }

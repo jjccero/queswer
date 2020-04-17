@@ -6,6 +6,7 @@ import com.gzu.queswer.model.Question;
 import com.gzu.queswer.model.Review;
 import com.gzu.queswer.model.info.UserInfo;
 import com.gzu.queswer.model.info.ReviewInfo;
+import com.gzu.queswer.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,9 @@ public class ReviewService {
     @Autowired
     QuestionService questionService;
 
-    public Long insertReview(Review review) {
+    public Long saveReview(Review review) {
+        review.setrId(null);
+        review.setGmtCreate(DateUtil.getUnixTime());
         return reviewDaoImpl.insertReview(review);
     }
 
@@ -31,28 +34,28 @@ public class ReviewService {
         return reviewDaoImpl.deleteReviewByUid(rid, uid);
     }
 
-    public List getReviews(Long aid, Long uid) {
-        List<Long> rids = answerService.selectRidsByAid(aid);
-        List<ReviewInfo> reviewInfos = new ArrayList<>();
+    public List<ReviewInfo> queryReviews(Long aid, Long uid) {
+        List<Long> rIds = answerService.selectRidsByAid(aid);
+        List<ReviewInfo> reviewInfos = new ArrayList<>(rIds.size());
         Answer answer = answerService.selectAnswerByAid(aid);
         Question question = questionService.selectQuestionByQid(answer.getqId());
-        Long answer_uid = answer.getuId();
-        Long question_uid = question.getuId();
-        Boolean answerer_anonymous = answer.getAnonymous();
-        Boolean questioner_anonymous = question.getAnonymous();
-        for (Long rid : rids) {
+        Long answerUId = answer.getuId();
+        Long questionUId = question.getuId();
+        Boolean answererAnonymous = answer.getAnonymous();
+        Boolean questionerAnonymous = question.getAnonymous();
+        for (Long rid : rIds) {
             ReviewInfo reviewInfo = reviewDaoImpl.getReviewInfo(rid, uid);
             Review review = reviewInfo.getReview();
             Long review_uid = review.getuId();
             reviewInfo.setAnonymous(false);
-            if (question_uid.equals(review_uid)) {
+            if (questionUId.equals(review_uid)) {
                 reviewInfo.setQuestioned(true);
-                reviewInfo.setAnonymous(questioner_anonymous);
+                reviewInfo.setAnonymous(questionerAnonymous);
             } else reviewInfo.setQuestioned(false);
-            if (answer_uid.equals(review_uid)) {
+            if (answerUId.equals(review_uid)) {
                 reviewInfo.setQuestioned(false);
                 reviewInfo.setAnswered(true);
-                reviewInfo.setAnonymous(answerer_anonymous);
+                reviewInfo.setAnonymous(answererAnonymous);
             } else reviewInfo.setAnswered(false);
             setUserInfo(reviewInfo, uid);
             reviewInfos.add(reviewInfo);
@@ -64,18 +67,18 @@ public class ReviewService {
         Review review = reviewInfo.getReview();
         UserInfo userInfo;
         Boolean anonymous = reviewInfo.getAnonymous();
-        if (anonymous && !review.getuId().equals(uid)) {
+        if (Boolean.TRUE.equals(anonymous) && !review.getuId().equals(uid)) {
             userInfo = UserInfo.defaultUserInfo;
             review.setuId(null);
         } else {
-            userInfo = userService.selectUserInfo(review.getuId(),uid);
+            userInfo = userService.selectUserInfo(review.getuId(), uid);
             userInfo.setAnonymous(anonymous);
         }
         reviewInfo.setUserInfo(userInfo);
     }
 
-    public boolean updateApprove(Long rid, Long uid,Boolean approve){
-        return reviewDaoImpl.updateApprove(rid,uid,approve);
+    public boolean updateApprove(Long rid, Long uid, Boolean approve) {
+        return reviewDaoImpl.updateApprove(rid, uid, approve);
     }
 
 }

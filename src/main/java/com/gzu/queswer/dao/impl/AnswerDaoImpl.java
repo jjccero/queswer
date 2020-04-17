@@ -29,8 +29,7 @@ public class AnswerDaoImpl extends RedisDao {
             try (Jedis jedis = getJedis()) {
                 String aidKey = aId.toString();
                 jedis.set(aidKey, JSON.toJSONString(answer), SET_PARAMS_THIRTY_MINUTES);
-                jedis.select(DATABASE_QUESTION);
-                jedis.zadd(answer.getqId().toString() + ":a", 0.0, aidKey);
+                jedis.zadd(PREFIX_QUESTION + answer.getqId().toString() + SUFFIX_ANSWERS, 0.0, aidKey);
             } catch (Exception e) {
                 log.error(e.getMessage());
             }
@@ -38,14 +37,14 @@ public class AnswerDaoImpl extends RedisDao {
         return aId;
     }
 
-    public List selectRidsByAid(Long aid) {
+    public List<Long> selectRidsByAid(Long aid) {
         List<Long> rids = new ArrayList<>();
         try (Jedis jedis = getJedis()) {
-            String aid_key = getKey(aid, jedis);
-            if (aid_key != null) {
-                String aid_r_key = aid_key + ":r";
-                Set<String> rid_keys = jedis.zrange(aid_r_key, 0L, -1L);
-                for (String rid_key : rid_keys) {
+            String aIdKey = getKey(aid, jedis);
+            if (aIdKey != null) {
+                String aIdRKey = aIdKey + SUFFIX_REVIEWS;
+                Set<String> rIdKeys = jedis.zrange(aIdRKey, 0L, -1L);
+                for (String rid_key : rIdKeys) {
                     rids.add(Long.parseLong(rid_key));
                 }
             }
@@ -58,24 +57,26 @@ public class AnswerDaoImpl extends RedisDao {
     public boolean deleteAnswer(Long aid, Long uid) {
         boolean res = false;
         try (Jedis jedis = getJedis()) {
-            String aid_key = aid.toString();
-            Answer answer = getAnswer(aid_key, jedis);
-            if (answer != null && answer.getuId().equals(uid)) {
-                //删除回答 赞同表 反对表
-                jedis.del(aid_key, aid_key + ":1", aid_key + ":0");
-                jedis.select(DATABASE_QUESTION);
-                //从问题表里删除aid
-                res = jedis.zrem(answer.getqId().toString() + ":a", aid_key) == 1L;
-                answerDao.deleteAnswerByAid(aid);
-                String aid_r_key = aid_key + ":r";
-                Set<String> rid_keys = jedis.zrange(aid_r_key, 0, -1);
-                jedis.del(aid_r_key);
-                jedis.select(DATABASE_REVIEW);
-                for (String rid_key : rid_keys) {
-                    //删除评论以及赞
-                    jedis.del(rid_key, rid_key + ":a");
+            String aIdKey = getKey(aid, jedis);
+            if (aIdKey != null) {
+                Answer answer = getAnswer(aIdKey, jedis);
+                if (answer != null && answer.getuId().equals(uid)) {
+                    //删除回答 赞同表 反对表
+                    jedis.del(aIdKey, aIdKey + SUFFIX_AGREE, aIdKey + SUFFIX_DISAGREE);
+                    //从问题表里删除aid
+                    res = jedis.zrem(PREFIX_QUESTION + answer.getqId().toString() + SUFFIX_ANSWERS, answer.getaId().toString()) == 1L;
+                    answerDao.deleteAnswerByAid(aid);
+                    //删除评论列表
+                    String aIdRKey = aIdKey + SUFFIX_REVIEWS;
+                    jedis.del(aIdRKey);
+                    Set<String> rIdKeys = jedis.zrange(aIdRKey, 0, -1);
+                    for (String rIdKey : rIdKeys) {
+                        rIdKey=PREFIX_REVIEW + rIdKey;
+                        //删除评论以及赞
+                        jedis.del(rIdKey, rIdKey + SUFFIX_APPROVES);
+                    }
+                    res = true;
                 }
-                res = true;
             }
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -85,56 +86,46 @@ public class AnswerDaoImpl extends RedisDao {
 
     public boolean updateAnswer(Answer answer) {
         boolean res = false;
-        Jedis jedis = null;
-        try {
-            jedis = getJedis();
-            String aid_key = getKey(answer.getaId(), jedis);
-            if (aid_key != null) {
-                Answer old_answer = getAnswer(aid_key, jedis);
-                if (old_answer.getuId().equals(answer.getuId())) {
-                    old_answer.setAnonymous(answer.getAnonymous());
-                    old_answer.setAns(answer.getAns());
-                    old_answer.setGmtModify(answer.getGmtModify());
-                    jedis.set(aid_key, JSON.toJSONString(old_answer), SET_PARAMS_THIRTY_MINUTES);
-                    answerDao.updateAnswer(old_answer);
+        try (Jedis jedis = getJedis()) {
+            String aIdKey = getKey(answer.getaId(), jedis);
+            if (aIdKey != null) {
+                Answer oldAnswer = getAnswer(aIdKey, jedis);
+                if (oldAnswer.getuId().equals(answer.getuId())) {
+                    oldAnswer.setAnonymous(answer.getAnonymous());
+                    oldAnswer.setAns(answer.getAns());
+                    oldAnswer.setGmtModify(answer.getGmtModify());
+                    jedis.set(aIdKey, JSON.toJSONString(oldAnswer), SET_PARAMS_THIRTY_MINUTES);
+                    answerDao.updateAnswer(oldAnswer);
                     res = true;
                 }
             }
         } catch (Exception e) {
             log.error(e.getMessage());
-        } finally {
-            if (jedis != null)
-                jedis.close();
         }
         return res;
     }
 
     public boolean updateAttitude(Attitude attitude) {
         boolean res = false;
-        Jedis jedis = null;
-        try {
-            jedis = getJedis();
-            String aid_key = getKey(attitude.getaId(), jedis);
-            if (aid_key != null) {
+        try (Jedis jedis = getJedis()) {
+            String aIdKey = getKey(attitude.getaId(), jedis);
+            if (aIdKey != null) {
                 Transaction transaction = jedis.multi();
-                String aid1 = aid_key + ":1";
-                String aid0 = aid_key + ":0";
-                String uid_field = attitude.getuId().toString();
-                if (attitude.getAtti()) {
-                    transaction.srem(aid0, uid_field);
-                    transaction.sadd(aid1, uid_field);
+                String aid1 = aIdKey + SUFFIX_AGREE;
+                String aid0 = aIdKey + SUFFIX_DISAGREE;
+                String uIdField = attitude.getuId().toString();
+                if (Boolean.TRUE.equals(attitude.getAtti())) {
+                    transaction.srem(aid0, uIdField);
+                    transaction.sadd(aid1, uIdField);
                 } else {
-                    transaction.srem(aid1, uid_field);
-                    transaction.sadd(aid0, uid_field);
+                    transaction.srem(aid1, uIdField);
+                    transaction.sadd(aid0, uIdField);
                 }
                 transaction.exec();
                 res = true;
             }
         } catch (Exception e) {
             log.error(e.getMessage());
-        } finally {
-            if (jedis != null)
-                jedis.close();
         }
         return res;
     }
@@ -142,13 +133,13 @@ public class AnswerDaoImpl extends RedisDao {
     public boolean deleteAttitude(Long aid, Long uid) {
         boolean res = false;
         try (Jedis jedis = getJedis()) {
-            String aid_key = getKey(aid, jedis);
-            if (aid_key != null) {
-                String aid1 = aid_key + ":1";
-                String aid0 = aid_key + ":0";
-                String uid_member = uid.toString();
-                jedis.srem(aid1, uid_member);
-                jedis.srem(aid0, uid_member);
+            String aIdKey = getKey(aid, jedis);
+            if (aIdKey != null) {
+                String aid1 = aIdKey + SUFFIX_AGREE;
+                String aid0 = aIdKey + SUFFIX_DISAGREE;
+                String uIdMember = uid.toString();
+                jedis.srem(aid1, uIdMember);
+                jedis.srem(aid0, uIdMember);
                 res = true;
             }
         } catch (Exception e) {
@@ -158,73 +149,56 @@ public class AnswerDaoImpl extends RedisDao {
     }
 
     public Answer selectAnswerByAid(Long aid) {
-        Jedis jedis = null;
         Answer answer = null;
-        try {
-            jedis = getJedis();
-            String aid_key = getKey(aid, jedis);
-            if (aid_key != null) {
-                answer = getAnswer(aid_key, jedis);
+        try (Jedis jedis = getJedis()) {
+            String aIdKey = getKey(aid, jedis);
+            if (aIdKey != null) {
+                answer = getAnswer(aIdKey, jedis);
             }
         } catch (Exception e) {
             log.error(e.getMessage());
-        } finally {
-            if (jedis != null)
-                jedis.close();
         }
         return answer;
     }
 
-    private Answer getAnswer(String aid_key, Jedis jedis) {
-        return JSON.parseObject(jedis.get(aid_key), Answer.class);
+    private Answer getAnswer(String aIdKey, Jedis jedis) {
+        return JSON.parseObject(jedis.get(aIdKey), Answer.class);
     }
 
     public AnswerInfo getAnswerInfo(Long aid, Long uid) {
         AnswerInfo answerInfo = null;
-        Jedis jedis = null;
-        try {
-            jedis = getJedis();
-            String aid_key = getKey(aid, jedis);
-            if (aid_key != null) {
+        try (Jedis jedis = getJedis()) {
+            String aIdKey = getKey(aid, jedis);
+            if (aIdKey != null) {
                 answerInfo = new AnswerInfo();
-                answerInfo.setAnswer(getAnswer(aid_key, jedis));
-                String aid1 = aid_key + ":1";
-                String aid0 = aid_key + ":0";
+                answerInfo.setAnswer(getAnswer(aIdKey, jedis));
+                String aid1 = aIdKey + SUFFIX_AGREE;
+                String aid0 = aIdKey + SUFFIX_DISAGREE;
                 answerInfo.setAgree(jedis.scard(aid1));
                 answerInfo.setAgainst(jedis.scard(aid0));
-                answerInfo.setReviewCount(jedis.zcard(aid_key + ":r"));
+                answerInfo.setReviewCount(jedis.zcard(aIdKey + SUFFIX_REVIEWS));
                 Boolean attituded = null;
                 if (uid != null) {
-                    String uid_field = uid.toString();
-                    if (jedis.sismember(aid1, uid_field)) attituded = true;
-                    else if (jedis.sismember(aid0, uid_field)) attituded = false;
+                    String uIdField = uid.toString();
+                    if (Boolean.TRUE.equals(jedis.sismember(aid1, uIdField))) attituded = true;
+                    else if (Boolean.TRUE.equals(jedis.sismember(aid0, uIdField))) attituded = false;
                 }
                 answerInfo.setAttituded(attituded);
             }
         } catch (Exception e) {
             log.error(e.getMessage());
-        } finally {
-            if (jedis != null)
-                jedis.close();
         }
         return answerInfo;
     }
 
     @Override
-    public String getKey(Long aid, Jedis jedis) {
-        String aid_key = PREFIX_ANSWER + aid.toString();
-        if (jedis.expire(aid_key, ONE_MINUTE) == 0L) {
-            Answer answer = answerDao.selectAnswerbyAid(aid);
-            jedis.set(aid_key, answer != null ? JSON.toJSONString(answer) : "", SET_PARAMS_ONE_MINUTE);
+    public String getKey(Long aId, Jedis jedis) {
+        String aidKey = PREFIX_ANSWER + aId.toString();
+        if (jedis.expire(aidKey, ONE_MINUTE) == 0L) {
+            Answer answer = answerDao.selectAnswerbyAid(aId);
+            jedis.set(aidKey, answer != null ? JSON.toJSONString(answer) : "", SET_PARAMS_ONE_MINUTE);
         }
-        return jedis.strlen(aid_key) == 0L ? null : aid_key;
-    }
-
-    @Override
-    public Jedis getJedis() {
-        Jedis jedis = super.getJedis();
-        jedis.select(DATABASE_ANSWER);
-        return jedis;
+        return jedis.strlen(aidKey) == 0L ? null : aidKey;
     }
 
 }

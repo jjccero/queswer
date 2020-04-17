@@ -83,4 +83,9 @@ public class HelloController {
     public List searchUserInfos(String nickname, Long uId) {
         return cacheService.selectUserInfosByNickname(nickname, uId);
     }
+
+    @GetMapping("/init")
+    public boolean initRedis() {
+        return cacheService.initRedis();
+    }
 }

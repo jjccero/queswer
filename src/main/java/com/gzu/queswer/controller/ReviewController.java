@@ -1,8 +1,8 @@
 package com.gzu.queswer.controller;
 
 import com.gzu.queswer.model.Review;
+import com.gzu.queswer.model.info.ReviewInfo;
 import com.gzu.queswer.service.ReviewService;
-import com.gzu.queswer.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,9 +14,8 @@ public class ReviewController {
     private ReviewService reviewService;
 
     @PostMapping("/saveReview")
-    public Long insertReview(@RequestBody Review review) {
-        review.setGmtCreate(DateUtil.getUnixTime());
-        return reviewService.insertReview(review);
+    public Long saveReview(@RequestBody Review review) {
+        return reviewService.saveReview(review);
     }
 
     @GetMapping("/deleteReview")
@@ -25,14 +24,14 @@ public class ReviewController {
     }
 
     @GetMapping("/queryReviews")
-    public List getReviews(Long aId, Long uId) {
-        return reviewService.getReviews(aId, uId);
+    public List<ReviewInfo> queryReviews(Long aId, Long uId) {
+        return reviewService.queryReviews(aId, uId);
     }
 
     @GetMapping("/updateApprove")
-    public boolean updateApprove(Long rId, Long uId,Boolean approve){
-        if(rId==null||uId==null||approve==null) return false;
-        return reviewService.updateApprove(rId, uId,approve);
+    public boolean updateApprove(Long rId, Long uId, Boolean approve) {
+        if (rId == null || uId == null || approve == null) return false;
+        return reviewService.updateApprove(rId, uId, approve);
     }
 
 }

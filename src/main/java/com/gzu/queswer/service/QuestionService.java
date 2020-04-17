@@ -2,14 +2,14 @@ package com.gzu.queswer.service;
 
 import com.gzu.queswer.dao.impl.QuestionDaoImpl;
 import com.gzu.queswer.model.Question;
-import com.gzu.queswer.model.info.UserInfo;
 import com.gzu.queswer.model.info.QuestionInfo;
+import com.gzu.queswer.model.info.UserInfo;
+import com.gzu.queswer.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class QuestionService {
@@ -22,60 +22,52 @@ public class QuestionService {
     @Autowired
     AnswerService answerService;
 
-    public Long insertQuestion(Question question) {
+    public Long saveQuestion(Question question) {
+        question.setqId(null);
+        question.setGmtCreate(DateUtil.getUnixTime());
         questionDaoImpl.insertQuestion(question);
         return question.getqId();
     }
 
-    public QuestionInfo selectQuestionInfo(Long qid, Long aid, Long uid, boolean user_answer, boolean view) {
-        QuestionInfo questionInfo = questionDaoImpl.getQuestionInfo(qid, uid, view);
-        questionInfo.setTopics(topicService.selectQuestionTopics(qid));
-        Long user_aid = null;
-        if (uid != null && user_answer) {
-            user_aid = questionDaoImpl.selectAidByUid(qid, uid);
-            if (user_aid != null) questionInfo.setUserAnswer(answerService.getAnswerInfo(user_aid, uid));
+    public QuestionInfo selectQuestionInfo(Long qId, Long aId, Long uId, boolean userAnswer, boolean view) {
+        QuestionInfo questionInfo = questionDaoImpl.getQuestionInfo(qId, uId, view);
+        questionInfo.setTopics(topicService.selectQuestionTopics(qId));
+        Long userAId = null;
+        if (uId != null && userAnswer) {
+            userAId = questionDaoImpl.selectAidByUid(qId, uId);
+            if (userAId != null) questionInfo.setUserAnswer(answerService.getAnswerInfo(userAId, uId));
         }
-        if (aid != user_aid && aid != null) questionInfo.setDefaultAnswer(answerService.getAnswerInfo(aid, uid));
-        setUserInfo(questionInfo, uid);
+        if (aId != null && !aId.equals(userAId)) questionInfo.setDefaultAnswer(answerService.getAnswerInfo(aId, uId));
+        setUserInfo(questionInfo, uId);
         return questionInfo;
     }
 
-    public QuestionInfo selectQuestionInfo(Long qid, Long uid) {
-        QuestionInfo questionInfo = questionDaoImpl.getQuestionInfo(qid, uid, false);
-        questionInfo.setTopics(topicService.selectQuestionTopics(qid));
-        Long aid = questionDaoImpl.getTopAid(qid);
+    public QuestionInfo selectQuestionInfo(Long qId, Long uid) {
+        QuestionInfo questionInfo = questionDaoImpl.getQuestionInfo(qId, uid, false);
+        questionInfo.setTopics(topicService.selectQuestionTopics(qId));
+        Long aid = questionDaoImpl.getTopAid(qId);
         if (aid != null) questionInfo.setDefaultAnswer(answerService.getAnswerInfo(aid, uid));
         setUserInfo(questionInfo, uid);
         return questionInfo;
     }
 
-    public List selectQuestions(int offset, int count, Long uid) {
-        Set<String> qid_keys = questionDaoImpl.getQids(offset, count);
+    public List<QuestionInfo> queryQuestions(int offset, int count, Long uid) {
+        List<Long> qIds = questionDaoImpl.queryQIds(offset, count);
         List<QuestionInfo> questionInfos = new ArrayList<>();
-        for (String qid_key : qid_keys) {
-            Long qid = Long.parseLong(qid_key);
-            Long aid = questionDaoImpl.getTopAid(qid);
-            QuestionInfo questionInfo = selectQuestionInfo(qid, aid, uid, false, false);
+        for (Long qId : qIds) {
+            Long aid = questionDaoImpl.getTopAid(qId);
+            QuestionInfo questionInfo = selectQuestionInfo(qId, aid, uid, false, false);
             questionInfos.add(questionInfo);
         }
         return questionInfos;
     }
 
-    @Deprecated
-    public Integer selectFollowCount(Long qid) {
-        return questionDaoImpl.selectFollowCount(qid);
+    public boolean saveFollow(Long qId, Long uid) {
+        return questionDaoImpl.insertFollow(qId, uid) == 1;
     }
 
-    public boolean insertFollow(Long qid, Long uid) {
-        return questionDaoImpl.insertFollow(qid, uid) == 1;
-    }
-
-    public boolean deleteFollow(Long qid, Long uid) {
-        return questionDaoImpl.deleteFollow(qid, uid) == 1;
-    }
-
-    public List selectFollowsByUid(Long uid) {
-        return questionDaoImpl.selectFollowsByUid(uid);
+    public boolean deleteFollow(Long qId, Long uid) {
+        return questionDaoImpl.deleteFollow(qId, uid) == 1;
     }
 
     public void setUserInfo(QuestionInfo questionInfo, Long uid) {
@@ -83,18 +75,18 @@ public class QuestionService {
         Question question = questionInfo.getQuestion();
         UserInfo userInfo;
         Boolean anonymous = question.getAnonymous();
-        if (anonymous && !question.getuId().equals(uid)) {
+        if (Boolean.TRUE.equals(anonymous) && !question.getuId().equals(uid)) {
             userInfo = UserInfo.defaultUserInfo;
             question.setuId(null);
         } else {
-            userInfo = userService.selectUserInfo(question.getuId(),uid);
+            userInfo = userService.selectUserInfo(question.getuId(), uid);
             userInfo.setAnonymous(anonymous);
         }
         questionInfo.setUserInfo(userInfo);
     }
 
     public List<Long> selectAidsByQid(Long qid) {
-        return questionDaoImpl.selectAidsByQid(qid);
+        return questionDaoImpl.selectAIds(qid);
     }
 
     public Question selectQuestionByQid(Long qid) {

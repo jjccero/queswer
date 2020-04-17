@@ -15,8 +15,6 @@ import redis.clients.jedis.Jedis;
 public class ReviewDaoImpl extends RedisDao {
     @Autowired
     private ReviewDao reviewDao;
-    @Autowired
-    private AnswerDaoImpl answerDao;
 
     public Long insertReview(Review review) {
         reviewDao.insertReview(review);
@@ -27,7 +25,6 @@ public class ReviewDaoImpl extends RedisDao {
                 String rIdKey = rid.toString();
                 jedis = getJedis();
                 jedis.set(rIdKey, JSON.toJSONString(review), SET_PARAMS_THIRTY_MINUTES);
-                jedis.select(DATABASE_ANSWER);
                 jedis.zadd(PREFIX_ANSWER + review.getaId().toString() + SUFFIX_REVIEWS, 0.0, rIdKey);
             } catch (Exception e) {
                 log.error(e.getMessage());
@@ -108,10 +105,4 @@ public class ReviewDaoImpl extends RedisDao {
         return jedis.strlen(rIdKey) == 0L ? null : rIdKey;
     }
 
-    @Override
-    public Jedis getJedis() {
-        Jedis jedis = super.getJedis();
-        jedis.select(DATABASE_REVIEW);
-        return jedis;
-    }
 }

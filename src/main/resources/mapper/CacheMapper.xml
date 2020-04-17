@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.gzu.queswer.dao.CacheDao">
-    <select id="selectAids" resultType="Long">
+    <select id="selectQIds" resultType="Long">
+        select q_id
+        FROM t_question;
+    </select>
+    <select id="selectAidsByQId" resultType="Long">
         SELECT a_id
         from t_answer
+        where q_id=#{qId};
+    </select>
+    <select id="selectRIdsByAId" resultType="Long">
+        SELECT r_id
+        from t_review
+        where a_id=#{aId};
     </select>
     <select id="selectQuestionIndexs" resultType="com.gzu.queswer.model.StringIndex">
         SELECT q_id v,title k
@@ -13,4 +23,5 @@
         SELECT u_id v,nickname k
         FROM t_user
     </select>
+
 </mapper>

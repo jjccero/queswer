@@ -5,6 +5,7 @@ import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Attitude;
 import com.gzu.queswer.model.info.UserInfo;
 import com.gzu.queswer.model.info.AnswerInfo;
+import com.gzu.queswer.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,10 @@ public class AnswerService {
     @Autowired
     UserService userService;
 
-    public Long insertAnswer(Answer answer) {
+    public Long saveAnswer(Answer answer) {
+        answer.setaId(null);
+        answer.setGmtCreate(DateUtil.getUnixTime());
+        if (answer.getAnonymous() == null) answer.setAnonymous(false);
         return answerDaoImpl.insertAnswer(answer);
     }
 
@@ -41,7 +45,7 @@ public class AnswerService {
         return answerDaoImpl.deleteAttitude(aid, uid);
     }
 
-    public List getAnswers(Long qid, Long uid) {
+    public List<AnswerInfo> queryAnswers(Long qid, Long uid) {
         List<Long> aids = questionService.selectAidsByQid(qid);
         List<AnswerInfo> answerInfos = new ArrayList<>();
         for (Long aid : aids) {
@@ -63,11 +67,11 @@ public class AnswerService {
         UserInfo userInfo;
         Answer answer = answerInfo.getAnswer();
         Boolean anonymous = answer.getAnonymous();
-        if (anonymous && !answer.getuId().equals(uid)) {
+        if (Boolean.TRUE.equals(anonymous) && !answer.getuId().equals(uid)) {
             userInfo = UserInfo.defaultUserInfo;
             answer.setuId(null);
         } else {
-            userInfo = userService.selectUserInfo(answer.getuId(),uid);
+            userInfo = userService.selectUserInfo(answer.getuId(), uid);
             userInfo.setAnonymous(anonymous);
         }
         answerInfo.setUserInfo(userInfo);
@@ -77,7 +81,7 @@ public class AnswerService {
         return answerDaoImpl.selectAnswerByAid(aid);
     }
 
-    public List selectRidsByAid(Long aid) {
+    public List<Long> selectRidsByAid(Long aid) {
         return answerDaoImpl.selectRidsByAid(aid);
     }
 

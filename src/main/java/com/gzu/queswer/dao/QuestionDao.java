@@ -20,6 +20,10 @@ public interface QuestionDao {
 
     List selectFollowsByUid(@Param("uId") Long uId);
 
-    Long selectAidByUid(@Param("qId") Long qId, @Param("uid") Long uId);
+    List<Long> selectAIdsByQId(Long qId);
+
+    List<Long> selectQIds();
+
+    Long selectAidByUid(@Param("qId") Long qId, @Param("uId") Long uId);
 
 }

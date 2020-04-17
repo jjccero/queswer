@@ -2,6 +2,7 @@ package com.gzu.queswer.controller;
 
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Attitude;
+import com.gzu.queswer.model.info.AnswerInfo;
 import com.gzu.queswer.service.AnswerService;
 import com.gzu.queswer.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +15,9 @@ public class AnswerController {
     @Autowired
     private AnswerService answerService;
 
-    @PostMapping(value = "/insertAnswer")
-    public Long insertAnswer(@RequestBody Answer answer) {
-        answer.setGmtCreate(DateUtil.getUnixTime());
-        answer.setaId(null);
-        if (answer.getAnonymous() == null) answer.setAnonymous(false);
-        return answerService.insertAnswer(answer);
+    @PostMapping(value = "/saveAnswer")
+    public Long saveAnswer(@RequestBody Answer answer) {
+        return answerService.saveAnswer(answer);
     }
 
     @PostMapping(value = "/updateAnswer")
@@ -45,8 +43,8 @@ public class AnswerController {
     }
 
 
-    @GetMapping("/getAnswers")
-    public List getAnswers(Long qId, Long uId) {
-        return answerService.getAnswers(qId, uId);
+    @GetMapping("/queryAnswers")
+    public List<AnswerInfo> queryAnswers(Long qId, Long uId) {
+        return answerService.queryAnswers(qId, uId);
     }
 }
