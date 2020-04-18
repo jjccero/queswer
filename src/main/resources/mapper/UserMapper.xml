@@ -6,20 +6,37 @@
         FROM t_user
         WHERE username = #{username};
     </select>
-    <select id="selectUserByUid" resultType="com.gzu.queswer.model.User">
-        SELECT u_id,gmt_create,username,authority,nickname,sex,intro,avater
+    <select id="selectUserByUId" resultType="com.gzu.queswer.model.User">
+        SELECT u_id,
+               gmt_create,
+               username,
+               authority,
+               nickname,
+               sex,
+               intro,
+               avater
         FROM t_user
-        WHERE u_id=#{uId};
+        WHERE u_id = #{uId};
     </select>
     <insert id="insertUser" useGeneratedKeys="true" keyProperty="uId">
         INSERT INTO t_user(gmt_create, username, password, authority)
         VALUES (#{gmtCreate}, #{username}, #{password}, #{authority});
     </insert>
-    <update id="updateUserByUid">
+    <update id="updateUser">
         UPDATE t_user
         SET nickname=#{nickname},
             sex=#{sex},
             intro=#{intro}
         WHERE u_id = #{uId};
     </update>
+    <select id="selectUIdByFollowerId" resultType="Long">
+        select u_id
+        from t_follow
+        where follower_id = #{followerId}
+    </select>
+    <select id="selectFollerUIdsByUId" resultType="Long">
+        select follower_id
+        from t_follow
+        where u_id = #{uId}
+    </select>
 </mapper>

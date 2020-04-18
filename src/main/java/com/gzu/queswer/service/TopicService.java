@@ -16,7 +16,7 @@ public class TopicService {
         return topicDao.selectTopics();
     }
 
-    public Long insertTopic(Topic topic) {
+    public Long saveTopic(Topic topic) {
         topicDao.insertTopic(topic);
         return topic.gettId();
     }
@@ -25,7 +25,7 @@ public class TopicService {
         return topicDao.selectTopicByTid(tid);
     }
 
-    public List selectQuestionTopics(Long qid) {
+    public List<Topic> selectQuestionTopics(Long qid) {
         List topics = topicDao.selectQuestionTopics(qid);
         for (int i = 0; i < topics.size(); ++i) {
             Long tid = (Long) topics.get(i);

@@ -33,13 +33,13 @@ public class HelloController {
     @PostMapping(value = "/signup")
     public Long signup(@RequestBody UserLogin userLogin) {
         userLogin.setNormalUser();
-        return userService.insertUser(userLogin);
+        return userService.saveUser(userLogin);
     }
 
     @PostMapping("/signupSuper")
     public Long signupSuper(@RequestBody UserLogin userLogin) {
         userLogin.setSuperUser();
-        return userService.insertUser(userLogin);
+        return userService.saveUser(userLogin);
     }
 
     @PostMapping("/updateUser")
@@ -47,9 +47,9 @@ public class HelloController {
         return userService.updateUser(user);
     }
 
-    @GetMapping(value = "/selectUserInfo")
-    public UserInfo selectUserInfo(Long peopleUId, Long uId) {
-        return userService.selectUserInfo(peopleUId, uId);
+    @GetMapping(value = "/getUserInfo")
+    public UserInfo getUserInfo(Long peopleUId, Long uId) {
+        return userService.getUserInfo(peopleUId, uId);
     }
 
     @Autowired
@@ -60,9 +60,9 @@ public class HelloController {
         return topicService.selectTopics();
     }
 
-    @PostMapping("addTopic")
-    public Long addTopic(@RequestBody Topic topic) {
-        return topicService.insertTopic(topic);
+    @PostMapping("/saveTopic")
+    public Long saveTopic(@RequestBody Topic topic) {
+        return topicService.saveTopic(topic);
     }
 
 

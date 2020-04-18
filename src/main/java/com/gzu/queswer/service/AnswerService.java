@@ -1,88 +1,28 @@
 package com.gzu.queswer.service;
 
-import com.gzu.queswer.dao.impl.AnswerDaoImpl;
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Attitude;
-import com.gzu.queswer.model.info.UserInfo;
 import com.gzu.queswer.model.info.AnswerInfo;
-import com.gzu.queswer.util.DateUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Service
-public class AnswerService {
+public interface AnswerService {
+    Long saveAnswer(Answer answer);
 
-    @Autowired
-    private AnswerDaoImpl answerDaoImpl;
-    @Autowired
-    QuestionService questionService;
-    @Autowired
-    UserService userService;
+    boolean deleteAnswer(Long aId, Long uId);
 
-    public Long saveAnswer(Answer answer) {
-        answer.setaId(null);
-        answer.setGmtCreate(DateUtil.getUnixTime());
-        if (answer.getAnonymous() == null) answer.setAnonymous(false);
-        return answerDaoImpl.insertAnswer(answer);
-    }
+    boolean updateAnswer(Answer answer);
 
-    public boolean deleteAnswer(Long aid, Long uid) {
-        return answerDaoImpl.deleteAnswer(aid, uid);
-    }
+    boolean updateAttitude(Attitude attitude);
 
-    public boolean updateAnswer(Answer answer) {
-        return answerDaoImpl.updateAnswer(answer);
-    }
+    boolean deleteAttitude(Long aId, Long uId);
 
-    public boolean updateAttitude(Attitude attitude) {
-        return answerDaoImpl.updateAttitude(attitude);
-    }
+    List<AnswerInfo> queryAnswers(Long qId, Long uId);
 
-    public boolean deleteAttitude(long aid, long uid) {
-        return answerDaoImpl.deleteAttitude(aid, uid);
-    }
+    AnswerInfo getAnswerInfo(Long aId, Long uId);
 
-    public List<AnswerInfo> queryAnswers(Long qid, Long uid) {
-        List<Long> aids = questionService.selectAidsByQid(qid);
-        List<AnswerInfo> answerInfos = new ArrayList<>();
-        for (Long aid : aids) {
-            AnswerInfo answerInfo = answerDaoImpl.getAnswerInfo(aid, uid);
-            setUserInfo(answerInfo, uid);
-            answerInfos.add(answerInfo);
-        }
-        return answerInfos;
-    }
+    Answer selectAnswerByAid(Long aId);
 
-    public AnswerInfo getAnswerInfo(Long aid, Long uid) {
-        AnswerInfo answerInfo = answerDaoImpl.getAnswerInfo(aid, uid);
-        setUserInfo(answerInfo, uid);
-        return answerInfo;
-    }
-
-    public void setUserInfo(AnswerInfo answerInfo, Long uid) {
-        if (answerInfo == null) return;
-        UserInfo userInfo;
-        Answer answer = answerInfo.getAnswer();
-        Boolean anonymous = answer.getAnonymous();
-        if (Boolean.TRUE.equals(anonymous) && !answer.getuId().equals(uid)) {
-            userInfo = UserInfo.defaultUserInfo;
-            answer.setuId(null);
-        } else {
-            userInfo = userService.selectUserInfo(answer.getuId(), uid);
-            userInfo.setAnonymous(anonymous);
-        }
-        answerInfo.setUserInfo(userInfo);
-    }
-
-    public Answer selectAnswerByAid(Long aid) {
-        return answerDaoImpl.selectAnswerByAid(aid);
-    }
-
-    public List<Long> selectRidsByAid(Long aid) {
-        return answerDaoImpl.selectRidsByAid(aid);
-    }
+    List<Long> selectRidsByAid(Long aId);
 
 }

@@ -8,11 +8,11 @@ public interface AnswerDao {
 
     void insertAnswer(Answer answer);
 
-    Integer deleteAnswerByAid(Long aId);
+    int deleteAnswerByAid(Long aId);
 
-    Integer updateAnswer(Answer answer);
+    int updateAnswer(Answer answer);
 
-    Answer selectAnswerbyAid(Long aId);
+    Answer selectAnswerbyAId(Long aId);
 
 
 }

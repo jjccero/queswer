@@ -36,10 +36,6 @@
         WHERE q_id = #{qId}
           AND u_id = #{uId};
     </select>
-    <select id="selectAIdsByQId" resultType="Long">
-        SELECT a_id
-        FROM t_answer
-    </select>
     <select id="selectQIds" resultType="Long">
         SELECT q_id
         FROM t_question

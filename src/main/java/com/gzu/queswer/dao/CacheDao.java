@@ -9,7 +9,7 @@ import java.util.List;
 public interface CacheDao {
     List<Long> selectQIds();
 
-    List<Long> selectAidsByQId(Long qId);
+    List<Long> selectAIdsByQId(Long qId);
 
     List<Long> selectRIdsByAId(Long aId);
 

@@ -1,6 +1,7 @@
 package com.gzu.queswer.service;
 
-import com.gzu.queswer.dao.impl.CacheDaoImpl;
+import com.gzu.queswer.dao.impl.CacheServiceImpl;
+import com.gzu.queswer.model.info.QuestionInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +11,7 @@ import java.util.List;
 @Service
 public class CacheService {
     @Autowired
-    CacheDaoImpl cacheDaoImpl;
+    CacheServiceImpl cacheDaoImpl;
 
     public boolean createIndex() {
         return cacheDaoImpl.createIndex();
@@ -19,11 +20,11 @@ public class CacheService {
     @Autowired
     QuestionService questionService;
 
-    public List selectQuestionInfosByQuestion(String question, Long uid) {
-        List<Long> qids = cacheDaoImpl.selectQidsByQuestion(question);
-        List questionInfos = new ArrayList(qids.size());
+    public List selectQuestionInfosByQuestion(String ques, Long uid) {
+        List<Long> qids = cacheDaoImpl.selectQidsByQuestion(ques);
+        List<QuestionInfo> questionInfos = new ArrayList<>(qids.size());
         for (Long qid : qids) {
-            questionInfos.add(questionService.selectQuestionInfo(qid, uid));
+            questionInfos.add(questionService.getQuestionInfo(qid, uid, false));
         }
         return questionInfos;
     }
@@ -35,7 +36,7 @@ public class CacheService {
         List<Long> uids = cacheDaoImpl.selectUserInfosByNickname(nickname);
         List userInfos = new ArrayList(uids.size());
         for (Long uid0 : uids) {
-            userInfos.add(userService.selectUserInfo(uid0, uid));
+            userInfos.add(userService.getUserInfo(uid0, uid));
         }
         return userInfos;
     }

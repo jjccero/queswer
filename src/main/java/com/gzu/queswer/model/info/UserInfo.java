@@ -8,7 +8,6 @@ public class UserInfo implements Serializable {
 
     private User user;
     private Boolean anonymous;
-    private Long supportCount;
 
     public User getUser() {
         return user;
@@ -24,14 +23,6 @@ public class UserInfo implements Serializable {
 
     public void setAnonymous(Boolean anonymous) {
         this.anonymous = anonymous;
-    }
-
-    public Long getSupportCount() {
-        return supportCount;
-    }
-
-    public void setSupportCount(Long supportCount) {
-        this.supportCount = supportCount;
     }
 
     public static final UserInfo defaultUserInfo;

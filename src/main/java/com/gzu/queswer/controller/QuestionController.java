@@ -28,17 +28,17 @@ public class QuestionController {
 
     @GetMapping("/getQuestion")
     public QuestionInfo getQuestion(Long qId, Long aId, Long uId) {
-        return questionService.selectQuestionInfo(qId, aId, uId, true, true);
+        return questionService.getQuestionInfo(qId, aId, uId, true, true);
     }
 
-    @GetMapping("/saveFollow")
-    public boolean saveFollow(Long qId, Long uId) {
-        return questionService.saveFollow(qId, uId);
+    @GetMapping("/saveSubscribe")
+    public boolean saveSubscribe(Long qId, Long uId) {
+        return questionService.saveSubscribe(qId, uId);
     }
 
-    @GetMapping("/deleteFollow")
-    public boolean deleteFollow(Long qId, Long uId) {
-        return questionService.deleteFollow(qId, uId);
+    @GetMapping("/deleteSubscribe")
+    public boolean deleteSubscribe(Long qId, Long uId) {
+        return questionService.deleteSubscribe(qId, uId);
     }
 
 

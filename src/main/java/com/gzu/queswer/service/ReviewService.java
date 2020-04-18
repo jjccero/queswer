@@ -1,6 +1,6 @@
 package com.gzu.queswer.service;
 
-import com.gzu.queswer.dao.impl.ReviewDaoImpl;
+import com.gzu.queswer.dao.impl.ReviewServiceImpl;
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Question;
 import com.gzu.queswer.model.Review;
@@ -16,7 +16,7 @@ import java.util.List;
 @Service
 public class ReviewService {
     @Autowired
-    private ReviewDaoImpl reviewDaoImpl;
+    private ReviewServiceImpl reviewDaoImpl;
     @Autowired
     UserService userService;
     @Autowired
@@ -38,7 +38,7 @@ public class ReviewService {
         List<Long> rIds = answerService.selectRidsByAid(aid);
         List<ReviewInfo> reviewInfos = new ArrayList<>(rIds.size());
         Answer answer = answerService.selectAnswerByAid(aid);
-        Question question = questionService.selectQuestionByQid(answer.getqId());
+        Question question = questionService.getQuestionByQid(answer.getqId());
         Long answerUId = answer.getuId();
         Long questionUId = question.getuId();
         Boolean answererAnonymous = answer.getAnonymous();
@@ -71,7 +71,7 @@ public class ReviewService {
             userInfo = UserInfo.defaultUserInfo;
             review.setuId(null);
         } else {
-            userInfo = userService.selectUserInfo(review.getuId(), uid);
+            userInfo = userService.getUserInfo(review.getuId(), uid);
             userInfo.setAnonymous(anonymous);
         }
         reviewInfo.setUserInfo(userInfo);

@@ -1,7 +1,7 @@
 package com.gzu.queswer.dao.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.gzu.queswer.dao.RedisDao;
+import com.gzu.queswer.service.impl.RedisService;
 import com.gzu.queswer.dao.ReviewDao;
 import com.gzu.queswer.model.Review;
 import com.gzu.queswer.model.info.ReviewInfo;
@@ -12,7 +12,7 @@ import redis.clients.jedis.Jedis;
 
 @Repository
 @Slf4j
-public class ReviewDaoImpl extends RedisDao {
+public class ReviewServiceImpl extends RedisService {
     @Autowired
     private ReviewDao reviewDao;
 
@@ -95,7 +95,6 @@ public class ReviewDaoImpl extends RedisDao {
         return JSON.parseObject(jedis.get(rIdKey), Review.class);
     }
 
-    @Override
     public String getKey(Long rid, Jedis jedis) {
         String rIdKey = PREFIX_REVIEW + rid.toString();
         if (jedis.expire(rIdKey, ONE_MINUTE) == 0L) {

@@ -5,7 +5,7 @@
         select q_id
         FROM t_question;
     </select>
-    <select id="selectAidsByQId" resultType="Long">
+    <select id="selectAIdsByQId" resultType="Long">
         SELECT a_id
         from t_answer
         where q_id=#{qId};

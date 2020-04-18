@@ -17,7 +17,7 @@
         FROM t_answer
         WHERE a_id = #{aId}
     </delete>
-    <select id="selectAnswerbyAid" resultType="com.gzu.queswer.model.Answer">
+    <select id="selectAnswerbyAId" resultType="com.gzu.queswer.model.Answer">
         SELECT a_id,q_id,u_id,ans,gmt_create,gmt_modify,anonymous
         FROM t_answer
         WHERE a_id = #{aId}

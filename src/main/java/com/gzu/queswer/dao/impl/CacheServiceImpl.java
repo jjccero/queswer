@@ -1,7 +1,7 @@
 package com.gzu.queswer.dao.impl;
 
 import com.gzu.queswer.dao.CacheDao;
-import com.gzu.queswer.dao.RedisDao;
+import com.gzu.queswer.service.impl.RedisService;
 import com.gzu.queswer.model.StringIndex;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import java.util.*;
 
 @Repository
 @Slf4j
-public class CacheDaoImpl extends RedisDao {
+public class CacheServiceImpl extends RedisService {
     @Autowired
     CacheDao cacheDao;
 
@@ -79,7 +79,7 @@ public class CacheDaoImpl extends RedisDao {
             List<Long> qIds = cacheDao.selectQIds();
             for (Long qId : qIds) {
                 jedis.zadd(TOP_LIST_KEY, 0.0, qId.toString());
-                List<Long> aIds = cacheDao.selectAidsByQId(qId);
+                List<Long> aIds = cacheDao.selectAIdsByQId(qId);
                 String qIdKey = PREFIX_QUESTION + qId + SUFFIX_ANSWERS;
                 for (Long aId : aIds) {
                     jedis.zadd(qIdKey, 0.0, aId.toString());

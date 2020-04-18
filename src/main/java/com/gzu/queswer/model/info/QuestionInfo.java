@@ -9,8 +9,8 @@ import java.util.List;
 public class QuestionInfo extends UserApi {
     private Question question;
     private Double viewCount;
-    private Long followCount;
-    private Boolean followed;
+    private Long subscribeCount;
+    private Boolean subscribed;
     private Boolean questioned;
     private AnswerInfo defaultAnswer;
     private AnswerInfo userAnswer;
@@ -33,20 +33,20 @@ public class QuestionInfo extends UserApi {
         this.viewCount = viewCount;
     }
 
-    public Long getFollowCount() {
-        return followCount;
+    public Long getSubscribeCount() {
+        return subscribeCount;
     }
 
-    public void setFollowCount(Long followCount) {
-        this.followCount = followCount;
+    public void setSubscribeCount(Long subscribeCount) {
+        this.subscribeCount = subscribeCount;
     }
 
-    public Boolean getFollowed() {
-        return followed;
+    public Boolean getSubscribed() {
+        return subscribed;
     }
 
-    public void setFollowed(Boolean followed) {
-        this.followed = followed;
+    public void setSubscribed(Boolean subscribed) {
+        this.subscribed = subscribed;
     }
 
     public Boolean getQuestioned() {
