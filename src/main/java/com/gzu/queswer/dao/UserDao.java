@@ -4,6 +4,7 @@ import com.gzu.queswer.model.User;
 import com.gzu.queswer.model.UserLogin;
 import org.springframework.stereotype.Repository;
 
+import javax.websocket.server.PathParam;
 import java.util.List;
 
 @Repository
@@ -17,7 +18,11 @@ public interface UserDao {
 
     UserLogin selectUserLoginByUsername(String username);
 
-    List<Long> selectUIdByFollowerId(Long followerId);
+    int saveFollow(@PathParam("uId") Long uId, @PathParam("followerId") Long followerId);
 
-    List<Long> selectFollerUIdsByUId(Long uId);
+    int deleteFollow(@PathParam("uId") Long uId, @PathParam("followerId") Long followerId);
+
+    List<Long> selectUIdsByFollowerId(Long followerId);
+
+    List<Long> selectFollowerIdsByUId(Long uId);
 }

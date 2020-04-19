@@ -11,7 +11,7 @@ import java.util.List;
 @RestController
 public class ReviewController {
     @Autowired
-    private ReviewService reviewService;
+    ReviewService reviewService;
 
     @PostMapping("/saveReview")
     public Long saveReview(@RequestBody Review review) {
@@ -30,7 +30,6 @@ public class ReviewController {
 
     @GetMapping("/updateApprove")
     public boolean updateApprove(Long rId, Long uId, Boolean approve) {
-        if (rId == null || uId == null || approve == null) return false;
         return reviewService.updateApprove(rId, uId, approve);
     }
 

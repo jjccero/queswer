@@ -12,7 +12,7 @@
             anonymous=#{anonymous}
         WHERE a_id = #{aId}
     </update>
-    <delete id="deleteAnswerByAid">
+    <delete id="deleteAnswer">
         DELETE
         FROM t_answer
         WHERE a_id = #{aId}

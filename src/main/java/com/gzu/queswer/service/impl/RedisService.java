@@ -6,23 +6,23 @@ import redis.clients.jedis.params.SetParams;
 
 public class RedisService {
 
-    protected static final SetParams SET_PARAMS_ONE_MINUTE;
-    protected static final SetParams SET_PARAMS_THIRTY_MINUTES;
-    protected static final int ONE_MINUTE = 60;
-    protected static final int THIRTY_MINUTES = 1800;
-    protected static final int T_QUESTION_INDEX = 4;
-    protected static final int T_USER_INDEX = 5;
-    protected static final String PREFIX_ANSWER = "answer:";
-    protected static final String PREFIX_QUESTION = "question:";
-    protected static final String PREFIX_REVIEW = "review:";
-    protected static final String PREFIX_USER = "user:";
-    protected static final String SUFFIX_APPROVES = ":approves";
-    protected static final String SUFFIX_REVIEWS = ":reviews";
-    protected static final String SUFFIX_SUBSCRIBERS = ":subscribers";
-    protected static final String SUFFIX_ANSWERS = ":answers";
-    protected static final String SUFFIX_AGREE = ":1";
-    protected static final String SUFFIX_DISAGREE = ":0";
-    protected static final String TOP_LIST_KEY = "topQuestions";
+    static final SetParams SET_PARAMS_ONE_MINUTE;
+    static final SetParams SET_PARAMS_THIRTY_MINUTES;
+    static final int ONE_MINUTE = 60;
+    static final int THIRTY_MINUTES = 1800;
+    static final int T_QUESTION_INDEX = 4;
+    static final int T_USER_INDEX = 5;
+    static final String PREFIX_ANSWER = "answer:";
+    static final String PREFIX_QUESTION = "question:";
+    static final String PREFIX_REVIEW = "review:";
+    static final String PREFIX_USER = "user:";
+    static final String SUFFIX_APPROVES = ":approves";
+    static final String SUFFIX_REVIEWS = ":reviews";
+    static final String SUFFIX_SUBSCRIBERS = ":subscribers";
+    static final String SUFFIX_ANSWERS = ":answers";
+    static final String SUFFIX_AGREE = ":1";
+    static final String SUFFIX_DISAGREE = ":0";
+    static final String TOP_LIST_KEY = "topQuestions";
 
     static {
         SET_PARAMS_ONE_MINUTE = new SetParams();
@@ -31,7 +31,7 @@ public class RedisService {
         SET_PARAMS_THIRTY_MINUTES.ex(THIRTY_MINUTES);
     }
 
-    protected Jedis getJedis() {
+    Jedis getJedis() {
         return RedisUtil.getJedis();
     }
 

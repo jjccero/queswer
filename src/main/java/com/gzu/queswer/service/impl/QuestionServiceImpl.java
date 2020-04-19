@@ -57,7 +57,7 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
                 if (uId != null) {
                     questionInfo.setSubscribed(getFollowed(qIdFKey, uId, jedis));
                 }
-                questionInfo.setTopics(topicService.selectQuestionTopics(qId));
+                questionInfo.setTopics(topicService.queryTopicsByQId(qId));
                 setUserInfo(questionInfo, uId);
             }
         } catch (Exception e) {
@@ -85,7 +85,7 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
     @Override
     public QuestionInfo getQuestionInfo(Long qId, Long aId, Long uId, boolean userAnswer, boolean inc) {
         QuestionInfo questionInfo = getQuestionInfo(qId, uId, inc);
-        questionInfo.setTopics(topicService.selectQuestionTopics(qId));
+        questionInfo.setTopics(topicService.queryTopicsByQId(qId));
         Long userAId = null;
         if (uId != null && userAnswer) {
             userAId = selectAidByUid(qId, uId);
@@ -138,7 +138,7 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
     }
 
     @Override
-    public Question getQuestionByQid(Long qId) {
+    public Question getQuestionByQId(Long qId) {
         Question question = null;
         try (Jedis jedis = getJedis()) {
             String qIdKey = getKey(qId, jedis);
@@ -149,25 +149,6 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
             log.error(e.getMessage());
         }
         return question;
-    }
-
-    @Override
-    public List<Long> queryAIdsByQId(Long qId) {
-        List<Long> aIds = null;
-        try (Jedis jedis = getJedis()) {
-            String qIdKey = getKey(qId, jedis);
-            if (qIdKey != null) {
-                String qIdAKey = qIdKey + SUFFIX_ANSWERS;
-                Set<String> aIdKeys = jedis.zrange(qIdAKey, 0L, -1L);
-                aIds = new ArrayList<>(aIdKeys.size());
-                for (String aIdKey : aIdKeys) {
-                    aIds.add(Long.parseLong(aIdKey));
-                }
-            }
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        }
-        return aIds;
     }
 
     private List<Long> queryQIds(int offset, int count) {
@@ -217,7 +198,7 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
     private String getKey(Long qId, Jedis jedis) {
         String qIdKey = PREFIX_QUESTION + qId.toString();
         if (jedis.expire(qIdKey, ONE_MINUTE) == 0L) {
-            Question question = questionDao.selectQuestionByQid(qId);
+            Question question = questionDao.selectQuestionByQId(qId);
             jedis.set(qIdKey, question != null ? JSON.toJSONString(question) : "", SET_PARAMS_ONE_MINUTE);
         }
         return jedis.strlen(qIdKey) == 0L ? null : qIdKey;
@@ -243,6 +224,6 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
     }
 
     private Long selectAidByUid(Long qId, Long uid) {
-        return questionDao.selectAidByUid(qId, uid);
+        return questionDao.selectAIdByUId(qId, uid);
     }
 }

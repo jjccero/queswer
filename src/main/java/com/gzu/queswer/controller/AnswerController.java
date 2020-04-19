@@ -4,9 +4,11 @@ import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Attitude;
 import com.gzu.queswer.model.info.AnswerInfo;
 import com.gzu.queswer.service.AnswerService;
-import com.gzu.queswer.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -22,8 +24,6 @@ public class AnswerController {
 
     @PostMapping(value = "/updateAnswer")
     public boolean updateAnswer(@RequestBody Answer answer) {
-        answer.setGmtModify(DateUtil.getUnixTime());
-        if (answer.getAnonymous() == null) answer.setAnonymous(false);
         return answerService.updateAnswer(answer);
     }
 

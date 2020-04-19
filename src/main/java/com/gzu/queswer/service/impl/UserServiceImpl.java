@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -46,7 +47,8 @@ public class UserServiceImpl extends RedisService implements UserService {
         return null;
     }
 
-    public UserInfo getUserInfo(Long uId, Long userUId) {
+    @Override
+    public UserInfo getUserInfo(Long uId, Long selfId) {
         UserInfo userInfo = new UserInfo();
         try (Jedis jedis = getJedis()) {
             String uIdKey = getKey(uId, jedis);
@@ -54,15 +56,44 @@ public class UserServiceImpl extends RedisService implements UserService {
                 userInfo.setUser(getUser(uIdKey, jedis));
             }
         } catch (Exception e) {
-            log.error("msg:{},uId:{}",e.getMessage(),uId);
+            log.error(e.getMessage());
         }
         return userInfo;
+    }
+
+    @Override
+    public boolean saveFollow(Long uId, Long followerId) {
+        return userDao.saveFollow(uId, followerId) == 1;
+    }
+
+    @Override
+    public boolean deleteFollow(Long uId, Long followerId) {
+        return userDao.deleteFollow(uId, followerId) == 1;
+    }
+
+    @Override
+    public List<UserInfo> queryUserInfosByFollowerId(Long followerId, Long selfId) {
+        List<Long> peopleIds = userDao.selectUIdsByFollowerId(followerId);
+        List<UserInfo> userInfos = new ArrayList<>(peopleIds.size());
+        for (Long peopleId : peopleIds) {
+            userInfos.add(getUserInfo(peopleId, selfId));
+        }
+        return userInfos;
+    }
+
+    @Override
+    public List<UserInfo> queryFollowerInfosIdsByUId(Long uId, Long selfId) {
+        List<Long> peopleIds = userDao.selectFollowerIdsByUId(uId);
+        List<UserInfo> userInfos = new ArrayList<>(peopleIds.size());
+        for (Long peopleId : peopleIds) {
+            userInfos.add(getUserInfo(peopleId, selfId));
+        }
+        return userInfos;
     }
 
     private User getUser(String uIdKey, Jedis jedis) {
         return JSON.parseObject(jedis.get(uIdKey), User.class);
     }
-
 
     private String getKey(Long uid, Jedis jedis) {
         String uIdKey = PREFIX_USER + uid.toString();
@@ -71,15 +102,5 @@ public class UserServiceImpl extends RedisService implements UserService {
             jedis.set(uIdKey, user != null ? JSON.toJSONString(user) : "", SET_PARAMS_ONE_MINUTE);
         }
         return jedis.strlen(uIdKey) == 0L ? null : uIdKey;
-    }
-
-    @Override
-    public List<Long> selectUIdByFollowerId(Long followerId) {
-        return userDao.selectUIdByFollowerId(followerId);
-    }
-
-    @Override
-    public List<Long> selectFollerUIdsByUId(Long uId) {
-        return userDao.selectFollerUIdsByUId(uId);
     }
 }

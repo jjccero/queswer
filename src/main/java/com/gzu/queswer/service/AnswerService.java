@@ -21,8 +21,6 @@ public interface AnswerService {
 
     AnswerInfo getAnswerInfo(Long aId, Long uId);
 
-    Answer selectAnswerByAid(Long aId);
-
-    List<Long> selectRidsByAid(Long aId);
+    Answer getAnswerByAId(Long aId);
 
 }

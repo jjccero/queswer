@@ -5,7 +5,12 @@
         INSERT INTO t_review (gmtCreate, aId, uId, revi, replyRId, deleted)
         VALUES (#{gmtCreate}, #{aId}, #{uId}, #{revi}, #{replyRId}, False);
     </insert>
-    <select id="selectReviewByRid" resultType="com.gzu.queswer.model.Review">
+    <delete id="deleteReview">
+        UPDATE t_review
+        SET deleted=1
+        WHERE r_id = #{rId};
+    </delete>
+    <select id="selectReviewByRId" resultType="com.gzu.queswer.model.Review">
         SELECT r_id,
                gmt_Create,
                a_id,
@@ -14,15 +19,5 @@
                reply_r_id,
                deleted
         FROM t_review WHERE r_id=#{rId};
-    </select>
-    <delete id="deleteReviewByRid">
-        UPDATE t_review
-        SET deleted=1
-        WHERE r_id = #{rId};
-    </delete>
-    <select id="selectRidsByAid" resultType="Long">
-        SELECT r_id
-        FROM t_review
-        WHERE a_id = #{aId};
     </select>
 </mapper>

@@ -1,63 +1,24 @@
 package com.gzu.queswer.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.gzu.queswer.model.Topic;
-import com.gzu.queswer.model.User;
-import com.gzu.queswer.model.UserLogin;
-import com.gzu.queswer.model.info.UserInfo;
 import com.gzu.queswer.service.CacheService;
 import com.gzu.queswer.service.TopicService;
-import com.gzu.queswer.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 public class HelloController {
     @Autowired
-    private UserService userService;
-
-    @GetMapping(value = "/deleteCache")
-    public int deleteCache() {
-        return 1;
-    }
-
-    @PostMapping(value = "/login")
-    public User login(@RequestBody JSONObject loginForm) {
-        String username = loginForm.getString("username");
-        String password = loginForm.getString("password");
-        return userService.login(username, password);
-    }
-
-    @PostMapping(value = "/signup")
-    public Long signup(@RequestBody UserLogin userLogin) {
-        userLogin.setNormalUser();
-        return userService.saveUser(userLogin);
-    }
-
-    @PostMapping("/signupSuper")
-    public Long signupSuper(@RequestBody UserLogin userLogin) {
-        userLogin.setSuperUser();
-        return userService.saveUser(userLogin);
-    }
-
-    @PostMapping("/updateUser")
-    public Integer updateUser(@RequestBody User user) {
-        return userService.updateUser(user);
-    }
-
-    @GetMapping(value = "/getUserInfo")
-    public UserInfo getUserInfo(Long peopleUId, Long uId) {
-        return userService.getUserInfo(peopleUId, uId);
-    }
-
-    @Autowired
     TopicService topicService;
 
-    @GetMapping("/getTopicList")
-    public List getTopicList() {
-        return topicService.selectTopics();
+    @GetMapping("/queryTopics")
+    public List queryTopics() {
+        return topicService.queryTopics();
     }
 
     @PostMapping("/saveTopic")

@@ -29,12 +29,22 @@
             intro=#{intro}
         WHERE u_id = #{uId};
     </update>
+    <insert id="saveFollow">
+        insert into t_follow(u_id, follower_id)
+        values (#{uId}, #{followerId});
+    </insert>
+    <delete id="deleteFollow">
+        delete
+        from t_follow
+        where u_id = #{uId}
+          and follower_id = #{followerId};
+    </delete>
     <select id="selectUIdByFollowerId" resultType="Long">
         select u_id
         from t_follow
         where follower_id = #{followerId}
     </select>
-    <select id="selectFollerUIdsByUId" resultType="Long">
+    <select id="selectFollowerIdsByUId" resultType="Long">
         select follower_id
         from t_follow
         where u_id = #{uId}

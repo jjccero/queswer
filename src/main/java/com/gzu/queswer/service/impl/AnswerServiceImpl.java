@@ -48,24 +48,6 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
     }
 
     @Override
-    public List<Long> selectRidsByAid(Long aId) {
-        List<Long> rids = new ArrayList<>();
-        try (Jedis jedis = getJedis()) {
-            String aIdKey = getKey(aId, jedis);
-            if (aIdKey != null) {
-                String aIdRKey = aIdKey + SUFFIX_REVIEWS;
-                Set<String> rIdKeys = jedis.zrange(aIdRKey, 0L, -1L);
-                for (String rid_key : rIdKeys) {
-                    rids.add(Long.parseLong(rid_key));
-                }
-            }
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        }
-        return rids;
-    }
-
-    @Override
     public boolean deleteAnswer(Long aId, Long uId) {
         boolean res = false;
         try (Jedis jedis = getJedis()) {
@@ -77,7 +59,7 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
                     jedis.del(aIdKey, aIdKey + SUFFIX_AGREE, aIdKey + SUFFIX_DISAGREE);
                     //从问题表里删除aid
                     res = jedis.zrem(PREFIX_QUESTION + answer.getqId().toString() + SUFFIX_ANSWERS, answer.getaId().toString()) == 1L;
-                    answerDao.deleteAnswerByAid(aId);
+                    answerDao.deleteAnswer(aId);
                     //删除评论列表
                     String aIdRKey = aIdKey + SUFFIX_REVIEWS;
                     jedis.del(aIdRKey);
@@ -99,6 +81,8 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
     @Override
     public boolean updateAnswer(Answer answer) {
         boolean res = false;
+        answer.setGmtModify(DateUtil.getUnixTime());
+        if (answer.getAnonymous() == null) answer.setAnonymous(false);
         try (Jedis jedis = getJedis()) {
             String aIdKey = getKey(answer.getaId(), jedis);
             if (aIdKey != null) {
@@ -107,7 +91,7 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
                     oldAnswer.setAnonymous(answer.getAnonymous());
                     oldAnswer.setAns(answer.getAns());
                     oldAnswer.setGmtModify(answer.getGmtModify());
-                    jedis.set(aIdKey, JSON.toJSONString(oldAnswer), SET_PARAMS_THIRTY_MINUTES);
+                    jedis.set(aIdKey, JSON.toJSONString(oldAnswer), SET_PARAMS_ONE_MINUTE);
                     answerDao.updateAnswer(oldAnswer);
                     res = true;
                 }
@@ -165,17 +149,23 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
 
     @Override
     public List<AnswerInfo> queryAnswers(Long qId, Long uId) {
-        List<Long> aids = questionService.queryAIdsByQId(qId);
-        List<AnswerInfo> answerInfos = new ArrayList<>();
-        for (Long aid : aids) {
-            AnswerInfo answerInfo = getAnswerInfo(aid, uId);
-            answerInfos.add(answerInfo);
+        List<AnswerInfo> answerInfos = null;
+        try (Jedis jedis = getJedis()) {
+            String qIdAKey = PREFIX_QUESTION + qId + SUFFIX_ANSWERS;
+            Set<String> aIdStrings = jedis.zrange(qIdAKey, 0L, -1L);
+            answerInfos = new ArrayList<>(aIdStrings.size());
+            for (String aIdString : aIdStrings) {
+                AnswerInfo answerInfo = getAnswerInfo(Long.parseLong(aIdString), uId);
+                answerInfos.add(answerInfo);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
         }
         return answerInfos;
     }
 
-
-    public Answer selectAnswerByAid(Long aId) {
+    @Override
+    public Answer getAnswerByAId(Long aId) {
         Answer answer = null;
         try (Jedis jedis = getJedis()) {
             String aIdKey = getKey(aId, jedis);

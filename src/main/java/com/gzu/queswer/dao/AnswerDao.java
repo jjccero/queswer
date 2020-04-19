@@ -5,10 +5,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AnswerDao {
-
     void insertAnswer(Answer answer);
 
-    int deleteAnswerByAid(Long aId);
+    int deleteAnswer(Long aId);
 
     int updateAnswer(Answer answer);
 

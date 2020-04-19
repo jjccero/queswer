@@ -40,6 +40,4 @@ public class QuestionController {
     public boolean deleteSubscribe(Long qId, Long uId) {
         return questionService.deleteSubscribe(qId, uId);
     }
-
-
 }

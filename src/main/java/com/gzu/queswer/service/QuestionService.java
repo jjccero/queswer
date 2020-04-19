@@ -18,7 +18,5 @@ public interface QuestionService {
 
     boolean deleteSubscribe(Long qId, Long uId);
 
-    List<Long> queryAIdsByQId(Long qId);
-
-    Question getQuestionByQid(Long qId);
+    Question getQuestionByQId(Long qId);
 }

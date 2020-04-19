@@ -9,9 +9,9 @@ import java.util.List;
 public interface TopicDao {
     void insertTopic(Topic topic);
 
-    List selectTopics();
+    List<Topic> selectTopics();
 
-    Topic selectTopicByTid(Long tId);
+    Topic selectTopicByTId(Long tId);
 
-    List<Long> selectQuestionTopics(Long qId);
+    List<Long> selectTIdsByQId(Long qId);
 }
