@@ -38,29 +38,29 @@ public class ReviewServiceImpl extends RedisService implements ReviewService {
         review.setReviewId(null);
         review.setGmtCreate(DateUtil.getUnixTime());
         reviewDao.insertReview(review);
-        Long rId = review.getReviewId();
-        if (rId != null) {
+        Long reviewId = review.getReviewId();
+        if (reviewId != null) {
             try (Jedis jedis = getJedis()) {
-                jedis.zadd(PREFIX_ANSWER + review.getAnswerId().toString() + SUFFIX_REVIEWS, 0.0, rId.toString());
+                jedis.zadd(PREFIX_ANSWER + review.getAnswerId().toString() + SUFFIX_REVIEWS, 0.0, reviewId.toString());
             } catch (Exception e) {
                 log.error(e.getMessage());
             }
         }
-        return rId;
+        return reviewId;
     }
 
     @Override
-    public boolean deleteReview(Long rId, Long userId) {
+    public boolean deleteReview(Long reviewId, Long userId) {
         boolean res = false;
         try (Jedis jedis = getJedis()) {
-            String rIdKey = getKey(rId, jedis);
-            if (rIdKey != null) {
-                Review review = getReview(rIdKey, jedis);
+            String reviewIdKey = getKey(reviewId, jedis);
+            if (reviewIdKey != null) {
+                Review review = getReview(reviewIdKey, jedis);
                 if (review.getUserId().equals(userId)) {
                     review.setRevi(null);
                     review.setDeleted(true);
-                    jedis.set(rIdKey, JSON.toJSONString(review), SET_PARAMS_ONE_MINUTE);
-                    reviewDao.deleteReview(rId);
+                    jedis.set(reviewIdKey, JSON.toJSONString(review), SET_PARAMS_ONE_MINUTE);
+                    reviewDao.deleteReview(reviewId);
                     res = true;
                 }
             }
@@ -81,11 +81,11 @@ public class ReviewServiceImpl extends RedisService implements ReviewService {
         Boolean questionAnonymous = question.getAnonymous();
         try (Jedis jedis = getJedis()) {
             String aIdRKey = PREFIX_ANSWER + answerId + SUFFIX_REVIEWS;
-            Set<String> rIdStrings = jedis.zrange(aIdRKey, 0L, -1L);
-            reviewInfos = new ArrayList<>(rIdStrings.size());
-            for (String rIdString : rIdStrings) {
-                Long rId = Long.parseLong(rIdString);
-                ReviewInfo reviewInfo = getReviewInfo(rId, userId);
+            Set<String> reviewIdStrings = jedis.zrange(aIdRKey, 0L, -1L);
+            reviewInfos = new ArrayList<>(reviewIdStrings.size());
+            for (String reviewIdString : reviewIdStrings) {
+                Long reviewId = Long.parseLong(reviewIdString);
+                ReviewInfo reviewInfo = getReviewInfo(reviewId, userId);
                 Review review = reviewInfo.getReview();
                 Long reviewerId = review.getUserId();
                 reviewInfo.setAnonymous(false);
@@ -111,14 +111,14 @@ public class ReviewServiceImpl extends RedisService implements ReviewService {
     }
 
     @Override
-    public boolean updateApprove(Long rId, Long userId, Boolean approve) {
-        if (rId == null || userId == null || approve == null) return false;
+    public boolean updateApprove(Long reviewId, Long userId, Boolean approve) {
+        if (reviewId == null || userId == null || approve == null) return false;
         boolean res = false;
         try (Jedis jedis = getJedis()) {
-            String rIdKey = getKey(rId, jedis);
-            if (rIdKey != null) {
-                if (Boolean.TRUE.equals(approve)) jedis.sadd(rIdKey + SUFFIX_APPROVERS, userId.toString());
-                else jedis.srem(rIdKey + SUFFIX_APPROVERS, userId.toString());
+            String reviewIdKey = getKey(reviewId, jedis);
+            if (reviewIdKey != null) {
+                if (Boolean.TRUE.equals(approve)) jedis.sadd(reviewIdKey + SUFFIX_APPROVERS, userId.toString());
+                else jedis.srem(reviewIdKey + SUFFIX_APPROVERS, userId.toString());
                 res = true;
             }
         } catch (Exception e) {
@@ -127,19 +127,17 @@ public class ReviewServiceImpl extends RedisService implements ReviewService {
         return res;
     }
 
-    private ReviewInfo getReviewInfo(Long rId, Long uId) {
+    private ReviewInfo getReviewInfo(Long reviewId, Long uId) {
         ReviewInfo reviewInfo = new ReviewInfo();
         try (Jedis jedis = getJedis()) {
-            String rIdKey = getKey(rId, jedis);
-            if (rIdKey != null) {
-                Review review = getReview(rIdKey, jedis);
-                String rIdAKey = rIdKey + SUFFIX_APPROVERS;
+            String reviewIdKey = getKey(reviewId, jedis);
+            if (reviewIdKey != null) {
+                Review review = getReview(reviewIdKey, jedis);
+                String reviewIdAKey = reviewIdKey + SUFFIX_APPROVERS;
                 //查询赞同数量
-                reviewInfo.setApproveCount(jedis.scard(rIdAKey));
+                reviewInfo.setApproveCount(jedis.scard(reviewIdAKey));
                 //查询是否已赞同
-                if (uId != null) {
-                    reviewInfo.setApproved(jedis.sismember(rIdAKey, uId.toString()));
-                }
+                if (uId != null) reviewInfo.setApproved(jedis.sismember(reviewIdAKey, uId.toString()));
                 reviewInfo.setReview(review);
             }
         } catch (Exception e) {
@@ -148,17 +146,17 @@ public class ReviewServiceImpl extends RedisService implements ReviewService {
         return reviewInfo;
     }
 
-    private Review getReview(String rIdKey, Jedis jedis) {
-        return JSON.parseObject(jedis.get(rIdKey), Review.class);
+    private Review getReview(String reviewIdKey, Jedis jedis) {
+        return JSON.parseObject(jedis.get(reviewIdKey), Review.class);
     }
 
-    private String getKey(Long rId, Jedis jedis) {
-        String rIdKey = PREFIX_REVIEW + rId.toString();
-        if (jedis.expire(rIdKey, ONE_MINUTE) == 0L) {
-            Review review = reviewDao.selectReview(rId);
-            jedis.set(rIdKey, review != null ? JSON.toJSONString(review) : "", SET_PARAMS_ONE_MINUTE);
+    private String getKey(Long reviewId, Jedis jedis) {
+        String reviewIdKey = PREFIX_REVIEW + reviewId.toString();
+        if (jedis.expire(reviewIdKey, ONE_MINUTE) == 0L) {
+            Review review = reviewDao.selectReview(reviewId);
+            jedis.set(reviewIdKey, review != null ? JSON.toJSONString(review) : "", SET_PARAMS_ONE_MINUTE);
         }
-        return jedis.strlen(rIdKey) == 0L ? null : rIdKey;
+        return jedis.strlen(reviewIdKey) == 0L ? null : reviewIdKey;
     }
 
     private void setUserInfo(ReviewInfo reviewInfo, Long uid) {

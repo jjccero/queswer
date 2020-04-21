@@ -3,7 +3,9 @@ package com.gzu.queswer.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.gzu.queswer.model.User;
 import com.gzu.queswer.model.UserLogin;
+import com.gzu.queswer.model.info.ActivityInfo;
 import com.gzu.queswer.model.info.UserInfo;
+import com.gzu.queswer.service.ActivityService;
 import com.gzu.queswer.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +23,8 @@ import java.util.List;
 public class UserController {
     @Autowired
     UserService userService;
+    @Autowired
+    ActivityService activityService;
 
     @PostMapping(value = "/login")
     public User login(@RequestBody JSONObject loginForm) {
@@ -67,7 +71,12 @@ public class UserController {
     }
 
     @GetMapping("/queryFollowerInfosIdsByUId")
-    public List<UserInfo> queryFollowerInfosIdsByUId(Long uId, Long selfId) {
-        return userService.queryFollowerInfosIdsByUId(uId, selfId);
+    public List<UserInfo> queryFollowerInfosIdsByUId(Long userId, Long selfId) {
+        return userService.queryFollowerInfosIdsByUId(userId, selfId);
+    }
+
+    @GetMapping("/queryPeopleActivities")
+    public List<ActivityInfo> queryPeopleActivities(Long peopleId, Long userId, int offset, int limit) {
+        return activityService.queryPeopleActivities(peopleId, userId, offset, limit);
     }
 }

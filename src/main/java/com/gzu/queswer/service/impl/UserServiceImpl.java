@@ -53,12 +53,12 @@ public class UserServiceImpl extends RedisService implements UserService {
     }
 
     @Override
-    public UserInfo getUserInfo(Long uId, Long userId) {
+    public UserInfo getUserInfo(Long peopleId, Long userId) {
         UserInfo userInfo = new UserInfo();
         try (Jedis jedis = getJedis()) {
-            String uIdKey = getKey(uId, jedis);
-            if (uIdKey != null) {
-                userInfo.setUser(getUser(uIdKey, jedis));
+            String userIdKey = getKey(peopleId, jedis);
+            if (userIdKey != null) {
+                userInfo.setUser(getUser(userIdKey, jedis));
             }
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -67,31 +67,31 @@ public class UserServiceImpl extends RedisService implements UserService {
     }
 
     @Override
-    public boolean saveFollow(Long userId, Long followerId) {
+    public boolean saveFollow(Long peopleId, Long userId) {
         Long gmtCreate = DateUtil.getUnixTime();
-        return userDao.saveFollow(userId, followerId, gmtCreate) == 1
-                && activityService.saveActivity(getFollowActivity(userId, followerId, gmtCreate));
+        return userDao.saveFollow(peopleId, userId, gmtCreate) == 1
+                && activityService.saveActivity(getFollowActivity(peopleId, userId, gmtCreate));
     }
 
     @Override
-    public boolean deleteFollow(Long userId, Long followerId) {
-        return userDao.deleteFollow(userId, followerId) == 1
-                && activityService.deleteActivity(getFollowActivity(userId, followerId, null));
+    public boolean deleteFollow(Long peopleId, Long userId) {
+        return userDao.deleteFollow(peopleId, userId) == 1
+                && activityService.deleteActivity(getFollowActivity(peopleId, userId, null));
     }
 
     @Override
-    public List<UserInfo> queryUserInfosByFollowerId(Long followerId, Long selfId) {
+    public List<UserInfo> queryUserInfosByFollowerId(Long followerId, Long userId) {
         List<Long> peopleIds = userDao.selectUserIdsByFollowerId(followerId);
         List<UserInfo> userInfos = new ArrayList<>(peopleIds.size());
         for (Long peopleId : peopleIds) {
-            userInfos.add(getUserInfo(peopleId, selfId));
+            userInfos.add(getUserInfo(peopleId, userId));
         }
         return userInfos;
     }
 
     @Override
-    public List<UserInfo> queryFollowerInfosIdsByUId(Long uId, Long selfId) {
-        List<Long> peopleIds = userDao.selectFollowerIdsByUserId(uId);
+    public List<UserInfo> queryFollowerInfosIdsByUId(Long userId, Long selfId) {
+        List<Long> peopleIds = userDao.selectFollowerIdsByUserId(userId);
         List<UserInfo> userInfos = new ArrayList<>(peopleIds.size());
         for (Long peopleId : peopleIds) {
             userInfos.add(getUserInfo(peopleId, selfId));
@@ -99,17 +99,17 @@ public class UserServiceImpl extends RedisService implements UserService {
         return userInfos;
     }
 
-    private User getUser(String uIdKey, Jedis jedis) {
-        return JSON.parseObject(jedis.get(uIdKey), User.class);
+    private User getUser(String userIdKey, Jedis jedis) {
+        return JSON.parseObject(jedis.get(userIdKey), User.class);
     }
 
-    private String getKey(Long uid, Jedis jedis) {
-        String uIdKey = PREFIX_USER + uid.toString();
-        if (jedis.expire(uIdKey, ONE_MINUTE) == 0L) {
-            User user = userDao.selectUser(uid);
-            jedis.set(uIdKey, user != null ? JSON.toJSONString(user) : "", SET_PARAMS_ONE_MINUTE);
+    private String getKey(Long userId, Jedis jedis) {
+        String userIdKey = PREFIX_USER + userId.toString();
+        if (jedis.expire(userIdKey, ONE_MINUTE) == 0L) {
+            User user = userDao.selectUser(userId);
+            jedis.set(userIdKey, user != null ? JSON.toJSONString(user) : "", SET_PARAMS_ONE_MINUTE);
         }
-        return jedis.strlen(uIdKey) == 0L ? null : uIdKey;
+        return jedis.strlen(userIdKey) == 0L ? null : userIdKey;
     }
 
     private Activity getFollowActivity(Long uId, Long followerId, Long gmtCreate) {

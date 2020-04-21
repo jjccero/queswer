@@ -63,4 +63,11 @@
         from t_activity
         order by gmt_create;
     </select>
+    <insert id="insertActivityBatch" parameterType="java.util.List">
+        insert into t_activity(user_id, act, id, gmt_create)
+        values
+        <foreach collection="list" item="activity" separator=",">
+            (#{activity.userId}, #{activity.act}, #{activity.id}, #{activity.gmtCreate})
+        </foreach>
+    </insert>
 </mapper>

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.ScanParams;
 import redis.clients.jedis.ScanResult;
+import redis.clients.jedis.Transaction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,9 +114,9 @@ public class CacheServiceImpl extends RedisService implements CacheService {
     @Override
     public boolean restore() {
         try (Jedis jedis = getJedis()) {
-            long startTime=System.currentTimeMillis();
+            long startTime = System.currentTimeMillis();
             cacheDao.deleteActivities();
-            logTime(startTime,"deleteActivities");
+            logTime(startTime, "deleteActivities");
             jedis.flushDB();
             List<Long> qIds = cacheDao.selectQuestionIds();
             for (Long qId : qIds) {
@@ -131,25 +132,27 @@ public class CacheServiceImpl extends RedisService implements CacheService {
                     }
                 }
             }
-            logTime(startTime,"flushDB");
-            //提问加入时间轴
-            restoreQuestionActivities();
-            logTime(startTime,"restoreQuestionActivities");
-            //回答加入时间轴
-            restoreAnswerActivities();
-            logTime(startTime,"restoreAnswerActivities");
+            logTime(startTime, "flushDB");
             //恢复态度表，并加入时间轴
-            restoreAttitudeActivities(jedis);
-            logTime(startTime,"restoreAttitudeActivities");
+            List<Activity> activities =restoreAttitudeActivities(startTime,jedis);
+            logTime(startTime, "restoreAttitudeActivities");
+            //提问加入时间轴
+            restoreQuestionActivities(activities);
+            logTime(startTime, "restoreQuestionActivities");
+            //回答加入时间轴
+            restoreAnswerActivities(activities);
+            logTime(startTime, "restoreAnswerActivities");
             //恢复问题订阅表，并加入时间轴
-            restoreSubscribeQuestionActivities(jedis);
-            logTime(startTime,"restoreSubscribeQuestionActivities");
+            restoreSubscribeQuestionActivities(jedis, activities);
+            logTime(startTime, "restoreSubscribeQuestionActivities");
             //恢复话题订阅情况加入时间轴
-            restoreSubscribeTopicActivities();
-            logTime(startTime,"restoreSubscribeTopicActivities");
+            restoreSubscribeTopicActivities(activities);
+            logTime(startTime, "restoreSubscribeTopicActivities");
             //恢复评论赞同表,不需要加入时间轴
             restoreApproveActivities(jedis);
-            logTime(startTime,"restoreApproveActivities");
+            logTime(startTime, "restoreApproveActivities");
+            log.info("{}",cacheDao.insertActivityBatch(activities));
+            logTime(startTime, "insertActivityBatch");
             return true;
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -192,53 +195,62 @@ public class CacheServiceImpl extends RedisService implements CacheService {
         return ids;
     }
 
-    private void restoreAnswerActivities() {
+    private void restoreAnswerActivities(List<Activity> activities) {
         List<Activity> answerActivities = cacheDao.selectAnswerActivities();
         for (Activity activity : answerActivities) {
             activity.setAct(Action.SAVE_ANSWER);
-            activityService.saveActivity(activity);
         }
+        activities.addAll(answerActivities);
     }
 
-    private void restoreQuestionActivities() {
+    private void restoreQuestionActivities(List<Activity> activities) {
         List<Activity> questionActivities = cacheDao.selectQuestionActivities();
         for (Activity activity : questionActivities) {
             activity.setAct(Action.SAVE_QUESTION);
-            activityService.saveActivity(activity);
         }
+        activities.addAll(questionActivities);
     }
 
-    private void restoreAttitudeActivities(Jedis jedis) {
+    private List<Activity> restoreAttitudeActivities(long startTime,Jedis jedis) {
         List<Attitude> attitudes = cacheDao.selectAttitudes();
+        List<Activity> activities = new ArrayList<>(attitudes.size());
+        logTime(startTime, "activities");
         for (Attitude attitude : attitudes) {
-            if (Boolean.TRUE.equals(attitude.getAtti()))
-                jedis.sadd(PREFIX_ANSWER + attitude.getAnswerId() + SUFFIX_AGREE, attitude.getUserId().toString());
-            else
-                jedis.sadd(PREFIX_ANSWER + attitude.getAnswerId() + SUFFIX_AGAINST, attitude.getUserId().toString());
+            Transaction transaction = jedis.multi();
+            String userIdField = attitude.getUserId().toString();
+            if (Boolean.TRUE.equals(attitude.getAtti())) {
+                transaction.srem(PREFIX_ANSWER + attitude.getAnswerId() + SUFFIX_AGAINST, userIdField);
+                transaction.sadd(PREFIX_ANSWER + attitude.getAnswerId() + SUFFIX_AGREE, userIdField);
+            } else {
+                transaction.srem(PREFIX_ANSWER + attitude.getAnswerId() + SUFFIX_AGREE, userIdField);
+                transaction.sadd(PREFIX_ANSWER + attitude.getAnswerId() + SUFFIX_AGAINST, userIdField);
+            }
+            transaction.exec();
             Activity activity = new Activity();
             activity.setUserId(attitude.getUserId());
             activity.setId(attitude.getAnswerId());
             activity.setAct(Action.ATTITUDE_ANSWER);
             activity.setGmtCreate(attitude.getGmtCreate());
-            activityService.saveActivity(activity);
+            activities.add(activity);
         }
+        return activities;
     }
 
-    private void restoreSubscribeQuestionActivities(Jedis jedis) {
+    private void restoreSubscribeQuestionActivities(Jedis jedis, List<Activity> activities) {
         List<Activity> subscribeQuestionActivities = cacheDao.selectSubscribeQuestionActivities();
         for (Activity activity : subscribeQuestionActivities) {
             jedis.sadd(PREFIX_QUESTION + activity.getId() + SUFFIX_SUBSCRIBERS, activity.getUserId().toString());
             activity.setAct(Action.SUBSCRIBE_QUESTION);
-            activityService.saveActivity(activity);
         }
+        activities.addAll(subscribeQuestionActivities);
     }
 
-    private void restoreSubscribeTopicActivities() {
+    private void restoreSubscribeTopicActivities(List<Activity> activities) {
         List<Activity> subscribeTopicActivities = cacheDao.selectSubscribeTopicActivities();
         for (Activity activity : subscribeTopicActivities) {
             activity.setAct(Action.SUBSCRIBE_TOPIC);
-            activityService.saveActivity(activity);
         }
+        activities.addAll(subscribeTopicActivities);
     }
 
     private void restoreApproveActivities(Jedis jedis) {

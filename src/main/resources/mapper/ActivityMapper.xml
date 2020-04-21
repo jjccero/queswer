@@ -4,7 +4,7 @@
     <insert id="insertActivity">
         insert into t_activity(user_id, act, id, gmt_create)
         values (#{userId}, #{act}, #{id}, #{gmtCreate})
-#         on duplicate key update gmt_create=#{gmtCreate};
+        on duplicate key update gmt_create=#{gmtCreate};
     </insert>
     <delete id="deleteActivity">
         delete
@@ -15,6 +15,7 @@
     </delete>
     <select id="selectActivitiesByUserId" resultType="com.gzu.queswer.model.Activity">
         select user_id,gmt_create,act,id
+        from t_activity
         where user_id = #{userId}
         ORDER BY gmt_create DESC
         LIMIT #{offset},#{limit};

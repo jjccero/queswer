@@ -17,10 +17,12 @@ public interface AnswerService {
 
     boolean deleteAttitude(Long answerId, Long userId);
 
-    List<AnswerInfo> queryAnswers(Long qId, Long userId);
+    List<AnswerInfo> queryAnswers(Long questionId, Long userId);
 
     AnswerInfo getAnswerInfo(Long answerId, Long userId);
 
     Answer getAnswer(Long answerId);
+
+    boolean getAgree(Long answerId, Long userId);
 
 }

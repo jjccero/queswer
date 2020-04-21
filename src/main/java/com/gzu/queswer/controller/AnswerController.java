@@ -42,7 +42,6 @@ public class AnswerController {
         return answerService.deleteAttitude(answerId, userId);
     }
 
-
     @GetMapping("/queryAnswers")
     public List<AnswerInfo> queryAnswers(Long questionId, Long userId) {
         return answerService.queryAnswers(questionId, userId);

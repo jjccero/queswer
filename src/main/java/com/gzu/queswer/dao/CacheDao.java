@@ -35,4 +35,6 @@ public interface CacheDao {
 
     List<Activity> selectApproveActivities();
 
+    int insertActivityBatch(List<Activity> activities);
+
 }

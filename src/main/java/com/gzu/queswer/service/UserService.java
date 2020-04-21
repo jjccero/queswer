@@ -15,12 +15,12 @@ public interface UserService {
 
     UserInfo getUserInfo(Long peopleId, Long userId);
 
-    boolean saveFollow(Long userId,Long followerId);
+    boolean saveFollow(Long peopleId,Long userId);
 
-    boolean deleteFollow(Long userId,Long followerId);
+    boolean deleteFollow(Long peopleId,Long userId);
 
-    List<UserInfo> queryUserInfosByFollowerId(Long followerId,Long selfId);
+    List<UserInfo> queryUserInfosByFollowerId(Long peopleId,Long userId);
 
-    List<UserInfo> queryFollowerInfosIdsByUId(Long uId,Long selfId);
+    List<UserInfo> queryFollowerInfosIdsByUId(Long peopleId,Long userId);
 
 }
