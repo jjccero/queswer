@@ -1,24 +1,14 @@
 package com.gzu.queswer.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 
+@Setter
+@Getter
 public class Topic implements Serializable {
-    private Long tId;
+    private Long topicId;
     private String topicName;
-
-    public Long gettId() {
-        return tId;
-    }
-
-    public void settId(Long tId) {
-        this.tId = tId;
-    }
-
-    public String getTopicName() {
-        return topicName;
-    }
-
-    public void setTopicName(String topicName) {
-        this.topicName = topicName;
-    }
+    private String topicIntro;
 }

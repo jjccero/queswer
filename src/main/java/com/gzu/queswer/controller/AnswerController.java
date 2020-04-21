@@ -28,8 +28,8 @@ public class AnswerController {
     }
 
     @GetMapping("/deleteAnswer")
-    public boolean deleteAnswer(Long aId, Long uId) {
-        return answerService.deleteAnswer(aId, uId);
+    public boolean deleteAnswer(Long answerId, Long userId) {
+        return answerService.deleteAnswer(answerId, userId);
     }
 
     @PostMapping("/updateAttitude")
@@ -38,13 +38,13 @@ public class AnswerController {
     }
 
     @GetMapping("/deleteAttitude")
-    public boolean deleteAttitude(long aId, long uId) {
-        return answerService.deleteAttitude(aId, uId);
+    public boolean deleteAttitude(long answerId, long userId) {
+        return answerService.deleteAttitude(answerId, userId);
     }
 
 
     @GetMapping("/queryAnswers")
-    public List<AnswerInfo> queryAnswers(Long qId, Long uId) {
-        return answerService.queryAnswers(qId, uId);
+    public List<AnswerInfo> queryAnswers(Long questionId, Long userId) {
+        return answerService.queryAnswers(questionId, userId);
     }
 }

@@ -25,22 +25,22 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public Long saveTopic(Topic topic) {
-        topic.settId(null);
+        topic.setTopicId(null);
         topicDao.insertTopic(topic);
-        return topic.gettId();
+        return topic.getTopicId();
     }
 
     @Override
-    public Topic getTopicByTId(Long tId) {
-        return topicDao.selectTopicByTId(tId);
+    public Topic getTopic(Long topicId) {
+        return topicDao.selectTopic(topicId);
     }
 
     @Override
-    public List<Topic> queryTopicsByQId(Long qId) {
-        List<Long> tIds = topicDao.selectTIdsByQId(qId);
-        List<Topic> topics = new ArrayList<>(tIds.size());
-        for (Long tId : tIds) {
-            topics.add(topicDao.selectTopicByTId(tId));
+    public List<Topic> queryTopicsByQuestionId(Long questionId) {
+        List<Long> topicIds = topicDao.selectTopicIdsByQuestionId(questionId);
+        List<Topic> topics = new ArrayList<>(topicIds.size());
+        for (Long topicId : topicIds) {
+            topics.add(topicDao.selectTopic(topicId));
         }
         return topics;
     }

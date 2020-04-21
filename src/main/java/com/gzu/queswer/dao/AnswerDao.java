@@ -7,11 +7,10 @@ import org.springframework.stereotype.Repository;
 public interface AnswerDao {
     void insertAnswer(Answer answer);
 
-    int deleteAnswer(Long aId);
+    int deleteAnswer(Long answerId);
 
     int updateAnswer(Answer answer);
 
-    Answer selectAnswerbyAId(Long aId);
-
+    Answer selectAnswer(Long answerId);
 
 }

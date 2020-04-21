@@ -16,12 +16,14 @@ public class RedisService {
     static final String PREFIX_QUESTION = "question:";
     static final String PREFIX_REVIEW = "review:";
     static final String PREFIX_USER = "user:";
-    static final String SUFFIX_APPROVES = ":approves";
+    static final String PREFIX_TOPIC = "topic:";
+    static final String SUFFIX_APPROVERS = ":approvers";
     static final String SUFFIX_REVIEWS = ":reviews";
     static final String SUFFIX_SUBSCRIBERS = ":subscribers";
     static final String SUFFIX_ANSWERS = ":answers";
+    static final String SUFFIX_F0LLOWERS=":followers";
     static final String SUFFIX_AGREE = ":1";
-    static final String SUFFIX_DISAGREE = ":0";
+    static final String SUFFIX_AGAINST = ":0";
     static final String TOP_LIST_KEY = "topQuestions";
 
     static {

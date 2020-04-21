@@ -19,18 +19,18 @@ public class ReviewController {
     }
 
     @GetMapping("/deleteReview")
-    public boolean deleteReview(Long rId, Long uId) {
-        return reviewService.deleteReview(rId, uId);
+    public boolean deleteReview(Long reviewId, Long userId) {
+        return reviewService.deleteReview(reviewId, userId);
     }
 
     @GetMapping("/queryReviews")
-    public List<ReviewInfo> queryReviews(Long aId, Long uId) {
-        return reviewService.queryReviews(aId, uId);
+    public List<ReviewInfo> queryReviews(Long answerId, Long userId) {
+        return reviewService.queryReviews(answerId, userId);
     }
 
     @GetMapping("/updateApprove")
-    public boolean updateApprove(Long rId, Long uId, Boolean approve) {
-        return reviewService.updateApprove(rId, uId, approve);
+    public boolean updateApprove(Long reviewId, Long userId, Boolean approve) {
+        return reviewService.updateApprove(reviewId, userId, approve);
     }
 
 }

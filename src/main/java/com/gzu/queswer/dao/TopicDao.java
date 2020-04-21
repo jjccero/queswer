@@ -11,7 +11,7 @@ public interface TopicDao {
 
     List<Topic> selectTopics();
 
-    Topic selectTopicByTId(Long tId);
+    Topic selectTopic(Long topicId);
 
-    List<Long> selectTIdsByQId(Long qId);
+    List<Long> selectTopicIdsByQuestionId(Long questionId);
 }

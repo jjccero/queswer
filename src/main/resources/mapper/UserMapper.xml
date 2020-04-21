@@ -2,12 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.gzu.queswer.dao.UserDao">
     <select id="selectUserLoginByUsername" resultType="com.gzu.queswer.model.UserLogin">
-        SELECT u_id,password
+        SELECT user_Id,password
         FROM t_user
         WHERE username = #{username};
     </select>
-    <select id="selectUserByUId" resultType="com.gzu.queswer.model.User">
-        SELECT u_id,
+    <select id="selectUser" resultType="com.gzu.queswer.model.User">
+        SELECT user_Id,
                gmt_create,
                username,
                authority,
@@ -16,9 +16,9 @@
                intro,
                avater
         FROM t_user
-        WHERE u_id = #{uId};
+        WHERE user_Id = #{userId};
     </select>
-    <insert id="insertUser" useGeneratedKeys="true" keyProperty="uId">
+    <insert id="insertUser" useGeneratedKeys="true" keyProperty="userId">
         INSERT INTO t_user(gmt_create, username, password, authority)
         VALUES (#{gmtCreate}, #{username}, #{password}, #{authority});
     </insert>
@@ -27,26 +27,26 @@
         SET nickname=#{nickname},
             sex=#{sex},
             intro=#{intro}
-        WHERE u_id = #{uId};
+        WHERE user_Id = #{userId};
     </update>
     <insert id="saveFollow">
-        insert into t_follow(u_id, follower_id)
-        values (#{uId}, #{followerId});
+        insert into t_follow(user_Id, follower_id,gmt_create)
+        values (#{userId}, #{followerId},#{gmtCreate});
     </insert>
     <delete id="deleteFollow">
         delete
         from t_follow
-        where u_id = #{uId}
+        where user_Id = #{userId}
           and follower_id = #{followerId};
     </delete>
-    <select id="selectUIdByFollowerId" resultType="Long">
-        select u_id
+    <select id="selectUserIdsByFollowerId" resultType="Long">
+        select user_Id
         from t_follow
         where follower_id = #{followerId}
     </select>
-    <select id="selectFollowerIdsByUId" resultType="Long">
+    <select id="selectFollowerIdsByUserId" resultType="Long">
         select follower_id
         from t_follow
-        where u_id = #{uId}
+        where user_Id = #{userId}
     </select>
 </mapper>

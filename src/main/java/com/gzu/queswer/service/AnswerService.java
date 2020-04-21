@@ -9,18 +9,18 @@ import java.util.List;
 public interface AnswerService {
     Long saveAnswer(Answer answer);
 
-    boolean deleteAnswer(Long aId, Long uId);
+    boolean deleteAnswer(Long answerId, Long userId);
 
     boolean updateAnswer(Answer answer);
 
     boolean updateAttitude(Attitude attitude);
 
-    boolean deleteAttitude(Long aId, Long uId);
+    boolean deleteAttitude(Long answerId, Long userId);
 
-    List<AnswerInfo> queryAnswers(Long qId, Long uId);
+    List<AnswerInfo> queryAnswers(Long qId, Long userId);
 
-    AnswerInfo getAnswerInfo(Long aId, Long uId);
+    AnswerInfo getAnswerInfo(Long answerId, Long userId);
 
-    Answer getAnswerByAId(Long aId);
+    Answer getAnswer(Long answerId);
 
 }

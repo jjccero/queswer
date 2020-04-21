@@ -5,9 +5,10 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class Activity {
-    private Long userId;
+public class Message {
+    private Long srcId;
+    private Long dstId;
     private Long gmtCreate;
-    private Short act;
-    private Long id;
+    private String msg;
+    private Boolean unread;
 }

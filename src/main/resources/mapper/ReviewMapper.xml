@@ -2,22 +2,23 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.gzu.queswer.dao.ReviewDao">
     <insert id="insertReview" useGeneratedKeys="true" keyProperty="rId">
-        INSERT INTO t_review (gmtCreate, aId, uId, revi, replyRId, deleted)
-        VALUES (#{gmtCreate}, #{aId}, #{uId}, #{revi}, #{replyRId}, False);
+        INSERT INTO t_review (gmt_create, answer_id, user_id, revi, reply_id, deleted)
+        VALUES (#{gmtCreate}, #{answerId}, #{userId}, #{revi}, #{replyId}, False);
     </insert>
     <delete id="deleteReview">
         UPDATE t_review
         SET deleted=1
-        WHERE r_id = #{rId};
+        WHERE review_id = #{reviewId};
     </delete>
-    <select id="selectReviewByRId" resultType="com.gzu.queswer.model.Review">
-        SELECT r_id,
-               gmt_Create,
-               a_id,
-               u_id,
+    <select id="selectReview" resultType="com.gzu.queswer.model.Review">
+        SELECT review_id,
+               gmt_create,
+               answer_id,
+               user_id,
                IF(deleted = FALSE, revi, null) revi,
-               reply_r_id,
+               reply_id,
                deleted
-        FROM t_review WHERE r_id=#{rId};
+        FROM t_review
+        WHERE review_id = #{reviewId};
     </select>
 </mapper>

@@ -35,13 +35,13 @@ public class ReviewServiceImpl extends RedisService implements ReviewService {
 
     @Override
     public Long saveReview(Review review) {
-        review.setrId(null);
+        review.setReviewId(null);
         review.setGmtCreate(DateUtil.getUnixTime());
         reviewDao.insertReview(review);
-        Long rId = review.getrId();
+        Long rId = review.getReviewId();
         if (rId != null) {
             try (Jedis jedis = getJedis()) {
-                jedis.zadd(PREFIX_ANSWER + review.getaId().toString() + SUFFIX_REVIEWS, 0.0, rId.toString());
+                jedis.zadd(PREFIX_ANSWER + review.getAnswerId().toString() + SUFFIX_REVIEWS, 0.0, rId.toString());
             } catch (Exception e) {
                 log.error(e.getMessage());
             }
@@ -50,13 +50,13 @@ public class ReviewServiceImpl extends RedisService implements ReviewService {
     }
 
     @Override
-    public boolean deleteReview(Long rId, Long uId) {
+    public boolean deleteReview(Long rId, Long userId) {
         boolean res = false;
         try (Jedis jedis = getJedis()) {
             String rIdKey = getKey(rId, jedis);
             if (rIdKey != null) {
                 Review review = getReview(rIdKey, jedis);
-                if (review.getuId().equals(uId)) {
+                if (review.getUserId().equals(userId)) {
                     review.setRevi(null);
                     review.setDeleted(true);
                     jedis.set(rIdKey, JSON.toJSONString(review), SET_PARAMS_ONE_MINUTE);
@@ -71,23 +71,23 @@ public class ReviewServiceImpl extends RedisService implements ReviewService {
     }
 
     @Override
-    public List<ReviewInfo> queryReviews(Long aId, Long uId) {
+    public List<ReviewInfo> queryReviews(Long answerId, Long userId) {
         List<ReviewInfo> reviewInfos = null;
-        Answer answer = answerService.getAnswerByAId(aId);
-        Question question = questionService.getQuestionByQId(answer.getqId());
-        Long answerUId = answer.getuId();
-        Long questionUId = question.getuId();
+        Answer answer = answerService.getAnswer(answerId);
+        Question question = questionService.getQuestionByQId(answer.getQuestionId());
+        Long answerUId = answer.getUserId();
+        Long questionUId = question.getUserId();
         Boolean answerAnonymous = answer.getAnonymous();
         Boolean questionAnonymous = question.getAnonymous();
         try (Jedis jedis = getJedis()) {
-            String aIdRKey = PREFIX_ANSWER + aId + SUFFIX_REVIEWS;
+            String aIdRKey = PREFIX_ANSWER + answerId + SUFFIX_REVIEWS;
             Set<String> rIdStrings = jedis.zrange(aIdRKey, 0L, -1L);
             reviewInfos = new ArrayList<>(rIdStrings.size());
             for (String rIdString : rIdStrings) {
                 Long rId = Long.parseLong(rIdString);
-                ReviewInfo reviewInfo = getReviewInfo(rId, uId);
+                ReviewInfo reviewInfo = getReviewInfo(rId, userId);
                 Review review = reviewInfo.getReview();
-                Long reviewerId = review.getuId();
+                Long reviewerId = review.getUserId();
                 reviewInfo.setAnonymous(false);
                 //判断提问者和评论者是不是同一人
                 if (questionUId.equals(reviewerId)) {
@@ -101,7 +101,7 @@ public class ReviewServiceImpl extends RedisService implements ReviewService {
                     reviewInfo.setAnswered(true);
                     reviewInfo.setAnonymous(answerAnonymous);
                 } else reviewInfo.setAnswered(false);
-                setUserInfo(reviewInfo, uId);
+                setUserInfo(reviewInfo, userId);
                 reviewInfos.add(reviewInfo);
             }
         } catch (Exception e) {
@@ -111,14 +111,14 @@ public class ReviewServiceImpl extends RedisService implements ReviewService {
     }
 
     @Override
-    public boolean updateApprove(Long rId, Long uId, Boolean approve) {
-        if (rId == null || uId == null || approve == null) return false;
+    public boolean updateApprove(Long rId, Long userId, Boolean approve) {
+        if (rId == null || userId == null || approve == null) return false;
         boolean res = false;
         try (Jedis jedis = getJedis()) {
             String rIdKey = getKey(rId, jedis);
             if (rIdKey != null) {
-                if (Boolean.TRUE.equals(approve)) jedis.sadd(rIdKey + SUFFIX_APPROVES, uId.toString());
-                else jedis.srem(rIdKey + SUFFIX_APPROVES, uId.toString());
+                if (Boolean.TRUE.equals(approve)) jedis.sadd(rIdKey + SUFFIX_APPROVERS, userId.toString());
+                else jedis.srem(rIdKey + SUFFIX_APPROVERS, userId.toString());
                 res = true;
             }
         } catch (Exception e) {
@@ -133,7 +133,7 @@ public class ReviewServiceImpl extends RedisService implements ReviewService {
             String rIdKey = getKey(rId, jedis);
             if (rIdKey != null) {
                 Review review = getReview(rIdKey, jedis);
-                String rIdAKey = rIdKey + SUFFIX_APPROVES;
+                String rIdAKey = rIdKey + SUFFIX_APPROVERS;
                 //查询赞同数量
                 reviewInfo.setApproveCount(jedis.scard(rIdAKey));
                 //查询是否已赞同
@@ -155,7 +155,7 @@ public class ReviewServiceImpl extends RedisService implements ReviewService {
     private String getKey(Long rId, Jedis jedis) {
         String rIdKey = PREFIX_REVIEW + rId.toString();
         if (jedis.expire(rIdKey, ONE_MINUTE) == 0L) {
-            Review review = reviewDao.selectReviewByRId(rId);
+            Review review = reviewDao.selectReview(rId);
             jedis.set(rIdKey, review != null ? JSON.toJSONString(review) : "", SET_PARAMS_ONE_MINUTE);
         }
         return jedis.strlen(rIdKey) == 0L ? null : rIdKey;
@@ -165,11 +165,11 @@ public class ReviewServiceImpl extends RedisService implements ReviewService {
         Review review = reviewInfo.getReview();
         UserInfo userInfo;
         Boolean anonymous = reviewInfo.getAnonymous();
-        if (Boolean.TRUE.equals(anonymous) && !review.getuId().equals(uid)) {
+        if (Boolean.TRUE.equals(anonymous) && !review.getUserId().equals(uid)) {
             userInfo = UserInfo.defaultUserInfo;
-            review.setuId(null);
+            review.setUserId(null);
         } else {
-            userInfo = userService.getUserInfo(review.getuId(), uid);
+            userInfo = userService.getUserInfo(review.getUserId(), uid);
             userInfo.setAnonymous(anonymous);
         }
         reviewInfo.setUserInfo(userInfo);

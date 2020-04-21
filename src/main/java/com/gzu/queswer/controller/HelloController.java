@@ -36,17 +36,27 @@ public class HelloController {
     }
 
     @GetMapping("/searchQuestionInfos")
-    public List searchQuestionInfos(String title, Long uId) {
-        return cacheService.selectQuestionInfosByQuestion(title, uId);
+    public List searchQuestionInfos(String title, Long userId) {
+        return cacheService.selectQuestionInfosByQuestion(title, userId);
     }
 
     @GetMapping("/searchUserInfos")
-    public List searchUserInfos(String nickname, Long uId) {
-        return cacheService.selectUserInfosByNickname(nickname, uId);
+    public List searchUserInfos(String nickname, Long userId) {
+        return cacheService.selectUserInfosByNickname(nickname, userId);
     }
 
-    @GetMapping("/init")
-    public boolean initRedis() {
-        return cacheService.initRedis();
+    @GetMapping("/restore")
+    public boolean restore() {
+        return cacheService.restore();
+    }
+
+    @GetMapping("/flush")
+    public boolean flush() {
+        return cacheService.flush();
+    }
+
+    @GetMapping("/backup")
+    public boolean backup() {
+        return cacheService.backup();
     }
 }

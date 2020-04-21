@@ -9,5 +9,5 @@ public interface ReviewDao {
 
     int deleteReview(Long rId);
 
-    Review selectReviewByRId(Long rId);
+    Review selectReview(Long rId);
 }

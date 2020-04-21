@@ -47,18 +47,18 @@ public class UserController {
     }
 
     @GetMapping(value = "/getUserInfo")
-    public UserInfo getUserInfo(Long peopleUId, Long uId) {
-        return userService.getUserInfo(peopleUId, uId);
+    public UserInfo getUserInfo(Long peopleId, Long userId) {
+        return userService.getUserInfo(peopleId, userId);
     }
 
     @GetMapping("/saveFollow")
-    public boolean saveFollow(Long uId, Long followerId) {
-        return userService.saveFollow(uId, followerId);
+    public boolean saveFollow(Long userId, Long followerId) {
+        return userService.saveFollow(userId, followerId);
     }
 
     @GetMapping("/deleteFollow")
-    public boolean deleteFollow(Long uId, Long followerId) {
-        return userService.deleteFollow(uId, followerId);
+    public boolean deleteFollow(Long userId, Long followerId) {
+        return userService.deleteFollow(userId, followerId);
     }
 
     @GetMapping("/queryUserInfosByFollowerId")

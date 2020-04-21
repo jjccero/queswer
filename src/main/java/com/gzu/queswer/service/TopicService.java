@@ -9,7 +9,7 @@ public interface TopicService {
 
     Long saveTopic(Topic topic);
 
-    Topic getTopicByTId(Long tId);
+    Topic getTopic(Long topicId);
 
-    List<Topic> queryTopicsByQId(Long qId);
+    List<Topic> queryTopicsByQuestionId(Long questionId);
 }

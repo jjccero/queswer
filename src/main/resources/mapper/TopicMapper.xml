@@ -9,14 +9,14 @@
         SELECT *
         FROM t_topic;
     </select>
-    <select id="selectTopicByTId" resultType="com.gzu.queswer.model.Topic">
+    <select id="selectTopic" resultType="com.gzu.queswer.model.Topic">
         SELECT *
         FROM t_topic
-        WHERE t_id = #{tId};
+        WHERE topic_id = #{topicId};
     </select>
-    <select id="selectTIdsByQId" resultType="Long">
-        SELECT t_id
+    <select id="selectTopicIdsByQuestionId" resultType="Long">
+        SELECT topic_id
         FROM t_question_topic
-        WHERE q_id = #{qId};
+        WHERE question_id = #{questionId};
     </select>
 </mapper>

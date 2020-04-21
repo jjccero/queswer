@@ -22,22 +22,22 @@ public class QuestionController {
     }
 
     @GetMapping(value = "/queryQuestions")
-    public List queryQuestions(int offset, int count, Long uId) {
-        return questionService.queryQuestions(offset, count, uId);
+    public List queryQuestions(int offset, int limit, Long userId) {
+        return questionService.queryQuestions(offset, limit, userId);
     }
 
     @GetMapping("/getQuestion")
-    public QuestionInfo getQuestion(Long qId, Long aId, Long uId) {
-        return questionService.getQuestionInfo(qId, aId, uId, true, true);
+    public QuestionInfo getQuestion(Long questionId, Long answerId, Long userId) {
+        return questionService.getQuestionInfo(questionId, answerId, userId, true, true);
     }
 
     @GetMapping("/saveSubscribe")
-    public boolean saveSubscribe(Long qId, Long uId) {
-        return questionService.saveSubscribe(qId, uId);
+    public boolean saveSubscribe(Long questionId, Long userId) {
+        return questionService.saveSubscribe(questionId, userId);
     }
 
     @GetMapping("/deleteSubscribe")
-    public boolean deleteSubscribe(Long qId, Long uId) {
-        return questionService.deleteSubscribe(qId, uId);
+    public boolean deleteSubscribe(Long questionId, Long userId) {
+        return questionService.deleteSubscribe(questionId, userId);
     }
 }

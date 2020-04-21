@@ -10,9 +10,13 @@ import java.util.List;
 public interface CacheService {
     boolean createIndex();
 
-    boolean initRedis();
+    List<QuestionInfo> selectQuestionInfosByQuestion(String title, Long userId);
 
-    List<QuestionInfo> selectQuestionInfosByQuestion(String title, Long uId);
+    List<UserInfo> selectUserInfosByNickname(String nickname, Long userId);
 
-    List<UserInfo> selectUserInfosByNickname(String nickname, Long uId);
+    boolean flush();
+
+    boolean backup();
+
+    boolean restore();
 }

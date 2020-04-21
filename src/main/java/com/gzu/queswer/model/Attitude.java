@@ -1,34 +1,15 @@
 package com.gzu.queswer.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 
+@Setter
+@Getter
 public class Attitude implements Serializable {
-    private Long aId;
-    private Long uId;
+    private Long answerId;
+    private Long userId;
     private Boolean atti;
-
-    public Long getaId() {
-        return aId;
-    }
-
-    public void setaId(Long aId) {
-        this.aId = aId;
-    }
-
-    public Long getuId() {
-        return uId;
-    }
-
-    public void setuId(Long uId) {
-        this.uId = uId;
-    }
-
-    public Boolean getAtti() {
-        return atti;
-    }
-
-    public void setAtti(Boolean atti) {
-        this.atti = atti;
-    }
-
+    private Long gmtCreate;
 }

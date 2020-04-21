@@ -2,24 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.gzu.queswer.dao.AnswerDao">
     <insert id="insertAnswer" useGeneratedKeys="true" keyProperty="aId">
-        INSERT INTO t_answer (gmt_create, u_id, q_id, ans, anonymous)
-        VALUES (#{gmtCreate}, #{uId}, #{qId}, #{ans}, #{anonymous})
+        INSERT INTO t_answer (gmt_create, user_id, question_id, ans, anonymous)
+        VALUES (#{gmtCreate}, #{userId}, #{questionId}, #{ans}, #{anonymous})
     </insert>
     <update id="updateAnswer">
         UPDATE t_answer
         SET ans=#{ans},
             gmt_modify=#{gmtModify},
             anonymous=#{anonymous}
-        WHERE a_id = #{aId}
+        WHERE answer_id = #{answerId}
     </update>
     <delete id="deleteAnswer">
         DELETE
         FROM t_answer
-        WHERE a_id = #{aId}
+        WHERE answer_id = #{answerId}
     </delete>
-    <select id="selectAnswerbyAId" resultType="com.gzu.queswer.model.Answer">
-        SELECT a_id,q_id,u_id,ans,gmt_create,gmt_modify,anonymous
+    <select id="selectAnswer" resultType="com.gzu.queswer.model.Answer">
+        SELECT answer_id,question_id,user_Id,ans,gmt_create,gmt_modify,anonymous
         FROM t_answer
-        WHERE a_id = #{aId}
+        WHERE answer_id = #{answerId}
     </select>
 </mapper>

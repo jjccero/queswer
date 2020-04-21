@@ -6,10 +6,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface QuestionDao {
-    Question selectQuestionByQId(@Param("qId") Long qId);
+    Question selectQuestion(@Param("questionId") Long questionId);
 
     void insertQuestion(Question question);
 
-    Long selectAIdByUId(@Param("qId") Long qId, @Param("uId") Long uId);
+    Long selectAnswerIdByUserId(@Param("questionId") Long questionId, @Param("userId") Long userId);
 
 }

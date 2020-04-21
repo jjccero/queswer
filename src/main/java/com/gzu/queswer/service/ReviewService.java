@@ -8,10 +8,10 @@ import java.util.List;
 public interface ReviewService {
     Long saveReview(Review review);
 
-    boolean deleteReview(Long rId, Long uId);
+    boolean deleteReview(Long rId, Long userId);
 
-    List<ReviewInfo> queryReviews(Long aId, Long uId);
+    List<ReviewInfo> queryReviews(Long answerId, Long userId);
 
-    boolean updateApprove(Long rId, Long uId, Boolean approve);
+    boolean updateApprove(Long rId, Long userId, Boolean approve);
 
 }

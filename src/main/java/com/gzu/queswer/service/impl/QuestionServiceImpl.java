@@ -2,13 +2,12 @@ package com.gzu.queswer.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.gzu.queswer.dao.QuestionDao;
+import com.gzu.queswer.model.Action;
+import com.gzu.queswer.model.Activity;
 import com.gzu.queswer.model.Question;
 import com.gzu.queswer.model.info.QuestionInfo;
 import com.gzu.queswer.model.info.UserInfo;
-import com.gzu.queswer.service.AnswerService;
-import com.gzu.queswer.service.QuestionService;
-import com.gzu.queswer.service.TopicService;
-import com.gzu.queswer.service.UserService;
+import com.gzu.queswer.service.*;
 import com.gzu.queswer.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,34 +30,36 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
     TopicService topicService;
     @Autowired
     AnswerService answerService;
+    @Autowired
+    ActivityService activityService;
 
     @Override
-    public QuestionInfo getQuestionInfo(Long qId, Long uId, boolean inc) {
+    public QuestionInfo getQuestionInfo(Long questionId, Long userId, boolean inc) {
         QuestionInfo questionInfo = null;
         try (Jedis jedis = getJedis()) {
-            String qIdKey = getKey(qId, jedis);
+            String qIdKey = getKey(questionId, jedis);
             if (qIdKey != null) {
                 questionInfo = new QuestionInfo();
                 //增加访问量
-                if (inc) jedis.zincrby(TOP_LIST_KEY, 1.0, qId.toString());
+                if (inc) jedis.zincrby(TOP_LIST_KEY, 1.0, questionId.toString());
                 Question question = getQuestion(qIdKey, jedis);
                 //从缓存获取问题主体
                 questionInfo.setQuestion(question);
-                String qIdFKey = qIdKey + SUFFIX_SUBSCRIBERS;
+                String qIdSKey = qIdKey + SUFFIX_SUBSCRIBERS;
                 //订阅问题数量
-                questionInfo.setSubscribeCount(getSubscribeCount(qIdFKey, jedis));
+                questionInfo.setSubscribeCount(getSubscribeCount(qIdSKey, jedis));
                 //观看量
-                questionInfo.setViewCount(getViewCount(qId, jedis));
+                questionInfo.setViewCount(getViewCount(questionId, jedis));
                 //提问者
-                questionInfo.setQuestioned(question.getuId().equals(uId));
+                questionInfo.setQuestioned(question.getUserId().equals(userId));
                 //获取回答数量
                 questionInfo.setAnswerCount(getAnswerCount(qIdKey + SUFFIX_ANSWERS, jedis));
                 //是否订阅
-                if (uId != null) {
-                    questionInfo.setSubscribed(getFollowed(qIdFKey, uId, jedis));
+                if (userId != null) {
+                    questionInfo.setSubscribed(getFollowed(qIdSKey, userId, jedis));
                 }
-                questionInfo.setTopics(topicService.queryTopicsByQId(qId));
-                setUserInfo(questionInfo, uId);
+                questionInfo.setTopics(topicService.queryTopicsByQuestionId(questionId));
+                setUserInfo(questionInfo, userId);
             }
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -68,52 +69,54 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
 
     @Override
     public Long saveQuestion(Question question) {
-        question.setqId(null);
+        question.setQuestionId(null);
         question.setGmtCreate(DateUtil.getUnixTime());
         questionDao.insertQuestion(question);
-        Long qId = question.getqId();
+        Long qId = question.getQuestionId();
         if (qId != null) {
             try (Jedis jedis = getJedis()) {
                 jedis.zadd(TOP_LIST_KEY, 0.0, qId.toString());
             } catch (Exception e) {
                 log.error(e.getMessage());
             }
+            activityService.saveActivity(getQuestionActivity(question));
         }
         return qId;
     }
 
     @Override
-    public QuestionInfo getQuestionInfo(Long qId, Long aId, Long uId, boolean userAnswer, boolean inc) {
-        QuestionInfo questionInfo = getQuestionInfo(qId, uId, inc);
-        questionInfo.setTopics(topicService.queryTopicsByQId(qId));
+    public QuestionInfo getQuestionInfo(Long questionId, Long answerId, Long userId, boolean userAnswer, boolean inc) {
+        QuestionInfo questionInfo = getQuestionInfo(questionId, userId, inc);
+        questionInfo.setTopics(topicService.queryTopicsByQuestionId(questionId));
         Long userAId = null;
-        if (uId != null && userAnswer) {
-            userAId = selectAidByUid(qId, uId);
-            if (userAId != null) questionInfo.setUserAnswer(answerService.getAnswerInfo(userAId, uId));
+        if (userId != null && userAnswer) {
+            userAId = selectAidByUid(questionId, userId);
+            if (userAId != null) questionInfo.setUserAnswer(answerService.getAnswerInfo(userAId, userId));
         }
-        if (aId != null && !aId.equals(userAId)) questionInfo.setDefaultAnswer(answerService.getAnswerInfo(aId, uId));
+        if (answerId != null && !answerId.equals(userAId)) questionInfo.setDefaultAnswer(answerService.getAnswerInfo(answerId, userId));
         return questionInfo;
     }
 
     @Override
-    public List<QuestionInfo> queryQuestions(int offset, int count, Long uId) {
-        List<Long> qIds = queryQIds(offset, count);
-        List<QuestionInfo> questionInfos = new ArrayList<>();
+    public List<QuestionInfo> queryQuestions(int offset, int limit, Long userId) {
+        List<Long> qIds = queryQIds(offset, limit);
+        List<QuestionInfo> questionInfos = new ArrayList<>(qIds.size());
         for (Long qId : qIds) {
             Long aId = getTopAId(qId);
-            QuestionInfo questionInfo = getQuestionInfo(qId, aId, uId, false, false);
+            QuestionInfo questionInfo = getQuestionInfo(qId, aId, userId, false, false);
             questionInfos.add(questionInfo);
         }
         return questionInfos;
     }
 
     @Override
-    public boolean saveSubscribe(Long qId, Long uId) {
+    public boolean saveSubscribe(Long questionId, Long userId) {
         boolean res = false;
         try (Jedis jedis = getJedis()) {
-            String qIdKey = getKey(qId, jedis);
+            String qIdKey = getKey(questionId, jedis);
             if (qIdKey != null) {
-                jedis.sadd(qIdKey + SUFFIX_SUBSCRIBERS, uId.toString());
+                jedis.sadd(qIdKey + SUFFIX_SUBSCRIBERS, userId.toString());
+                activityService.saveActivity(getSubscribeActivity(questionId, userId, DateUtil.getUnixTime()));
                 res = true;
             }
         } catch (Exception e) {
@@ -123,12 +126,13 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
     }
 
     @Override
-    public boolean deleteSubscribe(Long qId, Long uId) {
+    public boolean deleteSubscribe(Long questionId, Long userId) {
         boolean res = false;
         try (Jedis jedis = getJedis()) {
-            String qIdKey = getKey(qId, jedis);
+            String qIdKey = getKey(questionId, jedis);
             if (qIdKey != null) {
-                jedis.srem(qIdKey + SUFFIX_SUBSCRIBERS, uId.toString());
+                jedis.srem(qIdKey + SUFFIX_SUBSCRIBERS, userId.toString());
+                activityService.deleteActivity(getSubscribeActivity(questionId, userId, null));
                 res = true;
             }
         } catch (Exception e) {
@@ -138,10 +142,10 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
     }
 
     @Override
-    public Question getQuestionByQId(Long qId) {
+    public Question getQuestionByQId(Long questionId) {
         Question question = null;
         try (Jedis jedis = getJedis()) {
-            String qIdKey = getKey(qId, jedis);
+            String qIdKey = getKey(questionId, jedis);
             if (qIdKey != null) {
                 question = getQuestion(qIdKey, jedis);
             }
@@ -161,6 +165,7 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
             }
         } catch (Exception e) {
             log.error(e.getMessage());
+            qIds = new ArrayList<>();
         }
         return qIds;
     }
@@ -198,7 +203,7 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
     private String getKey(Long qId, Jedis jedis) {
         String qIdKey = PREFIX_QUESTION + qId.toString();
         if (jedis.expire(qIdKey, ONE_MINUTE) == 0L) {
-            Question question = questionDao.selectQuestionByQId(qId);
+            Question question = questionDao.selectQuestion(qId);
             jedis.set(qIdKey, question != null ? JSON.toJSONString(question) : "", SET_PARAMS_ONE_MINUTE);
         }
         return jedis.strlen(qIdKey) == 0L ? null : qIdKey;
@@ -209,11 +214,11 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
         Question question = questionInfo.getQuestion();
         UserInfo userInfo;
         Boolean anonymous = question.getAnonymous();
-        if (Boolean.TRUE.equals(anonymous) && !question.getuId().equals(uId)) {
+        if (Boolean.TRUE.equals(anonymous) && !question.getUserId().equals(uId)) {
             userInfo = UserInfo.defaultUserInfo;
-            question.setuId(null);
+            question.setUserId(null);
         } else {
-            userInfo = userService.getUserInfo(question.getuId(), uId);
+            userInfo = userService.getUserInfo(question.getUserId(), uId);
             userInfo.setAnonymous(anonymous);
         }
         questionInfo.setUserInfo(userInfo);
@@ -224,6 +229,24 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
     }
 
     private Long selectAidByUid(Long qId, Long uid) {
-        return questionDao.selectAIdByUId(qId, uid);
+        return questionDao.selectAnswerIdByUserId(qId, uid);
+    }
+
+    private Activity getSubscribeActivity(Long qId, Long uId, Long gmtCreate) {
+        Activity activity = new Activity();
+        activity.setUserId(uId);
+        activity.setId(qId);
+        activity.setAct(Action.SUBSCRIBE_QUESTION);
+        activity.setGmtCreate(gmtCreate);
+        return activity;
+    }
+
+    private Activity getQuestionActivity(Question question) {
+        Activity activity = new Activity();
+        activity.setUserId(question.getUserId());
+        activity.setId(question.getQuestionId());
+        activity.setAct(Action.SAVE_QUESTION);
+        activity.setGmtCreate(question.getGmtCreate());
+        return activity;
     }
 }

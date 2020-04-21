@@ -2,10 +2,10 @@ package com.gzu.queswer.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.gzu.queswer.dao.AnswerDao;
-import com.gzu.queswer.model.Answer;
-import com.gzu.queswer.model.Attitude;
+import com.gzu.queswer.model.*;
 import com.gzu.queswer.model.info.AnswerInfo;
 import com.gzu.queswer.model.info.UserInfo;
+import com.gzu.queswer.service.ActivityService;
 import com.gzu.queswer.service.AnswerService;
 import com.gzu.queswer.service.QuestionService;
 import com.gzu.queswer.service.UserService;
@@ -29,37 +29,40 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
     UserService userService;
     @Autowired
     QuestionService questionService;
+    @Autowired
+    ActivityService activityService;
 
     @Override
     public Long saveAnswer(Answer answer) {
-        answer.setaId(null);
+        answer.setAnswerId(null);
         answer.setGmtCreate(DateUtil.getUnixTime());
         if (answer.getAnonymous() == null) answer.setAnonymous(false);
         answerDao.insertAnswer(answer);
-        Long aId = answer.getaId();
+        Long aId = answer.getAnswerId();
         if (aId != null) {
             try (Jedis jedis = getJedis()) {
-                jedis.zadd(PREFIX_QUESTION + answer.getqId().toString() + SUFFIX_ANSWERS, 0.0, aId.toString());
+                jedis.zadd(PREFIX_QUESTION + answer.getQuestionId().toString() + SUFFIX_ANSWERS, 0.0, aId.toString());
             } catch (Exception e) {
                 log.error(e.getMessage());
             }
+            activityService.saveActivity(getAnswerActivity(answer));
         }
         return aId;
     }
 
     @Override
-    public boolean deleteAnswer(Long aId, Long uId) {
+    public boolean deleteAnswer(Long answerId, Long userId) {
         boolean res = false;
         try (Jedis jedis = getJedis()) {
-            String aIdKey = getKey(aId, jedis);
+            String aIdKey = getKey(answerId, jedis);
             if (aIdKey != null) {
                 Answer answer = getAnswer(aIdKey, jedis);
-                if (answer != null && answer.getuId().equals(uId)) {
+                if (answer != null && answer.getUserId().equals(userId)) {
                     //删除回答 赞同表 反对表
-                    jedis.del(aIdKey, aIdKey + SUFFIX_AGREE, aIdKey + SUFFIX_DISAGREE);
+                    jedis.del(aIdKey, aIdKey + SUFFIX_AGREE, aIdKey + SUFFIX_AGAINST);
                     //从问题表里删除aid
-                    res = jedis.zrem(PREFIX_QUESTION + answer.getqId().toString() + SUFFIX_ANSWERS, answer.getaId().toString()) == 1L;
-                    answerDao.deleteAnswer(aId);
+                    res = jedis.zrem(PREFIX_QUESTION + answer.getQuestionId().toString() + SUFFIX_ANSWERS, answer.getAnswerId().toString()) == 1L;
+                    answerDao.deleteAnswer(answerId);
                     //删除评论列表
                     String aIdRKey = aIdKey + SUFFIX_REVIEWS;
                     jedis.del(aIdRKey);
@@ -67,8 +70,9 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
                     for (String rIdKey : rIdKeys) {
                         rIdKey = PREFIX_REVIEW + rIdKey;
                         //删除评论以及赞
-                        jedis.del(rIdKey, rIdKey + SUFFIX_APPROVES);
+                        jedis.del(rIdKey, rIdKey + SUFFIX_APPROVERS);
                     }
+                    activityService.deleteActivity(getAnswerActivity(answer));
                     res = true;
                 }
             }
@@ -84,10 +88,10 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
         answer.setGmtModify(DateUtil.getUnixTime());
         if (answer.getAnonymous() == null) answer.setAnonymous(false);
         try (Jedis jedis = getJedis()) {
-            String aIdKey = getKey(answer.getaId(), jedis);
+            String aIdKey = getKey(answer.getAnswerId(), jedis);
             if (aIdKey != null) {
                 Answer oldAnswer = getAnswer(aIdKey, jedis);
-                if (oldAnswer.getuId().equals(answer.getuId())) {
+                if (oldAnswer.getUserId().equals(answer.getUserId())) {
                     oldAnswer.setAnonymous(answer.getAnonymous());
                     oldAnswer.setAns(answer.getAns());
                     oldAnswer.setGmtModify(answer.getGmtModify());
@@ -104,22 +108,24 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
 
     @Override
     public boolean updateAttitude(Attitude attitude) {
+        attitude.setGmtCreate(DateUtil.getUnixTime());
         boolean res = false;
         try (Jedis jedis = getJedis()) {
-            String aIdKey = getKey(attitude.getaId(), jedis);
+            String aIdKey = getKey(attitude.getAnswerId(), jedis);
             if (aIdKey != null) {
                 Transaction transaction = jedis.multi();
                 String aid1 = aIdKey + SUFFIX_AGREE;
-                String aid0 = aIdKey + SUFFIX_DISAGREE;
-                String uIdField = attitude.getuId().toString();
+                String aid0 = aIdKey + SUFFIX_AGAINST;
+                String userIdField = attitude.getUserId().toString();
                 if (Boolean.TRUE.equals(attitude.getAtti())) {
-                    transaction.srem(aid0, uIdField);
-                    transaction.sadd(aid1, uIdField);
+                    transaction.srem(aid0, userIdField);
+                    transaction.sadd(aid1, userIdField);
                 } else {
-                    transaction.srem(aid1, uIdField);
-                    transaction.sadd(aid0, uIdField);
+                    transaction.srem(aid1, userIdField);
+                    transaction.sadd(aid0, userIdField);
                 }
                 transaction.exec();
+                activityService.saveActivity(getAttitudeActivity(attitude.getAnswerId(), attitude.getUserId(), attitude.getGmtCreate()));
                 res = true;
             }
         } catch (Exception e) {
@@ -129,16 +135,17 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
     }
 
     @Override
-    public boolean deleteAttitude(Long aId, Long uId) {
+    public boolean deleteAttitude(Long answerId, Long userId) {
         boolean res = false;
         try (Jedis jedis = getJedis()) {
-            String aIdKey = getKey(aId, jedis);
+            String aIdKey = getKey(answerId, jedis);
             if (aIdKey != null) {
                 String aid1 = aIdKey + SUFFIX_AGREE;
-                String aid0 = aIdKey + SUFFIX_DISAGREE;
-                String uIdMember = uId.toString();
-                jedis.srem(aid1, uIdMember);
-                jedis.srem(aid0, uIdMember);
+                String aid0 = aIdKey + SUFFIX_AGAINST;
+                String userIdMember = userId.toString();
+                jedis.srem(aid1, userIdMember);
+                jedis.srem(aid0, userIdMember);
+                activityService.deleteActivity(getAttitudeActivity(answerId, userId, null));
                 res = true;
             }
         } catch (Exception e) {
@@ -148,14 +155,14 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
     }
 
     @Override
-    public List<AnswerInfo> queryAnswers(Long qId, Long uId) {
+    public List<AnswerInfo> queryAnswers(Long qId, Long userId) {
         List<AnswerInfo> answerInfos = null;
         try (Jedis jedis = getJedis()) {
             String qIdAKey = PREFIX_QUESTION + qId + SUFFIX_ANSWERS;
             Set<String> aIdStrings = jedis.zrange(qIdAKey, 0L, -1L);
             answerInfos = new ArrayList<>(aIdStrings.size());
             for (String aIdString : aIdStrings) {
-                AnswerInfo answerInfo = getAnswerInfo(Long.parseLong(aIdString), uId);
+                AnswerInfo answerInfo = getAnswerInfo(Long.parseLong(aIdString), userId);
                 answerInfos.add(answerInfo);
             }
         } catch (Exception e) {
@@ -165,10 +172,10 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
     }
 
     @Override
-    public Answer getAnswerByAId(Long aId) {
+    public Answer getAnswer(Long answerId) {
         Answer answer = null;
         try (Jedis jedis = getJedis()) {
-            String aIdKey = getKey(aId, jedis);
+            String aIdKey = getKey(answerId, jedis);
             if (aIdKey != null) {
                 answer = getAnswer(aIdKey, jedis);
             }
@@ -182,26 +189,26 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
         return JSON.parseObject(jedis.get(aIdKey), Answer.class);
     }
 
-    public AnswerInfo getAnswerInfo(Long aId, Long uId) {
+    public AnswerInfo getAnswerInfo(Long answerId, Long userId) {
         AnswerInfo answerInfo = null;
         try (Jedis jedis = getJedis()) {
-            String aIdKey = getKey(aId, jedis);
+            String aIdKey = getKey(answerId, jedis);
             if (aIdKey != null) {
                 answerInfo = new AnswerInfo();
                 answerInfo.setAnswer(getAnswer(aIdKey, jedis));
                 String aid1 = aIdKey + SUFFIX_AGREE;
-                String aid0 = aIdKey + SUFFIX_DISAGREE;
+                String aid0 = aIdKey + SUFFIX_AGAINST;
                 answerInfo.setAgree(jedis.scard(aid1));
                 answerInfo.setAgainst(jedis.scard(aid0));
                 answerInfo.setReviewCount(jedis.zcard(aIdKey + SUFFIX_REVIEWS));
                 Boolean attituded = null;
-                if (uId != null) {
-                    String uIdField = uId.toString();
-                    if (Boolean.TRUE.equals(jedis.sismember(aid1, uIdField))) attituded = true;
-                    else if (Boolean.TRUE.equals(jedis.sismember(aid0, uIdField))) attituded = false;
+                if (userId != null) {
+                    String userIdField = userId.toString();
+                    if (Boolean.TRUE.equals(jedis.sismember(aid1, userIdField))) attituded = true;
+                    else if (Boolean.TRUE.equals(jedis.sismember(aid0, userIdField))) attituded = false;
                 }
                 answerInfo.setAttituded(attituded);
-                setUserInfo(answerInfo, uId);
+                setUserInfo(answerInfo, userId);
             }
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -209,16 +216,16 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
         return answerInfo;
     }
 
-    private void setUserInfo(AnswerInfo answerInfo, Long uid) {
+    private void setUserInfo(AnswerInfo answerInfo, Long userId) {
         if (answerInfo == null) return;
         UserInfo userInfo;
         Answer answer = answerInfo.getAnswer();
         Boolean anonymous = answer.getAnonymous();
-        if (Boolean.TRUE.equals(anonymous) && !answer.getuId().equals(uid)) {
+        if (Boolean.TRUE.equals(anonymous) && !answer.getUserId().equals(userId)) {
             userInfo = UserInfo.defaultUserInfo;
-            answer.setuId(null);
+            answer.setUserId(null);
         } else {
-            userInfo = userService.getUserInfo(answer.getuId(), uid);
+            userInfo = userService.getUserInfo(answer.getUserId(), userId);
             userInfo.setAnonymous(anonymous);
         }
         answerInfo.setUserInfo(userInfo);
@@ -227,10 +234,27 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
     private String getKey(Long aId, Jedis jedis) {
         String aidKey = PREFIX_ANSWER + aId.toString();
         if (jedis.expire(aidKey, ONE_MINUTE) == 0L) {
-            Answer answer = answerDao.selectAnswerbyAId(aId);
+            Answer answer = answerDao.selectAnswer(aId);
             jedis.set(aidKey, answer != null ? JSON.toJSONString(answer) : "", SET_PARAMS_ONE_MINUTE);
         }
         return jedis.strlen(aidKey) == 0L ? null : aidKey;
     }
 
+    private Activity getAttitudeActivity(Long aId, Long userId, Long gmtCreate) {
+        Activity activity = new Activity();
+        activity.setUserId(userId);
+        activity.setId(aId);
+        activity.setAct(Action.ATTITUDE_ANSWER);
+        activity.setGmtCreate(gmtCreate);
+        return activity;
+    }
+
+    private Activity getAnswerActivity(Answer answer) {
+        Activity activity = new Activity();
+        activity.setUserId(answer.getUserId());
+        activity.setId(answer.getAnswerId());
+        activity.setAct(Action.SAVE_ANSWER);
+        activity.setGmtCreate(answer.getGmtCreate());
+        return activity;
+    }
 }

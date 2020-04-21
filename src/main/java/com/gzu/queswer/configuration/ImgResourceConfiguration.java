@@ -1,4 +1,4 @@
-package com.gzu.queswer.wrapper;
+package com.gzu.queswer.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;

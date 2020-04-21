@@ -13,11 +13,11 @@ public interface UserService {
 
     Integer updateUser(User user);
 
-    UserInfo getUserInfo(Long peopleId, Long uId);
+    UserInfo getUserInfo(Long peopleId, Long userId);
 
-    boolean saveFollow(Long uId,Long followerId);
+    boolean saveFollow(Long userId,Long followerId);
 
-    boolean deleteFollow(Long uId,Long followerId);
+    boolean deleteFollow(Long userId,Long followerId);
 
     List<UserInfo> queryUserInfosByFollowerId(Long followerId,Long selfId);
 

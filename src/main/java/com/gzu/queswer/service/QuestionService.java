@@ -8,15 +8,15 @@ import java.util.List;
 public interface QuestionService {
     Long saveQuestion(Question question);
 
-    QuestionInfo getQuestionInfo(Long qId, Long aId, Long uId, boolean userAnswer, boolean inc);
+    QuestionInfo getQuestionInfo(Long questionId, Long answerId, Long userId, boolean userAnswer, boolean inc);
 
-    QuestionInfo getQuestionInfo(Long qId, Long uId, boolean inc);
+    QuestionInfo getQuestionInfo(Long questionId, Long userId, boolean inc);
 
-    List<QuestionInfo> queryQuestions(int offset, int count, Long uId);
+    List<QuestionInfo> queryQuestions(int offset, int limit, Long userId);
 
-    boolean saveSubscribe(Long qId, Long uId);
+    boolean saveSubscribe(Long questionId, Long userId);
 
-    boolean deleteSubscribe(Long qId, Long uId);
+    boolean deleteSubscribe(Long questionId, Long userId);
 
-    Question getQuestionByQId(Long qId);
+    Question getQuestionByQId(Long questionId);
 }

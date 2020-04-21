@@ -1,27 +1,66 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.gzu.queswer.dao.CacheDao">
-    <select id="selectQIds" resultType="Long">
-        select q_id
+    <select id="selectQuestionIds" resultType="Long">
+        select question_id
         FROM t_question;
     </select>
-    <select id="selectAIdsByQId" resultType="Long">
-        SELECT a_id
+    <select id="selectAnswerIdsByQuestionId" resultType="Long">
+        SELECT answer_id
         from t_answer
-        where q_id=#{qId};
+        where question_id = #{questionId};
     </select>
-    <select id="selectRIdsByAId" resultType="Long">
-        SELECT r_id
+    <select id="selectReviewIdsByAnswerId" resultType="Long">
+        SELECT review_id
         from t_review
-        where a_id=#{aId};
+        where answer_id = #{answerId};
     </select>
     <select id="selectQuestionIndexs" resultType="com.gzu.queswer.model.StringIndex">
-        SELECT q_id v,title k
+        SELECT question_id v,title k
         FROM t_question
     </select>
     <select id="selectUserIndexs" resultType="com.gzu.queswer.model.StringIndex">
-        SELECT u_id v,nickname k
+        SELECT user_id v,nickname k
         FROM t_user
     </select>
-
+    <!--activity-->
+    <delete id="deleteActivities">
+        delete
+        from t_activity;
+    </delete>
+    <select id="selectQuestionActivities" resultType="com.gzu.queswer.model.Activity">
+        select question_id id,user_id,gmt_create
+        from t_question
+        where anonymous = false;
+    </select>
+    <select id="selectAnswerActivities" resultType="com.gzu.queswer.model.Activity">
+        select answer_id id,user_id,gmt_create
+        from t_answer
+        where anonymous = false;
+    </select>
+    <!--赞同回答-->
+    <select id="selectAttitudes" resultType="com.gzu.queswer.model.Attitude">
+        select *
+        from t_attitude;
+    </select>
+    <!--订阅问题-->
+    <select id="selectSubscribeQuestionActivities" resultType="com.gzu.queswer.model.Activity">
+        select question_id id,user_id,gmt_create
+        from t_subscribe_question
+    </select>
+    <!--订阅话题-->
+    <select id="selectSubscribeTopicActivities" resultType="com.gzu.queswer.model.Activity">
+        select topic_id id,user_id,gmt_create
+        from t_subscribe_topic
+    </select>
+    <!--评论赞同-->
+    <select id="selectApproveActivities" resultType="com.gzu.queswer.model.Activity">
+        select review_id id,user_id,gmt_create
+        from t_approve
+    </select>
+    <select id="selectActivities" resultType="com.gzu.queswer.model.Activity">
+        select id,user_id,gmt_create,act
+        from t_activity
+        order by gmt_create;
+    </select>
 </mapper>
