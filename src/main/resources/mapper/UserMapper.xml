@@ -29,24 +29,4 @@
             intro=#{intro}
         WHERE user_Id = #{userId};
     </update>
-    <insert id="saveFollow">
-        insert into t_follow(user_Id, follower_id,gmt_create)
-        values (#{userId}, #{followerId},#{gmtCreate});
-    </insert>
-    <delete id="deleteFollow">
-        delete
-        from t_follow
-        where user_Id = #{userId}
-          and follower_id = #{followerId};
-    </delete>
-    <select id="selectUserIdsByFollowerId" resultType="Long">
-        select user_Id
-        from t_follow
-        where follower_id = #{followerId}
-    </select>
-    <select id="selectFollowerIdsByUserId" resultType="Long">
-        select follower_id
-        from t_follow
-        where user_Id = #{userId}
-    </select>
 </mapper>

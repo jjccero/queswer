@@ -16,9 +16,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Transaction;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -59,6 +61,9 @@ public class UserServiceImpl extends RedisService implements UserService {
             String userIdKey = getKey(peopleId, jedis);
             if (userIdKey != null) {
                 userInfo.setUser(getUser(userIdKey, jedis));
+                userInfo.setFollowed(jedis.sismember(userIdKey + SUFFIX_F0LLOWERS, userId.toString()));
+                userInfo.setFollowersCount(jedis.scard(userIdKey + SUFFIX_F0LLOWERS));
+                userInfo.setFollowCount(jedis.scard(userIdKey + SUFFIX_F0LLOWS));
             }
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -68,33 +73,76 @@ public class UserServiceImpl extends RedisService implements UserService {
 
     @Override
     public boolean saveFollow(Long peopleId, Long userId) {
-        Long gmtCreate = DateUtil.getUnixTime();
-        return userDao.saveFollow(peopleId, userId, gmtCreate) == 1
-                && activityService.saveActivity(getFollowActivity(peopleId, userId, gmtCreate));
+        if (peopleId.equals(userId) || userId == null) return false;
+        boolean res = false;
+        try (Jedis jedis = getJedis()) {
+            String userIdKey = getKey(userId, jedis);
+            String peopleIdKey = getKey(peopleId, jedis);
+            if (userIdKey != null) {
+                Transaction transaction = jedis.multi();
+                transaction.sadd(peopleIdKey + SUFFIX_F0LLOWERS, userId.toString());
+                transaction.sadd(userIdKey + SUFFIX_F0LLOWS, userId.toString());
+                transaction.exec();
+                activityService.saveActivity(getFollowActivity(peopleId, userId, DateUtil.getUnixTime()));
+                res = true;
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return res;
     }
 
     @Override
     public boolean deleteFollow(Long peopleId, Long userId) {
-        return userDao.deleteFollow(peopleId, userId) == 1
-                && activityService.deleteActivity(getFollowActivity(peopleId, userId, null));
+        boolean res = false;
+        try (Jedis jedis = getJedis()) {
+            String userIdKey = getKey(userId, jedis);
+            String peopleIdKey = getKey(peopleId, jedis);
+            if (peopleIdKey != null && userIdKey != null) {
+                Transaction transaction = jedis.multi();
+                transaction.srem(peopleIdKey + SUFFIX_F0LLOWERS, userId.toString());
+                transaction.srem(userIdKey + SUFFIX_F0LLOWS, peopleId.toString());
+                transaction.exec();
+                activityService.deleteActivity(getFollowActivity(peopleId, userId, null));
+                res = true;
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return res;
     }
 
     @Override
     public List<UserInfo> queryUserInfosByFollowerId(Long followerId, Long userId) {
-        List<Long> peopleIds = userDao.selectUserIdsByFollowerId(followerId);
-        List<UserInfo> userInfos = new ArrayList<>(peopleIds.size());
-        for (Long peopleId : peopleIds) {
-            userInfos.add(getUserInfo(peopleId, userId));
+        try (Jedis jedis = getJedis()) {
+            String followerIdKey = getKey(followerId, jedis);
+            if (followerIdKey != null) {
+                return getUserInfos(followerIdKey + SUFFIX_F0LLOWS, userId, jedis);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
         }
-        return userInfos;
+        return new ArrayList<>();
     }
 
     @Override
-    public List<UserInfo> queryFollowerInfosIdsByUId(Long userId, Long selfId) {
-        List<Long> peopleIds = userDao.selectFollowerIdsByUserId(userId);
-        List<UserInfo> userInfos = new ArrayList<>(peopleIds.size());
-        for (Long peopleId : peopleIds) {
-            userInfos.add(getUserInfo(peopleId, selfId));
+    public List<UserInfo> queryFollowerInfosByPeopleId(Long peopleId, Long userId) {
+        try (Jedis jedis = getJedis()) {
+            String peopleIdKey = getKey(peopleId, jedis);
+            if (peopleIdKey != null) {
+                return getUserInfos(peopleIdKey + SUFFIX_F0LLOWERS, userId, jedis);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return new ArrayList<>();
+    }
+
+    private List<UserInfo> getUserInfos(String setKey, Long userId, Jedis jedis) {
+        Set<String> idStrings = jedis.smembers(setKey);
+        List<UserInfo> userInfos = new ArrayList<>(idStrings.size());
+        for (String idString : idStrings) {
+            userInfos.add(getUserInfo(Long.parseLong(idString), userId));
         }
         return userInfos;
     }
@@ -112,11 +160,11 @@ public class UserServiceImpl extends RedisService implements UserService {
         return jedis.strlen(userIdKey) == 0L ? null : userIdKey;
     }
 
-    private Activity getFollowActivity(Long uId, Long followerId, Long gmtCreate) {
+    private Activity getFollowActivity(Long peopleId, Long userId, Long gmtCreate) {
         Activity activity = new Activity();
-        activity.setUserId(followerId);
+        activity.setUserId(userId);
         activity.setAct(Action.FOLLOW_USER);
-        activity.setId(uId);
+        activity.setId(peopleId);
         activity.setGmtCreate(gmtCreate);
         return activity;
     }

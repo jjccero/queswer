@@ -74,7 +74,7 @@ public class ReviewServiceImpl extends RedisService implements ReviewService {
     public List<ReviewInfo> queryReviews(Long answerId, Long userId) {
         List<ReviewInfo> reviewInfos = null;
         Answer answer = answerService.getAnswer(answerId);
-        Question question = questionService.getQuestionByQId(answer.getQuestionId());
+        Question question = questionService.getQuestion(answer.getQuestionId());
         Long answerUId = answer.getUserId();
         Long questionUId = question.getUserId();
         Boolean answerAnonymous = answer.getAnonymous();

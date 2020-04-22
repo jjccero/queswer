@@ -19,8 +19,20 @@ public interface UserService {
 
     boolean deleteFollow(Long peopleId,Long userId);
 
-    List<UserInfo> queryUserInfosByFollowerId(Long peopleId,Long userId);
+    /**
+     * people所关注的人
+     * @param peopleId
+     * @param userId
+     * @return
+     */
+    List<UserInfo> queryUserInfosByFollowerId(Long peopleId, Long userId);
 
-    List<UserInfo> queryFollowerInfosIdsByUId(Long peopleId,Long userId);
+    /**
+     * 关注people的人
+     * @param peopleId
+     * @param userId
+     * @return
+     */
+    List<UserInfo> queryFollowerInfosByPeopleId(Long peopleId, Long userId);
 
 }

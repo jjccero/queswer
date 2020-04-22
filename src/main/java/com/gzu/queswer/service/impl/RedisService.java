@@ -22,6 +22,7 @@ public class RedisService {
     static final String SUFFIX_SUBSCRIBERS = ":subscribers";
     static final String SUFFIX_ANSWERS = ":answers";
     static final String SUFFIX_F0LLOWERS=":followers";
+    static final String SUFFIX_F0LLOWS=":follows";
     static final String SUFFIX_AGREE = ":1";
     static final String SUFFIX_AGAINST = ":0";
     static final String TOP_LIST_KEY = "topQuestions";

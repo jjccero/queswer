@@ -3,8 +3,8 @@ package com.gzu.queswer.service.impl;
 import com.gzu.queswer.dao.ActivityDao;
 import com.gzu.queswer.model.Action;
 import com.gzu.queswer.model.Activity;
+import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.info.ActivityInfo;
-import com.gzu.queswer.model.info.AnswerInfo;
 import com.gzu.queswer.model.info.QuestionInfo;
 import com.gzu.queswer.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,15 +75,19 @@ public class ActivityServiceImpl implements ActivityService {
             //3 关注了话题
             activityInfo.setInfo(topicService.getTopic(activity.getId()));
         else if (Action.SAVE_ANSWER.equals(act)) {
-            AnswerInfo answerInfo = answerService.getAnswerInfo(activity.getId(), userId);
+            Long answerId = activity.getId();
+            Answer answer = answerService.getAnswer(answerId);
             //4 回答了问题（不匿名）
-            if (Boolean.FALSE.equals(answerInfo.getUserInfo().getAnonymous()))
-                activityInfo.setInfo(answerInfo);
+            if (answer != null && Boolean.FALSE.equals(answer.getAnonymous()))
+                activityInfo.setInfo(questionService.getQuestionInfo(answer.getQuestionId(), answerId, userId, false, false));
             else
                 activityInfo = null;
         } else if (Action.ATTITUDE_ANSWER.equals(act) && answerService.getAgree(activity.getId(), activity.getUserId())) {
             //5 赞同了回答
-            activityInfo.setInfo(answerService.getAnswerInfo(activity.getId(), userId));
+            Long answerId = activity.getId();
+            Answer answer = answerService.getAnswer(answerId);
+            if (answer != null)
+                activityInfo.setInfo(questionService.getQuestionInfo(answer.getQuestionId(), answerId, userId, false, false));
         }
         return activityInfo;
     }

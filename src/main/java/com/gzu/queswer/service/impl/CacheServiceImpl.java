@@ -117,7 +117,7 @@ public class CacheServiceImpl extends RedisService implements CacheService {
             long startTime = System.currentTimeMillis();
             cacheDao.deleteActivities();
             logTime(startTime, "deleteActivities");
-            jedis.flushDB();
+            jedis.flushAll();
             List<Long> qIds = cacheDao.selectQuestionIds();
             for (Long qId : qIds) {
                 jedis.zadd(TOP_LIST_KEY, 0.0, qId.toString());
@@ -132,7 +132,7 @@ public class CacheServiceImpl extends RedisService implements CacheService {
                     }
                 }
             }
-            logTime(startTime, "flushDB");
+            logTime(startTime, "flushAll");
             //恢复态度表，并加入时间轴
             List<Activity> activities =restoreAttitudeActivities(startTime,jedis);
             logTime(startTime, "restoreAttitudeActivities");

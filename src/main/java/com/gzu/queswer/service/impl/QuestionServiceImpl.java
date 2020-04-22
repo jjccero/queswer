@@ -142,7 +142,7 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
     }
 
     @Override
-    public Question getQuestionByQId(Long questionId) {
+    public Question getQuestion(Long questionId) {
         Question question = null;
         try (Jedis jedis = getJedis()) {
             String questionIdKey = getKey(questionId, jedis);

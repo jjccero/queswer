@@ -18,5 +18,5 @@ public interface QuestionService {
 
     boolean deleteSubscribe(Long questionId, Long userId);
 
-    Question getQuestionByQId(Long questionId);
+    Question getQuestion(Long questionId);
 }

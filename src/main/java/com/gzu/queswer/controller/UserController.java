@@ -56,23 +56,23 @@ public class UserController {
     }
 
     @GetMapping("/saveFollow")
-    public boolean saveFollow(Long userId, Long followerId) {
-        return userService.saveFollow(userId, followerId);
+    public boolean saveFollow(Long peopleId, Long userId) {
+        return userService.saveFollow(peopleId, userId);
     }
 
     @GetMapping("/deleteFollow")
-    public boolean deleteFollow(Long userId, Long followerId) {
-        return userService.deleteFollow(userId, followerId);
+    public boolean deleteFollow(Long peopleId, Long userId) {
+        return userService.deleteFollow(peopleId, userId);
     }
 
     @GetMapping("/queryUserInfosByFollowerId")
-    public List<UserInfo> queryUserInfosByFollowerId(Long followerId, Long selfId) {
-        return userService.queryUserInfosByFollowerId(followerId, selfId);
+    public List<UserInfo> queryUserInfosByFollowerId(Long peopleId, Long userId) {
+        return userService.queryUserInfosByFollowerId(peopleId, userId);
     }
 
-    @GetMapping("/queryFollowerInfosIdsByUId")
-    public List<UserInfo> queryFollowerInfosIdsByUId(Long userId, Long selfId) {
-        return userService.queryFollowerInfosIdsByUId(userId, selfId);
+    @GetMapping("/queryFollowerInfosByPeopleId")
+    public List<UserInfo> queryFollowerInfosByPeopleId(Long peopleId, Long userId) {
+        return userService.queryFollowerInfosByPeopleId(peopleId, userId);
     }
 
     @GetMapping("/queryPeopleActivities")

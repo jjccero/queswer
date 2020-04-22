@@ -11,5 +11,4 @@ public interface QuestionDao {
     void insertQuestion(Question question);
 
     Long selectAnswerIdByUserId(@Param("questionId") Long questionId, @Param("userId") Long userId);
-
 }

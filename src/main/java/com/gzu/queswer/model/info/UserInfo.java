@@ -8,6 +8,9 @@ public class UserInfo implements Serializable {
 
     private User user;
     private Boolean anonymous;
+    private Boolean followed;
+    private Long followersCount;
+    private Long followCount;
 
     public User getUser() {
         return user;
@@ -23,6 +26,34 @@ public class UserInfo implements Serializable {
 
     public void setAnonymous(Boolean anonymous) {
         this.anonymous = anonymous;
+    }
+
+    public Boolean getFollowed() {
+        return followed;
+    }
+
+    public void setFollowed(Boolean followed) {
+        this.followed = followed;
+    }
+
+    public Long getFollowersCount() {
+        return followersCount;
+    }
+
+    public void setFollowersCount(Long followersCount) {
+        this.followersCount = followersCount;
+    }
+
+    public Long getFollowCount() {
+        return followCount;
+    }
+
+    public void setFollowCount(Long followCount) {
+        this.followCount = followCount;
+    }
+
+    public static UserInfo getDefaultUserInfo() {
+        return defaultUserInfo;
     }
 
     public static final UserInfo defaultUserInfo;
