@@ -26,6 +26,8 @@ public class RedisService {
     static final String SUFFIX_AGREE = ":1";
     static final String SUFFIX_AGAINST = ":0";
     static final String TOP_LIST_KEY = "topQuestions";
+    static final String SUFFIX_ACTIVITIES = ":activities";
+    static final String SUFFIX_TEMP_ACTIVITIES = ":tempActivities";
 
     static {
         SET_PARAMS_ONE_MINUTE = new SetParams();

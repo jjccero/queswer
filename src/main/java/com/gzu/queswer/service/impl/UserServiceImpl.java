@@ -81,7 +81,7 @@ public class UserServiceImpl extends RedisService implements UserService {
             if (userIdKey != null) {
                 Transaction transaction = jedis.multi();
                 transaction.sadd(peopleIdKey + SUFFIX_F0LLOWERS, userId.toString());
-                transaction.sadd(userIdKey + SUFFIX_F0LLOWS, userId.toString());
+                transaction.sadd(userIdKey + SUFFIX_F0LLOWS, peopleId.toString());
                 transaction.exec();
                 activityService.saveActivity(getFollowActivity(peopleId, userId, DateUtil.getUnixTime()));
                 res = true;
@@ -138,6 +138,19 @@ public class UserServiceImpl extends RedisService implements UserService {
         return new ArrayList<>();
     }
 
+    @Override
+    public List<Long> queryPeopleIdsByuserId(Long userId) {
+        try (Jedis jedis = getJedis()) {
+            String userIdKey = getKey(userId, jedis);
+            if (userIdKey != null) {
+                Set<String> PeopleIdStrings = jedis.smembers(userIdKey+SUFFIX_F0LLOWS);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return new ArrayList<>();
+    }
+
     private List<UserInfo> getUserInfos(String setKey, Long userId, Jedis jedis) {
         Set<String> idStrings = jedis.smembers(setKey);
         List<UserInfo> userInfos = new ArrayList<>(idStrings.size());
@@ -152,7 +165,7 @@ public class UserServiceImpl extends RedisService implements UserService {
     }
 
     private String getKey(Long userId, Jedis jedis) {
-        String userIdKey = PREFIX_USER + userId.toString();
+        String userIdKey = PREFIX_USER + userId;
         if (jedis.expire(userIdKey, ONE_MINUTE) == 0L) {
             User user = userDao.selectUser(userId);
             jedis.set(userIdKey, user != null ? JSON.toJSONString(user) : "", SET_PARAMS_ONE_MINUTE);

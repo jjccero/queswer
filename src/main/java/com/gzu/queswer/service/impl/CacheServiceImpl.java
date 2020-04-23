@@ -151,7 +151,10 @@ public class CacheServiceImpl extends RedisService implements CacheService {
             //恢复评论赞同表,不需要加入时间轴
             restoreApproveActivities(jedis);
             logTime(startTime, "restoreApproveActivities");
-            log.info("{}",cacheDao.insertActivityBatch(activities));
+//            log.info("{}",cacheDao.insertActivityBatch(activities));
+            for(Activity activity:activities){
+                activityService.saveActivity(activity,jedis);
+            }
             logTime(startTime, "insertActivityBatch");
             return true;
         } catch (Exception e) {

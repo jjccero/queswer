@@ -2,6 +2,7 @@ package com.gzu.queswer.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.gzu.queswer.dao.AnswerDao;
+import com.gzu.queswer.model.Action;
 import com.gzu.queswer.model.*;
 import com.gzu.queswer.model.info.AnswerInfo;
 import com.gzu.queswer.model.info.UserInfo;

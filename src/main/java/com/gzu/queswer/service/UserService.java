@@ -35,4 +35,6 @@ public interface UserService {
      */
     List<UserInfo> queryFollowerInfosByPeopleId(Long peopleId, Long userId);
 
+    List<Long> queryPeopleIdsByuserId(Long userId);
+
 }

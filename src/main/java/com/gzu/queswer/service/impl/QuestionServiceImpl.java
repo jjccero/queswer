@@ -99,10 +99,10 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
 
     @Override
     public List<QuestionInfo> queryQuestions(int offset, int limit, Long userId) {
-        List<Long> questionIds = queryQIds(offset, limit);
+        List<Long> questionIds = queryQuestionIds(offset, limit);
         List<QuestionInfo> questionInfos = new ArrayList<>(questionIds.size());
         for (Long questionId : questionIds) {
-            Long aId = getTopAId(questionId);
+            Long aId = getTopAnswerId(questionId);
             QuestionInfo questionInfo = getQuestionInfo(questionId, aId, userId, false, false);
             questionInfos.add(questionInfo);
         }
@@ -155,7 +155,7 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
         return question;
     }
 
-    private List<Long> queryQIds(int offset, int count) {
+    private List<Long> queryQuestionIds(int offset, int count) {
         List<Long> questionIds = null;
         try (Jedis jedis = getJedis()) {
             Set<String> questionIdKeys = jedis.zrevrangeByScore(TOP_LIST_KEY, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, offset, count);
@@ -186,7 +186,7 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
         return jedis.zscore(TOP_LIST_KEY, questionId.toString());
     }
 
-    private Long getTopAId(Long questionId) {
+    private Long getTopAnswerId(Long questionId) {
         Long aid = null;
         try (Jedis jedis = getJedis()) {
             Set<String> aIdKeys = jedis.zrevrangeByScore(PREFIX_QUESTION + questionId.toString() + SUFFIX_ANSWERS, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 0, 1);

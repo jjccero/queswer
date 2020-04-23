@@ -79,4 +79,9 @@ public class UserController {
     public List<ActivityInfo> queryPeopleActivities(Long peopleId, Long userId, int offset, int limit) {
         return activityService.queryPeopleActivities(peopleId, userId, offset, limit);
     }
+
+    @GetMapping("/queryFollowActivities")
+    public List<ActivityInfo> queryFollowActivities(Long userId, int page) {
+        return activityService.queryFollowActivities(userId, page);
+    }
 }
