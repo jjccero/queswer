@@ -1,7 +1,7 @@
 package com.gzu.queswer.service;
 
-import com.gzu.queswer.model.info.QuestionInfo;
-import com.gzu.queswer.model.info.UserInfo;
+import com.gzu.queswer.model.vo.QuestionInfo;
+import com.gzu.queswer.model.vo.UserInfo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

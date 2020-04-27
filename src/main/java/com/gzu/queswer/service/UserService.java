@@ -2,7 +2,7 @@ package com.gzu.queswer.service;
 
 import com.gzu.queswer.model.User;
 import com.gzu.queswer.model.UserLogin;
-import com.gzu.queswer.model.info.UserInfo;
+import com.gzu.queswer.model.vo.UserInfo;
 
 import java.util.List;
 
@@ -15,12 +15,13 @@ public interface UserService {
 
     UserInfo getUserInfo(Long peopleId, Long userId);
 
-    boolean saveFollow(Long peopleId,Long userId);
+    boolean saveFollow(Long peopleId, Long userId);
 
-    boolean deleteFollow(Long peopleId,Long userId);
+    boolean deleteFollow(Long peopleId, Long userId);
 
     /**
      * people所关注的人
+     *
      * @param peopleId
      * @param userId
      * @return
@@ -29,12 +30,11 @@ public interface UserService {
 
     /**
      * 关注people的人
+     *
      * @param peopleId
      * @param userId
      * @return
      */
     List<UserInfo> queryFollowerInfosByPeopleId(Long peopleId, Long userId);
-
-    List<Long> queryPeopleIdsByuserId(Long userId);
 
 }

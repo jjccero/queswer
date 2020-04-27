@@ -1,4 +1,4 @@
-package com.gzu.queswer.model.info;
+package com.gzu.queswer.model.vo;
 
 import com.gzu.queswer.model.Review;
 import com.gzu.queswer.model.UserApi;

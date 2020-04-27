@@ -1,7 +1,7 @@
 package com.gzu.queswer.controller;
 
 import com.gzu.queswer.model.Review;
-import com.gzu.queswer.model.info.ReviewInfo;
+import com.gzu.queswer.model.vo.ReviewInfo;
 import com.gzu.queswer.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

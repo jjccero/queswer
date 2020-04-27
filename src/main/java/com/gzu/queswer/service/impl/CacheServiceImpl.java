@@ -5,8 +5,8 @@ import com.gzu.queswer.model.Action;
 import com.gzu.queswer.model.Activity;
 import com.gzu.queswer.model.Attitude;
 import com.gzu.queswer.model.StringIndex;
-import com.gzu.queswer.model.info.QuestionInfo;
-import com.gzu.queswer.model.info.UserInfo;
+import com.gzu.queswer.model.vo.QuestionInfo;
+import com.gzu.queswer.model.vo.UserInfo;
 import com.gzu.queswer.service.ActivityService;
 import com.gzu.queswer.service.CacheService;
 import com.gzu.queswer.service.QuestionService;
@@ -134,7 +134,7 @@ public class CacheServiceImpl extends RedisService implements CacheService {
             }
             logTime(startTime, "flushAll");
             //恢复态度表，并加入时间轴
-            List<Activity> activities =restoreAttitudeActivities(startTime,jedis);
+            List<Activity> activities = restoreAttitudeActivities(startTime, jedis);
             logTime(startTime, "restoreAttitudeActivities");
             //提问加入时间轴
             restoreQuestionActivities(activities);
@@ -151,9 +151,9 @@ public class CacheServiceImpl extends RedisService implements CacheService {
             //恢复评论赞同表,不需要加入时间轴
             restoreApproveActivities(jedis);
             logTime(startTime, "restoreApproveActivities");
-//            log.info("{}",cacheDao.insertActivityBatch(activities));
-            for(Activity activity:activities){
-                activityService.saveActivity(activity,jedis);
+//            log.vo("{}",cacheDao.insertActivityBatch(activities));
+            for (Activity activity : activities) {
+                activityService.saveActivity(activity, jedis);
             }
             logTime(startTime, "insertActivityBatch");
             return true;
@@ -214,7 +214,7 @@ public class CacheServiceImpl extends RedisService implements CacheService {
         activities.addAll(questionActivities);
     }
 
-    private List<Activity> restoreAttitudeActivities(long startTime,Jedis jedis) {
+    private List<Activity> restoreAttitudeActivities(long startTime, Jedis jedis) {
         List<Attitude> attitudes = cacheDao.selectAttitudes();
         List<Activity> activities = new ArrayList<>(attitudes.size());
         logTime(startTime, "activities");

@@ -3,9 +3,12 @@ package com.gzu.queswer.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.gzu.queswer.dao.AnswerDao;
 import com.gzu.queswer.model.Action;
-import com.gzu.queswer.model.*;
-import com.gzu.queswer.model.info.AnswerInfo;
-import com.gzu.queswer.model.info.UserInfo;
+import com.gzu.queswer.model.Activity;
+import com.gzu.queswer.model.Answer;
+import com.gzu.queswer.model.Attitude;
+import com.gzu.queswer.model.vo.AnswerInfo;
+import com.gzu.queswer.model.vo.QuestionInfo;
+import com.gzu.queswer.model.vo.UserInfo;
 import com.gzu.queswer.service.ActivityService;
 import com.gzu.queswer.service.AnswerService;
 import com.gzu.queswer.service.QuestionService;
@@ -198,6 +201,19 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
         return res;
     }
 
+    @Override
+    public List<QuestionInfo> queryAnswersByUserId(Long peopleId, Long userId) {
+        List<QuestionInfo> questionInfos;
+        List<Long> answerIds = answerDao.selectAnswerIdsByUserId(peopleId);
+        questionInfos = new ArrayList<>(answerIds.size());
+        for (Long answerId : answerIds) {
+            Answer answer = getAnswer(answerId);
+            if (answer != null)
+                questionInfos.add(questionService.getQuestionInfo(answer.getQuestionId(), answerId, userId, false, false));
+        }
+        return questionInfos;
+    }
+
     private Answer getAnswer(String answerIdKey, Jedis jedis) {
         return JSON.parseObject(jedis.get(answerIdKey), Answer.class);
     }
@@ -244,7 +260,7 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
     }
 
     private String getKey(Long answerId, Jedis jedis) {
-        String answerIdKey = PREFIX_ANSWER + answerId.toString();
+        String answerIdKey = PREFIX_ANSWER + answerId;
         if (jedis.expire(answerIdKey, ONE_MINUTE) == 0L) {
             Answer answer = answerDao.selectAnswer(answerId);
             jedis.set(answerIdKey, answer != null ? JSON.toJSONString(answer) : "", SET_PARAMS_ONE_MINUTE);

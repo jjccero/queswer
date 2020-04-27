@@ -2,7 +2,8 @@ package com.gzu.queswer.service;
 
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Attitude;
-import com.gzu.queswer.model.info.AnswerInfo;
+import com.gzu.queswer.model.vo.AnswerInfo;
+import com.gzu.queswer.model.vo.QuestionInfo;
 
 import java.util.List;
 
@@ -24,5 +25,7 @@ public interface AnswerService {
     Answer getAnswer(Long answerId);
 
     boolean getAgree(Long answerId, Long userId);
+
+    List<QuestionInfo> queryAnswersByUserId(Long peopleId, Long userId);
 
 }

@@ -22,4 +22,10 @@
         FROM t_answer
         WHERE answer_id = #{answerId}
     </select>
+    <select id="selectAnswerIdsByUserId" resultType="Long">
+        SELECT answer_id
+        FROM t_answer
+        WHERE user_id = #{userId}
+          AND anonymous=false;
+    </select>
 </mapper>

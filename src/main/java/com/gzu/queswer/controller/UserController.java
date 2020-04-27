@@ -1,10 +1,11 @@
 package com.gzu.queswer.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.gzu.queswer.common.UserContext;
 import com.gzu.queswer.model.User;
 import com.gzu.queswer.model.UserLogin;
-import com.gzu.queswer.model.info.ActivityInfo;
-import com.gzu.queswer.model.info.UserInfo;
+import com.gzu.queswer.model.vo.ActivityInfo;
+import com.gzu.queswer.model.vo.UserInfo;
 import com.gzu.queswer.service.ActivityService;
 import com.gzu.queswer.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,8 @@ public class UserController {
     UserService userService;
     @Autowired
     ActivityService activityService;
+    @Autowired
+    UserContext userContext;
 
     @PostMapping(value = "/login")
     public User login(@RequestBody JSONObject loginForm) {
@@ -76,12 +79,14 @@ public class UserController {
     }
 
     @GetMapping("/queryPeopleActivities")
-    public List<ActivityInfo> queryPeopleActivities(Long peopleId, Long userId, int offset, int limit) {
-        return activityService.queryPeopleActivities(peopleId, userId, offset, limit);
+    public List<ActivityInfo> queryPeopleActivities(Long peopleId, Long userId, int page, int limit) {
+        return activityService.queryPeopleActivities(peopleId, userId, page, limit);
     }
 
     @GetMapping("/queryFollowActivities")
-    public List<ActivityInfo> queryFollowActivities(Long userId, int page) {
-        return activityService.queryFollowActivities(userId, page);
+    public List<ActivityInfo> queryFollowActivities(Long userId, int page, int limit) {
+        return activityService.queryFollowActivities(userId, page, limit);
     }
+
+
 }

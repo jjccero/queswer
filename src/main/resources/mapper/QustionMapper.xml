@@ -16,4 +16,10 @@
         WHERE question_id = #{questionId}
           AND user_id = #{userId};
     </select>
+    <select id="selectQuestionIdsByUserId" resultType="Long">
+        SELECT question_id
+        FROM t_question
+        WHERE user_id = #{userId}
+          AND anonymous = false;
+    </select>
 </mapper>

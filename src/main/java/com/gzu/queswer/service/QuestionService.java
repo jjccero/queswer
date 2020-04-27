@@ -1,7 +1,7 @@
 package com.gzu.queswer.service;
 
 import com.gzu.queswer.model.Question;
-import com.gzu.queswer.model.info.QuestionInfo;
+import com.gzu.queswer.model.vo.QuestionInfo;
 
 import java.util.List;
 
@@ -12,11 +12,13 @@ public interface QuestionService {
 
     QuestionInfo getQuestionInfo(Long questionId, Long userId, boolean inc);
 
-    List<QuestionInfo> queryQuestions(int offset, int limit, Long userId);
+    List<QuestionInfo> queryQuestions(int page, int limit, Long userId);
 
     boolean saveSubscribe(Long questionId, Long userId);
 
     boolean deleteSubscribe(Long questionId, Long userId);
 
     Question getQuestion(Long questionId);
+
+    List<QuestionInfo> queryQuestionsByUserId(Long peopleId, Long userId);
 }

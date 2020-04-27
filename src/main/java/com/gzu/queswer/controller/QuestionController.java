@@ -1,7 +1,7 @@
 package com.gzu.queswer.controller;
 
 import com.gzu.queswer.model.Question;
-import com.gzu.queswer.model.info.QuestionInfo;
+import com.gzu.queswer.model.vo.QuestionInfo;
 import com.gzu.queswer.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,8 +22,8 @@ public class QuestionController {
     }
 
     @GetMapping(value = "/queryQuestions")
-    public List queryQuestions(int offset, int limit, Long userId) {
-        return questionService.queryQuestions(offset, limit, userId);
+    public List queryQuestions(int page, int limit, Long userId) {
+        return questionService.queryQuestions(page, limit, userId);
     }
 
     @GetMapping("/getQuestion")
@@ -39,5 +39,10 @@ public class QuestionController {
     @GetMapping("/deleteSubscribe")
     public boolean deleteSubscribe(Long questionId, Long userId) {
         return questionService.deleteSubscribe(questionId, userId);
+    }
+
+    @GetMapping("/queryQuestionsByUserId")
+    public List<QuestionInfo> queryQuestionsByUserId(Long peopleId, Long userId) {
+        return questionService.queryQuestionsByUserId(peopleId, userId);
     }
 }

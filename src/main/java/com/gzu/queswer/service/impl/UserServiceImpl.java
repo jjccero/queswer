@@ -6,7 +6,7 @@ import com.gzu.queswer.model.Action;
 import com.gzu.queswer.model.Activity;
 import com.gzu.queswer.model.User;
 import com.gzu.queswer.model.UserLogin;
-import com.gzu.queswer.model.info.UserInfo;
+import com.gzu.queswer.model.vo.UserInfo;
 import com.gzu.queswer.service.ActivityService;
 import com.gzu.queswer.service.UserService;
 import com.gzu.queswer.util.DateUtil;
@@ -131,19 +131,6 @@ public class UserServiceImpl extends RedisService implements UserService {
             String peopleIdKey = getKey(peopleId, jedis);
             if (peopleIdKey != null) {
                 return getUserInfos(peopleIdKey + SUFFIX_F0LLOWERS, userId, jedis);
-            }
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        }
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<Long> queryPeopleIdsByuserId(Long userId) {
-        try (Jedis jedis = getJedis()) {
-            String userIdKey = getKey(userId, jedis);
-            if (userIdKey != null) {
-                Set<String> PeopleIdStrings = jedis.smembers(userIdKey+SUFFIX_F0LLOWS);
             }
         } catch (Exception e) {
             log.error(e.getMessage());

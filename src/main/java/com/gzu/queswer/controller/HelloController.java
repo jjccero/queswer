@@ -1,5 +1,7 @@
 package com.gzu.queswer.controller;
 
+import com.gzu.queswer.common.UserContext;
+import com.gzu.queswer.common.UserException;
 import com.gzu.queswer.model.Topic;
 import com.gzu.queswer.service.CacheService;
 import com.gzu.queswer.service.TopicService;
@@ -25,7 +27,6 @@ public class HelloController {
     public Long saveTopic(@RequestBody Topic topic) {
         return topicService.saveTopic(topic);
     }
-
 
     @Autowired
     CacheService cacheService;
@@ -59,4 +60,16 @@ public class HelloController {
     public boolean backup() {
         return cacheService.backup();
     }
+
+    @Autowired
+    UserContext userContext;
+
+    @GetMapping("/testError")
+    public String testError() throws UserException {
+        if (userContext.getUser() == null)
+            throw new UserException(10001, "用户不存在");
+        else
+            return "ok";
+    }
+
 }

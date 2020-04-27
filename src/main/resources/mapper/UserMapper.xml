@@ -29,4 +29,18 @@
             intro=#{intro}
         WHERE user_Id = #{userId};
     </update>
+
+    <select id="selectAnswerIdsByUserId" resultType="Long">
+        SELECT answer_id
+        FROM t_answer
+        WHERE user_id = #{userId}
+          AND anonymous = false;
+    </select>
+
+    <select id="selectQuestionIdsByUserId" resultType="Long">
+        SELECT question_id
+        FROM t_question
+        WHERE user_id = #{userId}
+          AND anonymous = false;
+    </select>
 </mapper>

@@ -1,6 +1,6 @@
 package com.gzu.queswer.model;
 
-import com.gzu.queswer.model.info.UserInfo;
+import com.gzu.queswer.model.vo.UserInfo;
 
 import java.io.Serializable;
 

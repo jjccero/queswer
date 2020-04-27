@@ -1,4 +1,4 @@
-package com.gzu.queswer.model.info;
+package com.gzu.queswer.model.vo;
 
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.UserApi;
@@ -9,6 +9,7 @@ public class AnswerInfo extends UserApi {
     private Long agree;
     private Long against;
     private Long reviewCount;
+
     public Boolean getAttituded() {
         return attituded;
     }

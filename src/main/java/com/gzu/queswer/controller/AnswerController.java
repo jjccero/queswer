@@ -2,7 +2,8 @@ package com.gzu.queswer.controller;
 
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Attitude;
-import com.gzu.queswer.model.info.AnswerInfo;
+import com.gzu.queswer.model.vo.AnswerInfo;
+import com.gzu.queswer.model.vo.QuestionInfo;
 import com.gzu.queswer.service.AnswerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,5 +46,10 @@ public class AnswerController {
     @GetMapping("/queryAnswers")
     public List<AnswerInfo> queryAnswers(Long questionId, Long userId) {
         return answerService.queryAnswers(questionId, userId);
+    }
+
+    @GetMapping("/queryAnswersByUserId")
+    public List<QuestionInfo> queryAnswersByUserId(Long peopleId, Long userId) {
+        return answerService.queryAnswersByUserId(peopleId, userId);
     }
 }

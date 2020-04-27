@@ -5,9 +5,9 @@ import com.gzu.queswer.model.Action;
 import com.gzu.queswer.model.Activity;
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Topic;
-import com.gzu.queswer.model.info.ActivityInfo;
-import com.gzu.queswer.model.info.QuestionInfo;
-import com.gzu.queswer.model.info.UserInfo;
+import com.gzu.queswer.model.vo.ActivityInfo;
+import com.gzu.queswer.model.vo.QuestionInfo;
+import com.gzu.queswer.model.vo.UserInfo;
 import com.gzu.queswer.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ public class ActivityServiceImpl extends RedisService implements ActivityService
 
     @Override
     public boolean saveActivity(Activity activity, Jedis jedis) {
-        String key = PREFIX_USER + activity.getUserId() + SUFFIX_ACTIVITIES;
+        String key = PREFIX_ACTIVITIES + activity.getUserId();
         String member = activity.getAct() + ":" + activity.getId();
         return jedis.zadd(key, activity.getGmtCreate().doubleValue(), member).equals(1L);
     }
@@ -50,7 +50,7 @@ public class ActivityServiceImpl extends RedisService implements ActivityService
     public boolean deleteActivity(Activity activity) {
         boolean res = false;
         try (Jedis jedis = getJedis()) {
-            String key = PREFIX_USER + activity.getUserId() + SUFFIX_ACTIVITIES;
+            String key = PREFIX_ACTIVITIES + activity.getUserId();
             String member = activity.getAct() + ":" + activity.getId();
             res = jedis.zrem(key, member).equals(1L);
         } catch (Exception e) {
@@ -69,10 +69,11 @@ public class ActivityServiceImpl extends RedisService implements ActivityService
     TopicService topicService;
 
     @Override
-    public List<ActivityInfo> queryPeopleActivities(Long peopleId, Long userId, int offset, int limit) {
+    public List<ActivityInfo> queryPeopleActivities(Long peopleId, Long userId, int page, int limit) {
+        int offset = limit * page;
         List<ActivityInfo> activityInfos;
         try (Jedis jedis = getJedis()) {
-            String key = PREFIX_USER + peopleId + SUFFIX_ACTIVITIES;
+            String key = PREFIX_ACTIVITIES + peopleId;
             Set<Tuple> activityTuples = jedis.zrevrangeByScoreWithScores(key, Double.POSITIVE_INFINITY, 0.0, offset, limit);
             activityInfos = new ArrayList<>(activityTuples.size());
             for (Tuple activityTuple : activityTuples) {
@@ -90,12 +91,10 @@ public class ActivityServiceImpl extends RedisService implements ActivityService
         return activityInfos;
     }
 
-    private static final int LIMIT = 10;
-
     @Override
-    public List<ActivityInfo> queryFollowActivities(Long userId, int page) {
-        int offset = LIMIT * page;
-        List<ActivityInfo> activityInfos = new ArrayList<>(LIMIT);
+    public List<ActivityInfo> queryFollowActivities(Long userId, int page, int limit) {
+        int offset = limit * page;
+        List<ActivityInfo> activityInfos = new ArrayList<>(limit);
         try (Jedis jedis = getJedis()) {
             //判断是否已经加载到内存
             String tempKey = getTempKey(userId, jedis);
@@ -103,13 +102,13 @@ public class ActivityServiceImpl extends RedisService implements ActivityService
             if (tempKey == null) {
                 //找到所有用户的id
                 tempKey = userIdKey + SUFFIX_TEMP_ACTIVITIES;
-                Set<String> peopleIdKeys = jedis.smembers(userIdKey + SUFFIX_F0LLOWS);
+                Set<String> peopleIdStrings = jedis.smembers(userIdKey + SUFFIX_F0LLOWS);
                 List<Map<String, Double>> activityMaps = new ArrayList<>(16);
-                for (String peopleIdKey : peopleIdKeys) {
-                    Set<Tuple> activityTuples = jedis.zrevrangeByScoreWithScores(PREFIX_USER + peopleIdKey + SUFFIX_ACTIVITIES, Double.POSITIVE_INFINITY, 0.0);
+                for (String peopleIdString : peopleIdStrings) {
+                    Set<Tuple> activityTuples = jedis.zrevrangeByScoreWithScores(PREFIX_ACTIVITIES + peopleIdString, Double.POSITIVE_INFINITY, 0.0);
                     for (Tuple activityTuple : activityTuples) {
                         Map<String, Double> map = new HashMap<>();
-                        map.put(peopleIdKey + ":" + activityTuple.getElement(), activityTuple.getScore());
+                        map.put(peopleIdString + ":" + activityTuple.getElement(), activityTuple.getScore());
                         activityMaps.add(map);
                     }
                 }
@@ -118,7 +117,7 @@ public class ActivityServiceImpl extends RedisService implements ActivityService
                 transaction.expire(tempKey, THIRTY_MINUTES);
                 transaction.exec();
             }
-            Set<Tuple> activityTuples = jedis.zrevrangeByScoreWithScores(tempKey, Double.POSITIVE_INFINITY, 0.0, offset, LIMIT);
+            Set<Tuple> activityTuples = jedis.zrevrangeByScoreWithScores(tempKey, Double.POSITIVE_INFINITY, 0.0, offset, limit);
             for (Tuple activityTuple : activityTuples) {
                 Activity activity = getActivity(activityTuple);
                 ActivityInfo activityInfo = getActivityInfo(activity, userId);
@@ -160,7 +159,8 @@ public class ActivityServiceImpl extends RedisService implements ActivityService
         return activity;
     }
 
-    private ActivityInfo getActivityInfo(Activity activity, Long userId) {
+    @Override
+    public ActivityInfo getActivityInfo(Activity activity, Long userId) {
         Short act = activity.getAct();
         if (Action.FOLLOW_USER.equals(act))
             //0 关注了用户

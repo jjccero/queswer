@@ -5,8 +5,8 @@ import com.gzu.queswer.dao.QuestionDao;
 import com.gzu.queswer.model.Action;
 import com.gzu.queswer.model.Activity;
 import com.gzu.queswer.model.Question;
-import com.gzu.queswer.model.info.QuestionInfo;
-import com.gzu.queswer.model.info.UserInfo;
+import com.gzu.queswer.model.vo.QuestionInfo;
+import com.gzu.queswer.model.vo.UserInfo;
 import com.gzu.queswer.service.*;
 import com.gzu.queswer.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -93,13 +93,14 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
             userAId = selectAidByUid(questionId, userId);
             if (userAId != null) questionInfo.setUserAnswer(answerService.getAnswerInfo(userAId, userId));
         }
-        if (answerId != null && !answerId.equals(userAId)) questionInfo.setDefaultAnswer(answerService.getAnswerInfo(answerId, userId));
+        if (answerId != null && !answerId.equals(userAId))
+            questionInfo.setDefaultAnswer(answerService.getAnswerInfo(answerId, userId));
         return questionInfo;
     }
 
     @Override
-    public List<QuestionInfo> queryQuestions(int offset, int limit, Long userId) {
-        List<Long> questionIds = queryQuestionIds(offset, limit);
+    public List<QuestionInfo> queryQuestions(int page, int limit, Long userId) {
+        List<Long> questionIds = queryQuestionIds(page, limit);
         List<QuestionInfo> questionInfos = new ArrayList<>(questionIds.size());
         for (Long questionId : questionIds) {
             Long aId = getTopAnswerId(questionId);
@@ -155,10 +156,24 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
         return question;
     }
 
-    private List<Long> queryQuestionIds(int offset, int count) {
-        List<Long> questionIds = null;
+    @Override
+    public List<QuestionInfo> queryQuestionsByUserId(Long peopleId, Long userId) {
+        List<QuestionInfo> questionInfos;
+        List<Long> questionIds = questionDao.selectQuestionIdsByUserId(peopleId);
+        questionInfos = new ArrayList<>(questionIds.size());
+        for (Long questionId : questionIds) {
+            QuestionInfo questionInfo = getQuestionInfo(questionId, userId, false);
+            if (questionInfo != null)
+                questionInfos.add(questionInfo);
+        }
+        return questionInfos;
+    }
+
+    private List<Long> queryQuestionIds(int page, int limit) {
+        int offset = page * limit;
+        List<Long> questionIds;
         try (Jedis jedis = getJedis()) {
-            Set<String> questionIdKeys = jedis.zrevrangeByScore(TOP_LIST_KEY, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, offset, count);
+            Set<String> questionIdKeys = jedis.zrevrangeByScore(TOP_LIST_KEY, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, offset, limit);
             questionIds = new ArrayList<>(questionIdKeys.size());
             for (String questionIdKey : questionIdKeys) {
                 questionIds.add(Long.parseLong(questionIdKey));

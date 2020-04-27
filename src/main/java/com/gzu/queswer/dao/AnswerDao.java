@@ -3,6 +3,8 @@ package com.gzu.queswer.dao;
 import com.gzu.queswer.model.Answer;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface AnswerDao {
     void insertAnswer(Answer answer);
@@ -13,4 +15,5 @@ public interface AnswerDao {
 
     Answer selectAnswer(Long answerId);
 
+    List<Long> selectAnswerIdsByUserId(Long userId);
 }

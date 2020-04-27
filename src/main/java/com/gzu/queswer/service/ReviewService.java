@@ -1,7 +1,7 @@
 package com.gzu.queswer.service;
 
 import com.gzu.queswer.model.Review;
-import com.gzu.queswer.model.info.ReviewInfo;
+import com.gzu.queswer.model.vo.ReviewInfo;
 
 import java.util.List;
 
