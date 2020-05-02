@@ -9,8 +9,11 @@ public class RedisService {
     static final SetParams SET_PARAMS_ONE_MINUTE;
     static final SetParams SET_PARAMS_TWO_MINUTE;
     static final SetParams SET_PARAMS_THIRTY_MINUTES;
+    static final SetParams SET_PARAMS_THIRTY_DAYS;
     static final int ONE_MINUTE = 60;
     static final int THIRTY_MINUTES = 1800;
+    static final int THIRTY_DAYS = 3600 * 24 * 30;
+    static final int T_TOKEN = 1;
     static final int T_QUESTION_INDEX = 4;
     static final int T_USER_INDEX = 5;
     static final String SIGN = ":sign";
@@ -40,6 +43,8 @@ public class RedisService {
         SET_PARAMS_TWO_MINUTE.ex(ONE_MINUTE * 2);
         SET_PARAMS_THIRTY_MINUTES = new SetParams();
         SET_PARAMS_THIRTY_MINUTES.ex(ONE_MINUTE * 30);
+        SET_PARAMS_THIRTY_DAYS = new SetParams();
+        SET_PARAMS_THIRTY_DAYS.ex(THIRTY_DAYS);
     }
 
     Jedis getJedis() {

@@ -1,6 +1,7 @@
 package com.gzu.queswer.common;
 
 import com.gzu.queswer.model.User;
+import com.gzu.queswer.util.ExceptionUtil;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,11 +16,18 @@ public class UserContext {
         userThreadLocal.set(user);
     }
 
-    public User getUser() {
-        return userThreadLocal.get();
+    public User getUser(boolean throwException) throws UserException {
+        User user = userThreadLocal.get();
+        if (user == null && throwException) throw ExceptionUtil.NOT_LOGIN;
+        return user;
     }
 
     public void remove() {
         userThreadLocal.remove();
+    }
+
+    public Long getUserId(boolean throwException) throws UserException {
+        User user = getUser(throwException);
+        return user != null ? user.getUserId() : null;
     }
 }

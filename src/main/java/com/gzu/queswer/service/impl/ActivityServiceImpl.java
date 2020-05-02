@@ -18,10 +18,6 @@ import redis.clients.jedis.Tuple;
 
 import java.util.*;
 
-/**
- * @author 蒋竟成
- * @date 2020/4/20
- */
 @Service
 @Slf4j
 public class ActivityServiceImpl extends RedisService implements ActivityService {
@@ -34,7 +30,7 @@ public class ActivityServiceImpl extends RedisService implements ActivityService
         try (Jedis jedis = getJedis()) {
             res = saveActivity(activity, jedis);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return res;
     }
@@ -54,7 +50,7 @@ public class ActivityServiceImpl extends RedisService implements ActivityService
             String member = activity.getAct() + ":" + activity.getId();
             res = jedis.zrem(key, member).equals(1L);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return res;
     }
@@ -85,7 +81,7 @@ public class ActivityServiceImpl extends RedisService implements ActivityService
                 }
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
             activityInfos = new ArrayList<>();
         }
         return activityInfos;
@@ -128,7 +124,7 @@ public class ActivityServiceImpl extends RedisService implements ActivityService
                 }
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return activityInfos;
     }

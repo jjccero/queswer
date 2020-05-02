@@ -1,5 +1,7 @@
 package com.gzu.queswer.controller;
 
+import com.gzu.queswer.common.UserContext;
+import com.gzu.queswer.common.UserException;
 import com.gzu.queswer.model.Review;
 import com.gzu.queswer.model.vo.ReviewInfo;
 import com.gzu.queswer.service.ReviewService;
@@ -12,25 +14,27 @@ import java.util.List;
 public class ReviewController {
     @Autowired
     ReviewService reviewService;
-
+    @Autowired
+    UserContext userContext;
     @PostMapping("/saveReview")
-    public Long saveReview(@RequestBody Review review) {
+    public Long saveReview(@RequestBody Review review) throws UserException {
+        review.setUserId(userContext.getUserId(true));
         return reviewService.saveReview(review);
     }
 
     @GetMapping("/deleteReview")
-    public boolean deleteReview(Long reviewId, Long userId) {
-        return reviewService.deleteReview(reviewId, userId);
+    public boolean deleteReview(Long reviewId) throws UserException {
+        return reviewService.deleteReview(reviewId, userContext.getUserId(true));
     }
 
     @GetMapping("/queryReviews")
-    public List<ReviewInfo> queryReviews(Long answerId, Long userId) {
-        return reviewService.queryReviews(answerId, userId);
+    public List<ReviewInfo> queryReviews(Long answerId) throws UserException {
+        return reviewService.queryReviews(answerId, userContext.getUserId(false));
     }
 
     @GetMapping("/updateApprove")
-    public boolean updateApprove(Long reviewId, Long userId, Boolean approve) {
-        return reviewService.updateApprove(reviewId, userId, approve);
+    public boolean updateApprove(Long reviewId, Boolean approve) throws UserException {
+        return reviewService.updateApprove(reviewId, userContext.getUserId(true), approve);
     }
 
 }

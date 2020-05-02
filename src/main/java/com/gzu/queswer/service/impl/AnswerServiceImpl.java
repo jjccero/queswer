@@ -47,7 +47,7 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
             try (Jedis jedis = getJedis()) {
                 jedis.zadd(PREFIX_QUESTION + answer.getQuestionId().toString() + SUFFIX_ANSWERS, 0.0, answerId.toString());
             } catch (Exception e) {
-                log.error(e.getMessage());
+                log.error(e.toString());
             }
             activityService.saveActivity(getAnswerActivity(answer));
         }
@@ -81,7 +81,7 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
                 }
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return res;
     }
@@ -105,7 +105,7 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
                 }
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return res;
     }
@@ -121,19 +121,20 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
                 String aid1 = answerIdKey + SUFFIX_AGREE;
                 String aid0 = answerIdKey + SUFFIX_AGAINST;
                 String userIdField = attitude.getUserId().toString();
+                Double gmtCreateScore = attitude.getGmtCreate().doubleValue();
                 if (Boolean.TRUE.equals(attitude.getAtti())) {
-                    transaction.srem(aid0, userIdField);
-                    transaction.sadd(aid1, userIdField);
+                    transaction.zrem(aid0, userIdField);
+                    transaction.zadd(aid1, gmtCreateScore, userIdField);
                 } else {
-                    transaction.srem(aid1, userIdField);
-                    transaction.sadd(aid0, userIdField);
+                    transaction.zrem(aid1, userIdField);
+                    transaction.zadd(aid0, gmtCreateScore, userIdField);
                 }
                 transaction.exec();
                 activityService.saveActivity(getAttitudeActivity(attitude.getAnswerId(), attitude.getUserId(), attitude.getGmtCreate()));
                 res = true;
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return res;
     }
@@ -147,13 +148,13 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
                 String aid1 = answerIdKey + SUFFIX_AGREE;
                 String aid0 = answerIdKey + SUFFIX_AGAINST;
                 String userIdMember = userId.toString();
-                jedis.srem(aid1, userIdMember);
-                jedis.srem(aid0, userIdMember);
+                jedis.zrem(aid1, userIdMember);
+                jedis.zrem(aid0, userIdMember);
                 activityService.deleteActivity(getAttitudeActivity(answerId, userId, null));
                 res = true;
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return res;
     }
@@ -170,7 +171,7 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
                 answerInfos.add(answerInfo);
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return answerInfos;
     }
@@ -184,7 +185,7 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
                 answer = getAnswer(answerIdKey, jedis);
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return answer;
     }
@@ -194,9 +195,9 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
         boolean res = false;
         try (Jedis jedis = getJedis()) {
             String answerIdKey = getKey(answerId, jedis);
-            res = Boolean.TRUE.equals(jedis.sismember(answerIdKey + SUFFIX_AGREE, userId.toString()));
+            res = jedis.zrank(answerIdKey + SUFFIX_AGREE, userId.toString()) != null;
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return res;
     }
@@ -227,19 +228,21 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
                 answerInfo.setAnswer(getAnswer(answerIdKey, jedis));
                 String aid1 = answerIdKey + SUFFIX_AGREE;
                 String aid0 = answerIdKey + SUFFIX_AGAINST;
-                answerInfo.setAgree(jedis.scard(aid1));
-                answerInfo.setAgainst(jedis.scard(aid0));
+                answerInfo.setAgree(jedis.zcard(aid1));
+                answerInfo.setAgainst(jedis.zcard(aid0));
                 answerInfo.setReviewCount(jedis.zcard(answerIdKey + SUFFIX_REVIEWS));
                 Boolean attituded = null;
                 if (userId != null) {
-                    if (Boolean.TRUE.equals(jedis.sismember(aid1, userId.toString()))) attituded = true;
-                    else if (Boolean.TRUE.equals(jedis.sismember(aid0, userId.toString()))) attituded = false;
+                    if (jedis.zrank(aid1, userId.toString()) != null)
+                        attituded = true;
+                    else if (jedis.zrank(aid0, userId.toString()) != null)
+                        attituded = false;
                 }
                 answerInfo.setAttituded(attituded);
                 setUserInfo(answerInfo, userId);
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return answerInfo;
     }

@@ -51,7 +51,7 @@ public class CacheServiceImpl extends RedisService implements CacheService {
             }
             res = true;
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return res;
     }
@@ -83,7 +83,7 @@ public class CacheServiceImpl extends RedisService implements CacheService {
             jedis.flushAll();
             res = true;
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return res;
     }
@@ -106,7 +106,7 @@ public class CacheServiceImpl extends RedisService implements CacheService {
                 }
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return false;
     }
@@ -158,7 +158,7 @@ public class CacheServiceImpl extends RedisService implements CacheService {
             logTime(startTime, "insertActivityBatch");
             return true;
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return false;
     }
@@ -193,7 +193,7 @@ public class CacheServiceImpl extends RedisService implements CacheService {
                 }
             } while (!cursor.equals(ScanParams.SCAN_POINTER_START));
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return ids;
     }
@@ -220,13 +220,14 @@ public class CacheServiceImpl extends RedisService implements CacheService {
         logTime(startTime, "activities");
         for (Attitude attitude : attitudes) {
             Transaction transaction = jedis.multi();
+            Double gmtCreateScore = attitude.getGmtCreate().doubleValue();
             String userIdField = attitude.getUserId().toString();
             if (Boolean.TRUE.equals(attitude.getAtti())) {
-                transaction.srem(PREFIX_ANSWER + attitude.getAnswerId() + SUFFIX_AGAINST, userIdField);
-                transaction.sadd(PREFIX_ANSWER + attitude.getAnswerId() + SUFFIX_AGREE, userIdField);
+                transaction.zrem(PREFIX_ANSWER + attitude.getAnswerId() + SUFFIX_AGAINST, userIdField);
+                transaction.zadd(PREFIX_ANSWER + attitude.getAnswerId() + SUFFIX_AGREE, gmtCreateScore, userIdField);
             } else {
-                transaction.srem(PREFIX_ANSWER + attitude.getAnswerId() + SUFFIX_AGREE, userIdField);
-                transaction.sadd(PREFIX_ANSWER + attitude.getAnswerId() + SUFFIX_AGAINST, userIdField);
+                transaction.zrem(PREFIX_ANSWER + attitude.getAnswerId() + SUFFIX_AGREE, userIdField);
+                transaction.zadd(PREFIX_ANSWER + attitude.getAnswerId() + SUFFIX_AGAINST, gmtCreateScore, userIdField);
             }
             transaction.exec();
             Activity activity = new Activity();

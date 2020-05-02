@@ -1,7 +1,6 @@
 package com.gzu.queswer.controller;
 
 import com.gzu.queswer.common.UserContext;
-import com.gzu.queswer.common.UserException;
 import com.gzu.queswer.model.Topic;
 import com.gzu.queswer.service.CacheService;
 import com.gzu.queswer.service.TopicService;
@@ -17,6 +16,8 @@ import java.util.List;
 public class HelloController {
     @Autowired
     TopicService topicService;
+    @Autowired
+    UserContext userContext;
 
     @GetMapping("/queryTopics")
     public List queryTopics() {
@@ -59,17 +60,6 @@ public class HelloController {
     @GetMapping("/backup")
     public boolean backup() {
         return cacheService.backup();
-    }
-
-    @Autowired
-    UserContext userContext;
-
-    @GetMapping("/testError")
-    public String testError() throws UserException {
-        if (userContext.getUser() == null)
-            throw new UserException(10001, "用户不存在");
-        else
-            return "ok";
     }
 
 }

@@ -62,7 +62,7 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
                 setUserInfo(questionInfo, userId);
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return questionInfo;
     }
@@ -77,7 +77,7 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
             try (Jedis jedis = getJedis()) {
                 jedis.zadd(TOP_LIST_KEY, 0.0, questionId.toString());
             } catch (Exception e) {
-                log.error(e.getMessage());
+                log.error(e.toString());
             }
             activityService.saveActivity(getQuestionActivity(question));
         }
@@ -121,7 +121,7 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
                 res = true;
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return res;
     }
@@ -137,7 +137,7 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
                 res = true;
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return res;
     }
@@ -151,7 +151,7 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
                 question = getQuestion(questionIdKey, jedis);
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return question;
     }
@@ -179,7 +179,7 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
                 questionIds.add(Long.parseLong(questionIdKey));
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
             questionIds = new ArrayList<>();
         }
         return questionIds;
@@ -210,7 +210,7 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
                 aid = Long.parseLong(aIdKeys.iterator().next());
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return aid;
     }

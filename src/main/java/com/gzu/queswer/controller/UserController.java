@@ -2,6 +2,7 @@ package com.gzu.queswer.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.gzu.queswer.common.UserContext;
+import com.gzu.queswer.common.UserException;
 import com.gzu.queswer.model.User;
 import com.gzu.queswer.model.UserLogin;
 import com.gzu.queswer.model.vo.ActivityInfo;
@@ -16,10 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * @author 蒋竟成
- * @date 2020/4/19
- */
 @RestController
 public class UserController {
     @Autowired
@@ -30,10 +27,15 @@ public class UserController {
     UserContext userContext;
 
     @PostMapping(value = "/login")
-    public User login(@RequestBody JSONObject loginForm) {
+    public JSONObject login(@RequestBody JSONObject loginForm) {
         String username = loginForm.getString("username");
         String password = loginForm.getString("password");
         return userService.login(username, password);
+    }
+
+    @GetMapping(value = "/logout")
+    public boolean logout(String token) {
+        return userService.deleteUserByToken(token);
     }
 
     @PostMapping(value = "/signup")
@@ -49,43 +51,44 @@ public class UserController {
     }
 
     @PostMapping("/updateUser")
-    public Integer updateUser(@RequestBody User user) {
+    public Integer updateUser(@RequestBody User user) throws UserException {
+        user.setUserId(userContext.getUserId(true));
         return userService.updateUser(user);
     }
 
     @GetMapping(value = "/getUserInfo")
-    public UserInfo getUserInfo(Long peopleId, Long userId) {
-        return userService.getUserInfo(peopleId, userId);
+    public UserInfo getUserInfo(Long peopleId) throws UserException {
+        return userService.getUserInfo(peopleId,userContext.getUserId(false));
     }
 
     @GetMapping("/saveFollow")
-    public boolean saveFollow(Long peopleId, Long userId) {
-        return userService.saveFollow(peopleId, userId);
+    public boolean saveFollow(Long peopleId) throws UserException {
+        return userService.saveFollow(peopleId, userContext.getUserId(true));
     }
 
     @GetMapping("/deleteFollow")
-    public boolean deleteFollow(Long peopleId, Long userId) {
-        return userService.deleteFollow(peopleId, userId);
+    public boolean deleteFollow(Long peopleId) throws UserException {
+        return userService.deleteFollow(peopleId, userContext.getUserId(true));
     }
 
     @GetMapping("/queryUserInfosByFollowerId")
-    public List<UserInfo> queryUserInfosByFollowerId(Long peopleId, Long userId) {
-        return userService.queryUserInfosByFollowerId(peopleId, userId);
+    public List<UserInfo> queryUserInfosByFollowerId(Long peopleId) throws UserException {
+        return userService.queryUserInfosByFollowerId(peopleId, userContext.getUserId(false));
     }
 
     @GetMapping("/queryFollowerInfosByPeopleId")
-    public List<UserInfo> queryFollowerInfosByPeopleId(Long peopleId, Long userId) {
-        return userService.queryFollowerInfosByPeopleId(peopleId, userId);
+    public List<UserInfo> queryFollowerInfosByPeopleId(Long peopleId) throws UserException {
+        return userService.queryFollowerInfosByPeopleId(peopleId, userContext.getUserId(false));
     }
 
     @GetMapping("/queryPeopleActivities")
-    public List<ActivityInfo> queryPeopleActivities(Long peopleId, Long userId, int page, int limit) {
-        return activityService.queryPeopleActivities(peopleId, userId, page, limit);
+    public List<ActivityInfo> queryPeopleActivities(Long peopleId, int page, int limit) throws UserException {
+        return activityService.queryPeopleActivities(peopleId,userContext.getUserId(false), page, limit);
     }
 
     @GetMapping("/queryFollowActivities")
-    public List<ActivityInfo> queryFollowActivities(Long userId, int page, int limit) {
-        return activityService.queryFollowActivities(userId, page, limit);
+    public List<ActivityInfo> queryFollowActivities(int page, int limit) throws UserException {
+        return activityService.queryFollowActivities(userContext.getUserId(true), page, limit);
     }
 
 

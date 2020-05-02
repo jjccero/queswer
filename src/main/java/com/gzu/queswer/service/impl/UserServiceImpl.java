@@ -1,6 +1,7 @@
 package com.gzu.queswer.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.gzu.queswer.dao.UserDao;
 import com.gzu.queswer.model.Action;
 import com.gzu.queswer.model.Activity;
@@ -21,6 +22,7 @@ import redis.clients.jedis.Transaction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -32,13 +34,25 @@ public class UserServiceImpl extends RedisService implements UserService {
     ActivityService activityService;
 
     @Override
-    public User login(String username, String password) {
-        User user = null;
-        UserLogin userLogin = userDao.selectUserLoginByUsername(username);
-        if (userLogin != null && passwordEncoder.matches(password, userLogin.getPassword())) {
-            user = userDao.selectUser(userLogin.getUserId());
+    public JSONObject login(String username, String password) {
+        try (Jedis jedis = getJedis()) {
+            UserLogin userLogin = userDao.selectUserLoginByUsername(username);
+            if (userLogin != null && passwordEncoder.matches(password, userLogin.getPassword())) {
+                User user = userDao.selectUser(userLogin.getUserId());
+                if (user != null) {
+                    String token = UUID.randomUUID().toString();
+                    jedis.select(T_TOKEN);
+                    jedis.set(token, user.getUserId().toString(), SET_PARAMS_THIRTY_DAYS);
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("token", token);
+                    jsonObject.put("user", user);
+                    return jsonObject;
+                }
+            }
+        } catch (Exception e) {
+            log.error(e.toString());
         }
-        return user;
+        return null;
     }
 
     @Override
@@ -61,12 +75,13 @@ public class UserServiceImpl extends RedisService implements UserService {
             String userIdKey = getKey(peopleId, jedis);
             if (userIdKey != null) {
                 userInfo.setUser(getUser(userIdKey, jedis));
-                userInfo.setFollowed(jedis.sismember(userIdKey + SUFFIX_F0LLOWERS, userId.toString()));
+                if (userId != null)
+                    userInfo.setFollowed(jedis.sismember(userIdKey + SUFFIX_F0LLOWERS, userId.toString()));
                 userInfo.setFollowersCount(jedis.scard(userIdKey + SUFFIX_F0LLOWERS));
                 userInfo.setFollowCount(jedis.scard(userIdKey + SUFFIX_F0LLOWS));
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return userInfo;
     }
@@ -87,7 +102,7 @@ public class UserServiceImpl extends RedisService implements UserService {
                 res = true;
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return res;
     }
@@ -107,7 +122,7 @@ public class UserServiceImpl extends RedisService implements UserService {
                 res = true;
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return res;
     }
@@ -120,7 +135,7 @@ public class UserServiceImpl extends RedisService implements UserService {
                 return getUserInfos(followerIdKey + SUFFIX_F0LLOWS, userId, jedis);
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return new ArrayList<>();
     }
@@ -133,9 +148,38 @@ public class UserServiceImpl extends RedisService implements UserService {
                 return getUserInfos(peopleIdKey + SUFFIX_F0LLOWERS, userId, jedis);
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return new ArrayList<>();
+    }
+
+    @Override
+    public User getUserByToken(String token) {
+        if (token == null) return null;
+        try (Jedis jedis = getJedis()) {
+            jedis.select(T_TOKEN);
+            String userIdString = jedis.get(token);
+            if (userIdString != null) {
+                jedis.select(0);
+                String userIdKey = getKey(Long.parseLong(userIdString), jedis);
+                if (userIdKey != null)
+                    return getUser(userIdKey, jedis);
+            }
+        } catch (Exception e) {
+            log.error(e.toString());
+        }
+        return null;
+    }
+
+    @Override
+    public boolean deleteUserByToken(String token) {
+        try (Jedis jedis = getJedis()) {
+            jedis.select(T_TOKEN);
+            return jedis.del(token) == 1L;
+        } catch (Exception e) {
+            log.error(e.toString());
+        }
+        return false;
     }
 
     private List<UserInfo> getUserInfos(String setKey, Long userId, Jedis jedis) {

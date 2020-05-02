@@ -1,5 +1,7 @@
 package com.gzu.queswer.controller;
 
+import com.gzu.queswer.common.UserContext;
+import com.gzu.queswer.common.UserException;
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Attitude;
 import com.gzu.queswer.model.vo.AnswerInfo;
@@ -17,39 +19,44 @@ import java.util.List;
 public class AnswerController {
     @Autowired
     private AnswerService answerService;
+    @Autowired
+    UserContext userContext;
 
     @PostMapping(value = "/saveAnswer")
-    public Long saveAnswer(@RequestBody Answer answer) {
+    public Long saveAnswer(@RequestBody Answer answer) throws UserException {
+        answer.setUserId(userContext.getUserId(true));
         return answerService.saveAnswer(answer);
     }
 
     @PostMapping(value = "/updateAnswer")
-    public boolean updateAnswer(@RequestBody Answer answer) {
+    public boolean updateAnswer(@RequestBody Answer answer) throws UserException {
+        answer.setUserId(userContext.getUserId(true));
         return answerService.updateAnswer(answer);
     }
 
     @GetMapping("/deleteAnswer")
-    public boolean deleteAnswer(Long answerId, Long userId) {
-        return answerService.deleteAnswer(answerId, userId);
+    public boolean deleteAnswer(Long answerId) throws UserException {
+        return answerService.deleteAnswer(answerId, userContext.getUserId(true));
     }
 
     @PostMapping("/updateAttitude")
-    public boolean updateAttitude(@RequestBody Attitude attitude) {
+    public boolean updateAttitude(@RequestBody Attitude attitude) throws UserException {
+        attitude.setUserId(userContext.getUserId(true));
         return answerService.updateAttitude(attitude);
     }
 
     @GetMapping("/deleteAttitude")
-    public boolean deleteAttitude(long answerId, long userId) {
-        return answerService.deleteAttitude(answerId, userId);
+    public boolean deleteAttitude(long answerId) throws UserException {
+        return answerService.deleteAttitude(answerId, userContext.getUserId(true));
     }
 
     @GetMapping("/queryAnswers")
-    public List<AnswerInfo> queryAnswers(Long questionId, Long userId) {
-        return answerService.queryAnswers(questionId, userId);
+    public List<AnswerInfo> queryAnswers(Long questionId) throws UserException {
+        return answerService.queryAnswers(questionId, userContext.getUserId(false));
     }
 
     @GetMapping("/queryAnswersByUserId")
-    public List<QuestionInfo> queryAnswersByUserId(Long peopleId, Long userId) {
-        return answerService.queryAnswersByUserId(peopleId, userId);
+    public List<QuestionInfo> queryAnswersByUserId(Long peopleId) throws UserException {
+        return answerService.queryAnswersByUserId(peopleId, userContext.getUserId(true));
     }
 }

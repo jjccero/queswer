@@ -43,7 +43,7 @@ public class ReviewServiceImpl extends RedisService implements ReviewService {
             try (Jedis jedis = getJedis()) {
                 jedis.zadd(PREFIX_ANSWER + review.getAnswerId().toString() + SUFFIX_REVIEWS, 0.0, reviewId.toString());
             } catch (Exception e) {
-                log.error(e.getMessage());
+                log.error(e.toString());
             }
         }
         return reviewId;
@@ -65,7 +65,7 @@ public class ReviewServiceImpl extends RedisService implements ReviewService {
                 }
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return res;
     }
@@ -105,7 +105,7 @@ public class ReviewServiceImpl extends RedisService implements ReviewService {
                 reviewInfos.add(reviewInfo);
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return reviewInfos;
     }
@@ -122,7 +122,7 @@ public class ReviewServiceImpl extends RedisService implements ReviewService {
                 res = true;
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return res;
     }
@@ -141,7 +141,7 @@ public class ReviewServiceImpl extends RedisService implements ReviewService {
                 reviewInfo.setReview(review);
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.toString());
         }
         return reviewInfo;
     }
