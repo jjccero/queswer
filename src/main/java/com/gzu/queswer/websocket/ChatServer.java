@@ -5,7 +5,6 @@ import com.gzu.queswer.model.Message;
 import com.gzu.queswer.model.User;
 import com.gzu.queswer.service.UserService;
 import com.gzu.queswer.util.DateUtil;
-import com.gzu.queswer.util.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -32,25 +31,16 @@ public class ChatServer {
     @OnOpen
     public void onOpen(Session session, @PathParam("token") String token) {
         this.session = session;
-        log.info(token);
-        if (userService == null) {
-            userService = SpringUtil.getBean(UserService.class);
-            if (userService == null) return;
-        }
         User user = userService.getUserByToken(token);
         if (user == null) return;
         userId = user.getUserId();
-        List<ChatServer> chatServers = map.get(userId);
-        if (chatServers == null) {
-            chatServers = new Vector<>(1);
-            map.put(userId, chatServers);
-        }
+        List<ChatServer> chatServers = map.computeIfAbsent(userId, k -> new Vector<>(1));
         chatServers.add(this);
         log.info("{}:open", userId);
     }
 
     @OnClose
-    public void onClose() {
+    public synchronized void onClose() {
         if (userId == null) return;
         List<ChatServer> chatServers = map.get(userId);
         chatServers.remove(this);
@@ -77,5 +67,9 @@ public class ChatServer {
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    public static void setUserService(UserService userService) {
+        ChatServer.userService = userService;
     }
 }

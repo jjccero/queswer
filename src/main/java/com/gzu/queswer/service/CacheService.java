@@ -1,6 +1,6 @@
 package com.gzu.queswer.service;
 
-import com.gzu.queswer.model.vo.QuestionInfo;
+import com.alibaba.fastjson.JSONObject;
 import com.gzu.queswer.model.vo.UserInfo;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +10,7 @@ import java.util.List;
 public interface CacheService {
     boolean createIndex();
 
-    List<QuestionInfo> selectQuestionInfosByQuestion(String title, Long userId);
+    JSONObject selectQuestionInfosByQuestion(String title, Long userId);
 
     List<UserInfo> selectUserInfosByNickname(String nickname, Long userId);
 

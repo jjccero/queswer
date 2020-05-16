@@ -28,6 +28,11 @@ public class QuestionController {
         return questionService.saveQuestion(question);
     }
 
+    @PostMapping(value = "/updateQuestion")
+    public Long updateQuestion(@RequestBody Question question) throws UserException {
+        return questionService.saveQuestion(question);
+    }
+
     @GetMapping(value = "/queryQuestions")
     public List queryQuestions(int page, int limit) throws UserException {
         return questionService.queryQuestions(page, limit, userContext.getUserId(false));

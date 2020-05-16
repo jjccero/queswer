@@ -85,6 +85,11 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
     }
 
     @Override
+    public boolean updateQuestion(Question question) {
+        return false;
+    }
+
+    @Override
     public QuestionInfo getQuestionInfo(Long questionId, Long answerId, Long userId, boolean userAnswer, boolean inc) {
         QuestionInfo questionInfo = getQuestionInfo(questionId, userId, inc);
         questionInfo.setTopics(topicService.queryTopicsByQuestionId(questionId));

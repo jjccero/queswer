@@ -1,5 +1,6 @@
 package com.gzu.queswer.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.gzu.queswer.dao.CacheDao;
 import com.gzu.queswer.model.Action;
 import com.gzu.queswer.model.Activity;
@@ -11,6 +12,7 @@ import com.gzu.queswer.service.ActivityService;
 import com.gzu.queswer.service.CacheService;
 import com.gzu.queswer.service.QuestionService;
 import com.gzu.queswer.service.UserService;
+import com.gzu.queswer.util.AnalysisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,7 +43,11 @@ public class CacheServiceImpl extends RedisService implements CacheService {
             jedis.flushDB();
             List<StringIndex> indexs = cacheDao.selectQuestionIndexs();
             for (StringIndex stringIndex : indexs) {
-                jedis.sadd(stringIndex.getK().toLowerCase(), stringIndex.getV().toString());
+                Set<String> templates = AnalysisUtil.analysisString(stringIndex.getK());
+                String questionIdString = stringIndex.getV().toString();
+                for (String string : templates) {
+                    jedis.sadd(string, questionIdString);
+                }
             }
             jedis.select(T_USER_INDEX);
             jedis.flushDB();
@@ -57,13 +63,24 @@ public class CacheServiceImpl extends RedisService implements CacheService {
     }
 
     @Override
-    public List<QuestionInfo> selectQuestionInfosByQuestion(String title, Long userId) {
-        List<Long> qIds = selectIndex(title, T_QUESTION_INDEX);
-        List<QuestionInfo> questionInfos = new ArrayList<>(qIds.size());
-        for (Long qid : qIds) {
-            questionInfos.add(questionService.getQuestionInfo(qid, userId, false));
+    public JSONObject selectQuestionInfosByQuestion(String title, Long userId) {
+        JSONObject res = new JSONObject();
+        try (Jedis jedis = getJedis(T_QUESTION_INDEX)) {
+            Set<String> templates = AnalysisUtil.analysisString(title);
+            if (!templates.isEmpty()) {
+                Set<String> questionIdStrings = jedis.sunion(templates.toArray(new String[0]));
+                List<QuestionInfo> questionInfos = new ArrayList<>(questionIdStrings.size());
+                for (String questionIdString : questionIdStrings) {
+                    Long questionId = Long.parseLong(questionIdString);
+                    questionInfos.add(questionService.getQuestionInfo(questionId, userId, false));
+                }
+                res.put("questionInfos", questionInfos);
+            }
+            res.put("templates", templates);
+        } catch (Exception e) {
+            log.error(e.toString());
         }
-        return questionInfos;
+        return res;
     }
 
     @Override
@@ -151,7 +168,6 @@ public class CacheServiceImpl extends RedisService implements CacheService {
             //恢复评论赞同表,不需要加入时间轴
             restoreApproveActivities(jedis);
             logTime(startTime, "restoreApproveActivities");
-//            log.vo("{}",cacheDao.insertActivityBatch(activities));
             for (Activity activity : activities) {
                 activityService.saveActivity(activity, jedis);
             }
@@ -177,7 +193,7 @@ public class CacheServiceImpl extends RedisService implements CacheService {
         List<Long> ids = new ArrayList<>();
         try (Jedis jedis = getJedis(database)) {
             String cursor = ScanParams.SCAN_POINTER_START;
-            String match = "*" + k.toLowerCase() + "*";
+            String match = k.toLowerCase() + "*";
             ScanParams scanParams = new ScanParams();
             scanParams.match(match);
             scanParams.count(100);

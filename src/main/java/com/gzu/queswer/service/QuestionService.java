@@ -8,6 +8,8 @@ import java.util.List;
 public interface QuestionService {
     Long saveQuestion(Question question);
 
+    boolean updateQuestion(Question question);
+
     QuestionInfo getQuestionInfo(Long questionId, Long answerId, Long userId, boolean userAnswer, boolean inc);
 
     QuestionInfo getQuestionInfo(Long questionId, Long userId, boolean inc);

@@ -1,5 +1,6 @@
 package com.gzu.queswer.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.gzu.queswer.common.UserContext;
 import com.gzu.queswer.model.Topic;
 import com.gzu.queswer.service.CacheService;
@@ -38,7 +39,7 @@ public class HelloController {
     }
 
     @GetMapping("/searchQuestionInfos")
-    public List searchQuestionInfos(String title, Long userId) {
+    public JSONObject searchQuestionInfos(String title, Long userId) {
         return cacheService.selectQuestionInfosByQuestion(title, userId);
     }
 
