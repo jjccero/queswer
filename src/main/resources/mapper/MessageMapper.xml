@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gzu.queswer.dao.MessageDao">
+    <insert id="insertMessage">
+        insert into t_message(src_id, dst_id, gmt_create, msg, unread)
+        values (#{srcId}, #{dstId}, #{gmtCreate}, #{msg}, #{unread})
+    </insert>
+    <select id="selectUnreadMessages" resultType="com.gzu.queswer.model.Message">
+        select src_id, dst_id, gmt_create, msg, unread
+        from t_message
+        where dst_id = #{dstId}
+          and unread = TRUE
+    </select>
+    <update id="updateUnreadMessages">
+        update t_message
+        set unread= FALSE
+        where dst_id = #{dstId}
+          and unread = TRUE
+    </update>
+</mapper>

@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface QuestionDao {
-    Question selectQuestion(@Param("questionId") Long questionId);
+    Question selectQuestion(Long questionId);
 
     void insertQuestion(Question question);
 

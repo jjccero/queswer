@@ -3,6 +3,7 @@ package com.gzu.queswer.websocket;
 import com.alibaba.fastjson.JSON;
 import com.gzu.queswer.model.Message;
 import com.gzu.queswer.model.User;
+import com.gzu.queswer.service.MessageService;
 import com.gzu.queswer.service.UserService;
 import com.gzu.queswer.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ public class ChatServer {
     private Session session;
     private Long userId;
     private static UserService userService;
+    private static MessageService messageService;
 
     @OnOpen
     public void onOpen(Session session, @PathParam("token") String token) {
@@ -36,7 +38,14 @@ public class ChatServer {
         userId = user.getUserId();
         List<ChatServer> chatServers = map.computeIfAbsent(userId, k -> new Vector<>(1));
         chatServers.add(this);
-        log.info("{}:open", userId);
+        try {
+            List<Message> messages = messageService.queryMessages(userId);
+            messageService.readMessages(userId);
+            String dstMessagesString = JSON.toJSONString(messages);
+            session.getBasicRemote().sendText(dstMessagesString);
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
     }
 
     @OnClose
@@ -46,7 +55,6 @@ public class ChatServer {
         chatServers.remove(this);
         if (chatServers.isEmpty())
             map.remove(userId);
-        log.info("{}:closeSocket", userId);
     }
 
     @OnMessage
@@ -56,13 +64,19 @@ public class ChatServer {
             Message message = JSON.parseObject(srcMessageString, Message.class);
             message.setGmtCreate(DateUtil.getUnixTime());
             message.setSrcId(userId);
+            message.setUnread(true);
             Long dstId = message.getDstId();
-            if (message.getDstId() != null) {
+            if (message.getDstId() != null && !userId.equals(dstId)) {
                 List<ChatServer> chatServers = map.get(dstId);
                 String dstMessageString = JSON.toJSONString(message);
-                for (ChatServer chatServer : chatServers) {
-                    chatServer.session.getBasicRemote().sendText(dstMessageString);
+                session.getBasicRemote().sendText(dstMessageString);
+                if (chatServers != null) {
+                    message.setUnread(false);
+                    for (ChatServer chatServer : chatServers) {
+                        chatServer.session.getBasicRemote().sendText(dstMessageString);
+                    }
                 }
+                messageService.saveMessage(message);
             }
         } catch (IOException e) {
             log.error(e.getMessage());
@@ -71,5 +85,9 @@ public class ChatServer {
 
     public static void setUserService(UserService userService) {
         ChatServer.userService = userService;
+    }
+
+    public static void setMessageService(MessageService messageService) {
+        ChatServer.messageService = messageService;
     }
 }
