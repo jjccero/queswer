@@ -16,6 +16,10 @@ public interface UserService {
 
     boolean updateUser(UserForm userForm);
 
+    boolean updateAuthority(User user);
+
+    List<UserInfo> queryAdminInfos(Long userId);
+
     boolean updatePassword(PasswordForm passwordForm);
 
     UserInfo getUserInfo(Long peopleId, Long userId);
@@ -25,10 +29,12 @@ public interface UserService {
     boolean deleteFollow(Long peopleId, Long userId);
 
     List<UserInfo> queryUserInfosByFollowerId(Long peopleId, Long userId);
-    
+
     List<UserInfo> queryFollowerInfosByPeopleId(Long peopleId, Long userId);
 
     User getUserByToken(String token);
 
     boolean deleteUserByToken(String token);
+
+    List<UserInfo> queryUserInfos(List<Long> peopleIds, Long userId);
 }

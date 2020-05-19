@@ -50,17 +50,17 @@ public class ReviewServiceImpl extends RedisService implements ReviewService {
     }
 
     @Override
-    public boolean deleteReview(Long reviewId, Long userId) {
+    public boolean deleteReview(Long reviewId, Long userId, boolean isAdmin) {
         boolean res = false;
         try (Jedis jedis = getJedis()) {
             String reviewIdKey = getKey(reviewId, jedis);
             if (reviewIdKey != null) {
                 Review review = getReview(reviewIdKey, jedis);
-                if (review.getUserId().equals(userId)) {
+                if (isAdmin || review.getUserId().equals(userId)) {
+                    reviewDao.deleteReview(reviewId);
                     review.setRevi(null);
                     review.setDeleted(true);
                     jedis.set(reviewIdKey, JSON.toJSONString(review), SET_PARAMS_ONE_MINUTE);
-                    reviewDao.deleteReview(reviewId);
                     res = true;
                 }
             }

@@ -4,6 +4,7 @@ import com.gzu.queswer.common.UserContext;
 import com.gzu.queswer.common.UserException;
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.Attitude;
+import com.gzu.queswer.model.UserLogin;
 import com.gzu.queswer.model.vo.AnswerInfo;
 import com.gzu.queswer.model.vo.QuestionInfo;
 import com.gzu.queswer.service.AnswerService;
@@ -31,12 +32,12 @@ public class AnswerController {
     @PostMapping(value = "/updateAnswer")
     public boolean updateAnswer(@RequestBody Answer answer) throws UserException {
         answer.setUserId(userContext.getUserId(true));
-        return answerService.updateAnswer(answer);
+        return answerService.updateAnswer(answer, userContext.check(UserLogin.ADMIN, false));
     }
 
     @GetMapping("/deleteAnswer")
     public boolean deleteAnswer(Long answerId) throws UserException {
-        return answerService.deleteAnswer(answerId, userContext.getUserId(true));
+        return answerService.deleteAnswer(answerId, userContext.getUserId(true), userContext.check(UserLogin.ADMIN, false));
     }
 
     @PostMapping("/updateAttitude")

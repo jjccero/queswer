@@ -6,12 +6,20 @@ import com.gzu.queswer.model.vo.PasswordForm;
 import com.gzu.queswer.model.vo.UserForm;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface UserDao {
 
-    int insertUser(UserLogin userLogin);
+    void insertUser(UserLogin userLogin);
 
-    Integer updateUser(UserForm userForm);
+    int updateUser(UserForm userForm);
+
+    int updateAuthority(User user);
+
+    int deleteQuestion(Long questionId);
+
+    List<Long> queryAdminIds();
 
     Integer updatePassword(PasswordForm passwordForm);
 

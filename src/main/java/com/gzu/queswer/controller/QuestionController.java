@@ -3,6 +3,7 @@ package com.gzu.queswer.controller;
 import com.gzu.queswer.common.UserContext;
 import com.gzu.queswer.common.UserException;
 import com.gzu.queswer.model.Question;
+import com.gzu.queswer.model.UserLogin;
 import com.gzu.queswer.model.vo.QuestionInfo;
 import com.gzu.queswer.service.QuestionService;
 import lombok.extern.slf4j.Slf4j;
@@ -30,12 +31,19 @@ public class QuestionController {
 
     @PostMapping(value = "/updateQuestion")
     public boolean updateQuestion(@RequestBody Question question) throws UserException {
+        userContext.check(UserLogin.ADMIN, true);
         return questionService.updateQuestion(question);
     }
 
     @GetMapping(value = "/queryQuestions")
     public List queryQuestions(int page, int limit) throws UserException {
         return questionService.queryQuestions(page, limit, userContext.getUserId(false));
+    }
+
+    @GetMapping(value = "/deleteQuestion")
+    public boolean deleteQuestion(Long questionId) throws UserException {
+        userContext.check(UserLogin.ADMIN, true);
+        return questionService.deleteQuestion(questionId);
     }
 
     @GetMapping("/getQuestion")

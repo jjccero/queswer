@@ -30,4 +30,13 @@ public class UserContext {
         User user = getUser(throwException);
         return user != null ? user.getUserId() : null;
     }
+
+    public boolean check(Short authority, boolean throwException) throws UserException {
+        User user = getUser(true);
+        if (authority > user.getAuthority()) {
+            if (throwException) throw ExceptionUtil.NOT_AUTHORITY;
+            else return false;
+        }
+        return true;
+    }
 }

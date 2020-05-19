@@ -10,6 +10,11 @@
         INSERT INTO t_question (gmt_create, title, detail, user_id, anonymous)
         VALUES (#{gmtCreate}, #{title}, #{detail}, #{userId}, #{anonymous});
     </insert>
+    <delete id="deleteQuestion">
+        DELETE
+        FROM t_question
+        WHERE question_id = #{questionId};
+    </delete>
     <update id="updateQuestion">
         UPDATE t_question
         SET title=#{title},

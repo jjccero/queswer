@@ -70,12 +70,34 @@ public class UserServiceImpl extends RedisService implements UserService {
     public boolean updateUser(UserForm userForm) {
         if (userDao.updateUser(userForm) == 1) {
             try (Jedis jedis = getJedis()) {
-                getKey(userForm.getUserId(), jedis);
+                jedis.del(PREFIX_USER+userForm.getUserId());
             } catch (Exception e) {
                 log.error(e.toString());
             }
             return true;
         } else return false;
+    }
+
+    @Override
+    public boolean updateAuthority(User user) {
+        if (userDao.updateAuthority(user) == 1) {
+            try (Jedis jedis = getJedis()) {
+                jedis.del(PREFIX_USER+user.getUserId());
+            } catch (Exception e) {
+                log.error(e.toString());
+            }
+            return true;
+        } else return false;
+    }
+
+    @Override
+    public List<UserInfo> queryAdminInfos(Long userId) {
+        List<Long> peopleIds = userDao.queryAdminIds();
+        List<UserInfo> userInfos = new ArrayList<>(peopleIds.size());
+        for (Long peopleId : peopleIds) {
+            userInfos.add(getUserInfo(peopleId, userId));
+        }
+        return userInfos;
     }
 
     @Override
@@ -93,9 +115,9 @@ public class UserServiceImpl extends RedisService implements UserService {
             if (userIdKey != null) {
                 userInfo.setUser(getUser(userIdKey, jedis));
                 if (userId != null)
-                    userInfo.setFollowed(jedis.sismember(userIdKey + SUFFIX_F0LLOWERS, userId.toString()));
-                userInfo.setFollowersCount(jedis.scard(userIdKey + SUFFIX_F0LLOWERS));
-                userInfo.setFollowCount(jedis.scard(userIdKey + SUFFIX_F0LLOWS));
+                    userInfo.setFollowed(jedis.zrank(userIdKey + SUFFIX_F0LLOWERS, userId.toString())!=null);
+                userInfo.setFollowersCount(jedis.zcard(userIdKey + SUFFIX_F0LLOWERS));
+                userInfo.setFollowCount(jedis.zcard(userIdKey + SUFFIX_F0LLOWS));
             }
         } catch (Exception e) {
             log.error(e.toString());
@@ -111,11 +133,12 @@ public class UserServiceImpl extends RedisService implements UserService {
             String userIdKey = getKey(userId, jedis);
             String peopleIdKey = getKey(peopleId, jedis);
             if (userIdKey != null) {
+                double gmtCreate=DateUtil.getUnixTime();
                 Transaction transaction = jedis.multi();
-                transaction.sadd(peopleIdKey + SUFFIX_F0LLOWERS, userId.toString());
-                transaction.sadd(userIdKey + SUFFIX_F0LLOWS, peopleId.toString());
+                transaction.zadd(peopleIdKey + SUFFIX_F0LLOWERS,gmtCreate, userId.toString());
+                transaction.zadd(userIdKey + SUFFIX_F0LLOWS,gmtCreate, peopleId.toString());
                 transaction.exec();
-                activityService.saveActivity(getFollowActivity(peopleId, userId, DateUtil.getUnixTime()));
+                activityService.saveActivity(getFollowActivity(peopleId, userId,DateUtil.getUnixTime() ));
                 res = true;
             }
         } catch (Exception e) {
@@ -132,8 +155,8 @@ public class UserServiceImpl extends RedisService implements UserService {
             String peopleIdKey = getKey(peopleId, jedis);
             if (peopleIdKey != null && userIdKey != null) {
                 Transaction transaction = jedis.multi();
-                transaction.srem(peopleIdKey + SUFFIX_F0LLOWERS, userId.toString());
-                transaction.srem(userIdKey + SUFFIX_F0LLOWS, peopleId.toString());
+                transaction.zrem(peopleIdKey + SUFFIX_F0LLOWERS, userId.toString());
+                transaction.zrem(userIdKey + SUFFIX_F0LLOWS, peopleId.toString());
                 transaction.exec();
                 activityService.deleteActivity(getFollowActivity(peopleId, userId, null));
                 res = true;
@@ -197,6 +220,15 @@ public class UserServiceImpl extends RedisService implements UserService {
             log.error(e.toString());
         }
         return false;
+    }
+
+    @Override
+    public List<UserInfo> queryUserInfos(List<Long> peopleIds, Long userId) {
+        List<UserInfo> userInfos = new ArrayList<>(peopleIds.size());
+        for (Long peopleId : peopleIds) {
+            userInfos.add(getUserInfo(peopleId, userId));
+        }
+        return userInfos;
     }
 
     private List<UserInfo> getUserInfos(String setKey, Long userId, Jedis jedis) {

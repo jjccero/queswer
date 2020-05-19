@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Transaction;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -134,6 +135,38 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
     }
 
     @Override
+    public boolean deleteQuestion(Long questionId) {
+        boolean res = false;
+        try (Jedis jedis = getJedis()) {
+            String questionIdKey = getKey(questionId, jedis);
+            if (questionIdKey != null) {
+                Question question = getQuestion(questionIdKey, jedis);
+                questionDao.deleteQuestion(questionId);
+                String questionTopicsKey = getQuestionTopicsKey(questionId);
+                //问题删除话题
+                jedis.del(questionTopicsKey);
+                String questionIdString = questionId.toString();
+                //从热榜删除
+                jedis.zrem(TOP_LIST_KEY, questionIdString);
+                //话题删除问题id
+                for (String topic : question.getTopics())
+                    jedis.srem(PREFIX_TOPIC + topic, questionIdString);
+                String questionIdAnswersString = questionIdKey + SUFFIX_ANSWERS;
+                Set<String> answerIdStrings = jedis.zrange(questionIdAnswersString, 0L, -1L);
+                //删除回答
+                for (String answerIdString : answerIdStrings)
+                    answerService.deleteAnswer(Long.parseLong(answerIdString), null, true);
+                jedis.del(questionIdAnswersString);
+                activityService.deleteActivity(getQuestionActivity(question));
+                res = true;
+            }
+        } catch (Exception e) {
+            log.error(e.toString());
+        }
+        return res;
+    }
+
+    @Override
     public QuestionInfo getQuestionInfo(Long questionId, Long answerId, Long userId, boolean userAnswer, boolean inc) {
         QuestionInfo questionInfo = getQuestionInfo(questionId, userId, inc);
         Long userAId = null;
@@ -164,7 +197,11 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
         try (Jedis jedis = getJedis()) {
             String questionIdKey = getKey(questionId, jedis);
             if (questionIdKey != null) {
-                jedis.sadd(questionIdKey + SUFFIX_SUBSCRIBERS, userId.toString());
+                double gmtCreate = DateUtil.getUnixTime();
+                Transaction transaction = jedis.multi();
+                transaction.zadd(questionIdKey + SUFFIX_SUBSCRIBERS, gmtCreate, userId.toString());
+                transaction.zadd(PREFIX_USER + userId + SUFFIX_SUBSCRIBE_QUESTION, gmtCreate, questionId.toString());
+                transaction.exec();
                 activityService.saveActivity(getSubscribeActivity(questionId, userId, DateUtil.getUnixTime()));
                 res = true;
             }
@@ -180,7 +217,10 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
         try (Jedis jedis = getJedis()) {
             String questionIdKey = getKey(questionId, jedis);
             if (questionIdKey != null) {
-                jedis.srem(questionIdKey + SUFFIX_SUBSCRIBERS, userId.toString());
+                Transaction transaction = jedis.multi();
+                transaction.zrem(questionIdKey + SUFFIX_SUBSCRIBERS, userId.toString());
+                transaction.zrem(PREFIX_USER + userId + SUFFIX_SUBSCRIBE_QUESTION, questionId.toString());
+                transaction.exec();
                 activityService.deleteActivity(getSubscribeActivity(questionId, userId, null));
                 res = true;
             }
@@ -234,11 +274,11 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
     }
 
     private boolean getFollowed(String questionIdFKey, Long uId, Jedis jedis) {
-        return jedis.sismember(questionIdFKey, uId.toString());
+        return jedis.zrank(questionIdFKey, uId.toString()) != null;
     }
 
     private long getSubscribeCount(String questionIdFKey, Jedis jedis) {
-        return jedis.scard(questionIdFKey);
+        return jedis.zcard(questionIdFKey);
     }
 
     private long getAnswerCount(String questionIdAKey, Jedis jedis) {

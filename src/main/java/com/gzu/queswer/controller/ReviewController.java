@@ -3,6 +3,7 @@ package com.gzu.queswer.controller;
 import com.gzu.queswer.common.UserContext;
 import com.gzu.queswer.common.UserException;
 import com.gzu.queswer.model.Review;
+import com.gzu.queswer.model.UserLogin;
 import com.gzu.queswer.model.vo.ReviewInfo;
 import com.gzu.queswer.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ public class ReviewController {
     ReviewService reviewService;
     @Autowired
     UserContext userContext;
+
     @PostMapping("/saveReview")
     public Long saveReview(@RequestBody Review review) throws UserException {
         review.setUserId(userContext.getUserId(true));
@@ -24,7 +26,7 @@ public class ReviewController {
 
     @GetMapping("/deleteReview")
     public boolean deleteReview(Long reviewId) throws UserException {
-        return reviewService.deleteReview(reviewId, userContext.getUserId(true));
+        return reviewService.deleteReview(reviewId, userContext.getUserId(true), userContext.check(UserLogin.ADMIN, false));
     }
 
     @GetMapping("/queryReviews")

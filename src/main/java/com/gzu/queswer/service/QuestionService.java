@@ -10,6 +10,8 @@ public interface QuestionService {
 
     boolean updateQuestion(Question question);
 
+    boolean deleteQuestion(Long questionId);
+
     QuestionInfo getQuestionInfo(Long questionId, Long answerId, Long userId, boolean userAnswer, boolean inc);
 
     QuestionInfo getQuestionInfo(Long questionId, Long userId, boolean inc);

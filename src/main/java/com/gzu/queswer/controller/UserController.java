@@ -3,6 +3,7 @@ package com.gzu.queswer.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.gzu.queswer.common.UserContext;
 import com.gzu.queswer.common.UserException;
+import com.gzu.queswer.model.User;
 import com.gzu.queswer.model.UserLogin;
 import com.gzu.queswer.model.vo.ActivityInfo;
 import com.gzu.queswer.model.vo.PasswordForm;
@@ -44,6 +45,12 @@ public class UserController {
         return userService.saveUser(userLogin);
     }
 
+    @PostMapping(value = "/updateAuthority")
+    public boolean updateAuthority(@RequestBody User user) throws UserException {
+        userContext.check(UserLogin.SUPER_ADMIN, true);
+        return userService.updateAuthority(user);
+    }
+
     @PostMapping("/updateUser")
     public boolean updateUser(@RequestBody UserForm userForm) throws UserException {
         userForm.setUserId(userContext.getUserId(true));
@@ -71,6 +78,17 @@ public class UserController {
         return userService.deleteFollow(peopleId, userContext.getUserId(true));
     }
 
+    @PostMapping("/queryUserInfos")
+    public List<UserInfo> queryUserInfos(@RequestBody List<Long> peopleIds) throws UserException {
+        return userService.queryUserInfos(peopleIds, userContext.getUserId(false));
+    }
+
+    @GetMapping("/queryAdminInfos")
+    public List<UserInfo> queryAdminInfos() throws UserException {
+        userContext.check(UserLogin.SUPER_ADMIN, true);
+        return userService.queryAdminInfos(userContext.getUserId(false));
+    }
+
     @GetMapping("/queryUserInfosByFollowerId")
     public List<UserInfo> queryUserInfosByFollowerId(Long peopleId) throws UserException {
         return userService.queryUserInfosByFollowerId(peopleId, userContext.getUserId(false));
@@ -90,6 +108,4 @@ public class UserController {
     public List<ActivityInfo> queryFollowActivities(int page, int limit) throws UserException {
         return activityService.queryFollowActivities(userContext.getUserId(true), page, limit);
     }
-
-
 }

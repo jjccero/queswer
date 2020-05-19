@@ -10,9 +10,9 @@ import java.util.List;
 public interface AnswerService {
     Long saveAnswer(Answer answer);
 
-    boolean deleteAnswer(Long answerId, Long userId);
+    boolean deleteAnswer(Long answerId, Long userId, boolean isAdmin);
 
-    boolean updateAnswer(Answer answer);
+    boolean updateAnswer(Answer answer, boolean isAdmin);
 
     boolean updateAttitude(Attitude attitude);
 

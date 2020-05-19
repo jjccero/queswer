@@ -6,6 +6,11 @@
         FROM t_user
         WHERE username = #{username};
     </select>
+    <select id="queryAdminIds" resultType="long">
+        SELECT user_Id
+        FROM t_user
+        WHERE authority = 1;
+    </select>
     <select id="selectUser" resultType="com.gzu.queswer.model.User">
         SELECT user_Id,
                gmt_create,
@@ -30,6 +35,12 @@
             intro=#{intro},
             email=#{email}
         WHERE user_Id = #{userId};
+    </update>
+    <update id="updateAuthority">
+        UPDATE t_user
+        SET authority=#{authority}
+        WHERE user_Id = #{userId}
+          AND authority &lt;&gt; 2;
     </update>
     <select id="selectPassword" resultType="string">
         select password

@@ -55,18 +55,18 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
     }
 
     @Override
-    public boolean deleteAnswer(Long answerId, Long userId) {
+    public boolean deleteAnswer(Long answerId, Long userId, boolean isAdmin) {
         boolean res = false;
         try (Jedis jedis = getJedis()) {
             String answerIdKey = getKey(answerId, jedis);
             if (answerIdKey != null) {
                 Answer answer = getAnswer(answerIdKey, jedis);
-                if (answer != null && answer.getUserId().equals(userId)) {
+                if (answer != null && (isAdmin || answer.getUserId().equals(userId))) {
+                    answerDao.deleteAnswer(answerId);
                     //删除回答 赞同表 反对表
                     jedis.del(answerIdKey, answerIdKey + SUFFIX_AGREE, answerIdKey + SUFFIX_AGAINST);
                     //从问题表里删除aid
                     res = jedis.zrem(PREFIX_QUESTION + answer.getQuestionId().toString() + SUFFIX_ANSWERS, answer.getAnswerId().toString()) == 1L;
-                    answerDao.deleteAnswer(answerId);
                     //删除评论列表
                     String answerIdRKey = answerIdKey + SUFFIX_REVIEWS;
                     jedis.del(answerIdRKey);
@@ -87,7 +87,7 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
     }
 
     @Override
-    public boolean updateAnswer(Answer answer) {
+    public boolean updateAnswer(Answer answer, boolean isAdmin) {
         boolean res = false;
         answer.setGmtModify(DateUtil.getUnixTime());
         if (answer.getAnonymous() == null) answer.setAnonymous(false);
@@ -95,7 +95,7 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
             String answerIdKey = getKey(answer.getAnswerId(), jedis);
             if (answerIdKey != null) {
                 Answer oldAnswer = getAnswer(answerIdKey, jedis);
-                if (oldAnswer.getUserId().equals(answer.getUserId())) {
+                if (isAdmin||oldAnswer.getUserId().equals(answer.getUserId())) {
                     oldAnswer.setAnonymous(answer.getAnonymous());
                     oldAnswer.setAns(answer.getAns());
                     oldAnswer.setGmtModify(answer.getGmtModify());
