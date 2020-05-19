@@ -1,10 +1,7 @@
 package com.gzu.queswer.model.vo;
 
 import com.gzu.queswer.model.Question;
-import com.gzu.queswer.model.Topic;
 import com.gzu.queswer.model.UserApi;
-
-import java.util.List;
 
 public class QuestionInfo extends UserApi {
     private Question question;
@@ -14,7 +11,6 @@ public class QuestionInfo extends UserApi {
     private Boolean questioned;
     private AnswerInfo defaultAnswer;
     private AnswerInfo userAnswer;
-    private List<Topic> topics;
     private Long answerCount;
 
     public Question getQuestion() {
@@ -71,14 +67,6 @@ public class QuestionInfo extends UserApi {
 
     public void setUserAnswer(AnswerInfo userAnswer) {
         this.userAnswer = userAnswer;
-    }
-
-    public List<Topic> getTopics() {
-        return topics;
-    }
-
-    public void setTopics(List<Topic> topics) {
-        this.topics = topics;
     }
 
     public Long getAnswerCount() {

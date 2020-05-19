@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.gzu.queswer.dao.UserDao">
     <select id="selectUserLoginByUsername" resultType="com.gzu.queswer.model.UserLogin">
-        SELECT user_Id,password
+        SELECT user_Id, password
         FROM t_user
         WHERE username = #{username};
     </select>
@@ -14,6 +14,7 @@
                nickname,
                sex,
                intro,
+               email,
                avater
         FROM t_user
         WHERE user_Id = #{userId};
@@ -26,10 +27,20 @@
         UPDATE t_user
         SET nickname=#{nickname},
             sex=#{sex},
-            intro=#{intro}
+            intro=#{intro},
+            email=#{email}
         WHERE user_Id = #{userId};
     </update>
-
+    <select id="selectPassword" resultType="string">
+        select password
+        from t_user
+        WHERE user_Id = #{userId}
+    </select>
+    <update id="updatePassword">
+        UPDATE t_user
+        SET password=#{newPassword}
+        WHERE user_Id = #{userId}
+    </update>
     <select id="selectAnswerIdsByUserId" resultType="Long">
         SELECT answer_id
         FROM t_answer

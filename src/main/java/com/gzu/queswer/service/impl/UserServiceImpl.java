@@ -7,6 +7,8 @@ import com.gzu.queswer.model.Action;
 import com.gzu.queswer.model.Activity;
 import com.gzu.queswer.model.User;
 import com.gzu.queswer.model.UserLogin;
+import com.gzu.queswer.model.vo.PasswordForm;
+import com.gzu.queswer.model.vo.UserForm;
 import com.gzu.queswer.model.vo.UserInfo;
 import com.gzu.queswer.service.ActivityService;
 import com.gzu.queswer.service.UserService;
@@ -57,6 +59,7 @@ public class UserServiceImpl extends RedisService implements UserService {
 
     @Override
     public Long saveUser(UserLogin userLogin) {
+        userLogin.setNormalUser();
         userLogin.setGmtCreate(DateUtil.getUnixTime());
         userLogin.setPassword(passwordEncoder.encode(userLogin.getPassword()));
         userDao.insertUser(userLogin);
@@ -64,8 +67,22 @@ public class UserServiceImpl extends RedisService implements UserService {
     }
 
     @Override
-    public Integer updateUser(User user) {
-        return null;
+    public boolean updateUser(UserForm userForm) {
+        if (userDao.updateUser(userForm) == 1) {
+            try (Jedis jedis = getJedis()) {
+                getKey(userForm.getUserId(), jedis);
+            } catch (Exception e) {
+                log.error(e.toString());
+            }
+            return true;
+        } else return false;
+    }
+
+    @Override
+    public boolean updatePassword(PasswordForm passwordForm) {
+        passwordForm.setNewPassword(passwordEncoder.encode(passwordForm.getNewPassword()));
+        String password = userDao.selectPassword(passwordForm.getUserId());
+        return passwordEncoder.matches(passwordForm.getOldPassword(), password) && userDao.updatePassword(passwordForm) == 1;
     }
 
     @Override

@@ -29,8 +29,8 @@ public class QuestionController {
     }
 
     @PostMapping(value = "/updateQuestion")
-    public Long updateQuestion(@RequestBody Question question) throws UserException {
-        return questionService.saveQuestion(question);
+    public boolean updateQuestion(@RequestBody Question question) throws UserException {
+        return questionService.updateQuestion(question);
     }
 
     @GetMapping(value = "/queryQuestions")

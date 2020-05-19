@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -15,4 +16,5 @@ public class Question implements Serializable {
     private String title;
     private String detail;
     private Boolean anonymous;
+    private Set<String> topics;
 }

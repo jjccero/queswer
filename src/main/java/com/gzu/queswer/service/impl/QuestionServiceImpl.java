@@ -27,8 +27,6 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
     @Autowired
     UserService userService;
     @Autowired
-    TopicService topicService;
-    @Autowired
     AnswerService answerService;
     @Autowired
     ActivityService activityService;
@@ -58,13 +56,16 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
                 if (userId != null) {
                     questionInfo.setSubscribed(getFollowed(questionIdSKey, userId, jedis));
                 }
-                questionInfo.setTopics(topicService.queryTopicsByQuestionId(questionId));
                 setUserInfo(questionInfo, userId);
             }
         } catch (Exception e) {
             log.error(e.toString());
         }
         return questionInfo;
+    }
+
+    private String getQuestionTopicsKey(Long questionId) {
+        return PREFIX_QUESTION + questionId + SUFFIX_TOPICS;
     }
 
     @Override
@@ -75,7 +76,17 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
         Long questionId = question.getQuestionId();
         if (questionId != null) {
             try (Jedis jedis = getJedis()) {
+                //添加到热榜
                 jedis.zadd(TOP_LIST_KEY, 0.0, questionId.toString());
+                String questionIdString = questionId.toString();
+                Set<String> topics = question.getTopics();
+                if (topics != null && !topics.isEmpty()) {
+                    //给问题添加话题
+                    jedis.sadd(getQuestionTopicsKey(questionId), topics.toArray(new String[0]));
+                    //话题添加问题id
+                    for (String topic : topics)
+                        jedis.sadd(PREFIX_TOPIC + topic, questionIdString);
+                }
             } catch (Exception e) {
                 log.error(e.toString());
             }
@@ -85,14 +96,46 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
     }
 
     @Override
-    public boolean updateQuestion(Question question) {
+    public boolean updateQuestion(Question newQuestion) {
+        Long questionId = newQuestion.getQuestionId();
+        if (questionId != null) {
+            try (Jedis jedis = getJedis()) {
+                String questionIdKey = getKey(questionId, jedis);
+                if (questionIdKey == null) return false;
+                Question oldQuestion = getQuestion(questionId);
+                oldQuestion.setGmtModify(DateUtil.getUnixTime());
+                oldQuestion.setTitle(newQuestion.getTitle());
+                oldQuestion.setDetail(newQuestion.getDetail());
+                if (questionDao.updateQuestion(oldQuestion) != 1) return false;
+                String questionTopicsKey = getQuestionTopicsKey(questionId);
+                //问题删除旧话题
+                jedis.del(questionTopicsKey);
+                String questionIdString = questionId.toString();
+                //旧话题删除问题id
+                for (String topic : oldQuestion.getTopics())
+                    jedis.srem(PREFIX_TOPIC + topic, questionIdString);
+                //问题添加新话题
+                Set<String> topics = newQuestion.getTopics();
+                if (topics != null && !topics.isEmpty()) {
+                    jedis.sadd(questionTopicsKey, topics.toArray(new String[0]));
+                    //新话题添加问题id
+                    for (String topic : topics)
+                        jedis.sadd(PREFIX_TOPIC + topic, questionIdString);
+                }
+                //同步到缓存
+                oldQuestion.setTopics(null);
+                jedis.set(questionIdKey, JSON.toJSONString(oldQuestion), SET_PARAMS_ONE_MINUTE);
+                return true;
+            } catch (Exception e) {
+                log.error(e.toString());
+            }
+        }
         return false;
     }
 
     @Override
     public QuestionInfo getQuestionInfo(Long questionId, Long answerId, Long userId, boolean userAnswer, boolean inc) {
         QuestionInfo questionInfo = getQuestionInfo(questionId, userId, inc);
-        questionInfo.setTopics(topicService.queryTopicsByQuestionId(questionId));
         Long userAId = null;
         if (userId != null && userAnswer) {
             userAId = selectAidByUid(questionId, userId);
@@ -245,7 +288,9 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
     }
 
     private Question getQuestion(String questionIdKey, Jedis jedis) {
-        return JSON.parseObject(jedis.get(questionIdKey), Question.class);
+        Question question = JSON.parseObject(jedis.get(questionIdKey), Question.class);
+        question.setTopics(jedis.smembers(questionIdKey + SUFFIX_TOPICS));
+        return question;
     }
 
     private Long selectAidByUid(Long questionId, Long uid) {

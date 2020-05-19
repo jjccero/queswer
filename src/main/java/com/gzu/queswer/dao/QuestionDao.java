@@ -12,6 +12,8 @@ public interface QuestionDao {
 
     void insertQuestion(Question question);
 
+    int updateQuestion(Question question);
+
     Long selectAnswerIdByUserId(@Param("questionId") Long questionId, @Param("userId") Long userId);
 
     List<Long> selectQuestionIdsByUserId(Long userId);

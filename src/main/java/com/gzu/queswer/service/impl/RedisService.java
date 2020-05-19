@@ -22,6 +22,7 @@ public class RedisService {
     static final String PREFIX_REVIEW = "review:";
     static final String PREFIX_USER = "user:";
     static final String PREFIX_TOPIC = "topic:";
+    static final String SUFFIX_TOPICS = ":topics";
     static final String SUFFIX_APPROVERS = ":approvers";
     static final String SUFFIX_REVIEWS = ":reviews";
     static final String SUFFIX_SUBSCRIBERS = ":subscribers";

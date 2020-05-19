@@ -4,7 +4,6 @@ import com.gzu.queswer.dao.ActivityDao;
 import com.gzu.queswer.model.Action;
 import com.gzu.queswer.model.Activity;
 import com.gzu.queswer.model.Answer;
-import com.gzu.queswer.model.Topic;
 import com.gzu.queswer.model.vo.ActivityInfo;
 import com.gzu.queswer.model.vo.QuestionInfo;
 import com.gzu.queswer.model.vo.UserInfo;
@@ -61,8 +60,6 @@ public class ActivityServiceImpl extends RedisService implements ActivityService
     QuestionService questionService;
     @Autowired
     UserService userService;
-    @Autowired
-    TopicService topicService;
 
     @Override
     public List<ActivityInfo> queryPeopleActivities(Long peopleId, Long userId, int page, int limit) {
@@ -208,14 +205,7 @@ public class ActivityServiceImpl extends RedisService implements ActivityService
     }
 
     private ActivityInfo getTopicActivityInfo(Activity activity, Long userId) {
-        Topic topic = topicService.getTopic(activity.getId());
-        if (topic == null) {
-            deleteActivity(activity);
-            return null;
-        }
-        ActivityInfo activityInfo = new ActivityInfo();
-        activityInfo.setInfo(topic);
-        return activityInfo;
+        return null;
     }
 
     private ActivityInfo getAnswerActivityInfo(Activity activity, Long userId, boolean agreed) {
