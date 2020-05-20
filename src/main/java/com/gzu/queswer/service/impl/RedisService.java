@@ -36,6 +36,7 @@ public class RedisService {
     static final String TOP_LIST_KEY = "topQuestions";
     static final String PREFIX_ACTIVITIES = "userActivities:";
     static final String SUFFIX_TEMP_ACTIVITIES = ":tempActivities";
+    static final String SUFFIX_TEMP_TOPICS = ":tempTopics";
 
     static {
         SET_PARAMS_ONE_MINUTE = new SetParams();

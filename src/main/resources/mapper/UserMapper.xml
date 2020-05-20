@@ -42,6 +42,11 @@
         WHERE user_Id = #{userId}
           AND authority &lt;&gt; 2;
     </update>
+    <update id="updateAvater">
+        UPDATE t_user
+        SET avater=1
+        WHERE user_Id = #{userId}
+    </update>
     <select id="selectPassword" resultType="string">
         select password
         from t_user

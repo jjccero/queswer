@@ -1,6 +1,7 @@
 package com.gzu.queswer.service;
 
 import com.gzu.queswer.model.Question;
+import com.gzu.queswer.model.vo.ActivityInfo;
 import com.gzu.queswer.model.vo.QuestionInfo;
 
 import java.util.List;
@@ -25,4 +26,6 @@ public interface QuestionService {
     Question getQuestion(Long questionId);
 
     List<QuestionInfo> queryQuestionsByUserId(Long peopleId, Long userId);
+
+    List<ActivityInfo> querySubscribeQuestionsByUserId(Long peopleId, Long userId);
 }

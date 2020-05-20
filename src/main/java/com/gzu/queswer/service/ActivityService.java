@@ -6,10 +6,7 @@ import redis.clients.jedis.Jedis;
 
 import java.util.List;
 
-/**
- * @author 蒋竟成
- * @date 2020/4/20
- */
+
 public interface ActivityService {
 
     boolean saveActivity(Activity activity);

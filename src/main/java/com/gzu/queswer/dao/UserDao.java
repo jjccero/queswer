@@ -17,7 +17,7 @@ public interface UserDao {
 
     int updateAuthority(User user);
 
-    int deleteQuestion(Long questionId);
+    int updateAvater(Long userId);
 
     List<Long> queryAdminIds();
 

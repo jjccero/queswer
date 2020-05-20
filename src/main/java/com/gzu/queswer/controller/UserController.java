@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -78,6 +79,11 @@ public class UserController {
         return userService.deleteFollow(peopleId, userContext.getUserId(true));
     }
 
+    //    @PostMapping("/queryUserInfos")
+//    public List<UserInfo> queryUserInfos(@RequestBody String peopleIdsString) throws UserException {
+//        JSONArray peopleIds = JSON.parseArray(peopleIdsString);
+//        return userService.queryUserInfos(peopleIds.toJavaList(Long.class), userContext.getUserId(false));
+//    }
     @PostMapping("/queryUserInfos")
     public List<UserInfo> queryUserInfos(@RequestBody List<Long> peopleIds) throws UserException {
         return userService.queryUserInfos(peopleIds, userContext.getUserId(false));
@@ -107,5 +113,10 @@ public class UserController {
     @GetMapping("/queryFollowActivities")
     public List<ActivityInfo> queryFollowActivities(int page, int limit) throws UserException {
         return activityService.queryFollowActivities(userContext.getUserId(true), page, limit);
+    }
+
+    @PostMapping("/uploadAvater")
+    public boolean uploadAvater(@RequestBody MultipartFile file) throws UserException {
+        return userService.uploadAvater(file, userContext.getUserId(true));
     }
 }

@@ -13,11 +13,13 @@ import com.gzu.queswer.model.vo.UserInfo;
 import com.gzu.queswer.service.ActivityService;
 import com.gzu.queswer.service.UserService;
 import com.gzu.queswer.util.DateUtil;
+import com.gzu.queswer.util.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
 
@@ -70,7 +72,7 @@ public class UserServiceImpl extends RedisService implements UserService {
     public boolean updateUser(UserForm userForm) {
         if (userDao.updateUser(userForm) == 1) {
             try (Jedis jedis = getJedis()) {
-                jedis.del(PREFIX_USER+userForm.getUserId());
+                jedis.del(PREFIX_USER + userForm.getUserId());
             } catch (Exception e) {
                 log.error(e.toString());
             }
@@ -82,7 +84,19 @@ public class UserServiceImpl extends RedisService implements UserService {
     public boolean updateAuthority(User user) {
         if (userDao.updateAuthority(user) == 1) {
             try (Jedis jedis = getJedis()) {
-                jedis.del(PREFIX_USER+user.getUserId());
+                jedis.del(PREFIX_USER + user.getUserId());
+            } catch (Exception e) {
+                log.error(e.toString());
+            }
+            return true;
+        } else return false;
+    }
+
+    @Override
+    public boolean uploadAvater(MultipartFile file, Long userId) {
+        if (FileUtil.uploadFile(file, userId) && userDao.updateAvater(userId) == 1) {
+            try (Jedis jedis = getJedis()) {
+                jedis.del(PREFIX_USER + userId);
             } catch (Exception e) {
                 log.error(e.toString());
             }
@@ -115,7 +129,7 @@ public class UserServiceImpl extends RedisService implements UserService {
             if (userIdKey != null) {
                 userInfo.setUser(getUser(userIdKey, jedis));
                 if (userId != null)
-                    userInfo.setFollowed(jedis.zrank(userIdKey + SUFFIX_F0LLOWERS, userId.toString())!=null);
+                    userInfo.setFollowed(jedis.zrank(userIdKey + SUFFIX_F0LLOWERS, userId.toString()) != null);
                 userInfo.setFollowersCount(jedis.zcard(userIdKey + SUFFIX_F0LLOWERS));
                 userInfo.setFollowCount(jedis.zcard(userIdKey + SUFFIX_F0LLOWS));
             }
@@ -133,12 +147,12 @@ public class UserServiceImpl extends RedisService implements UserService {
             String userIdKey = getKey(userId, jedis);
             String peopleIdKey = getKey(peopleId, jedis);
             if (userIdKey != null) {
-                double gmtCreate=DateUtil.getUnixTime();
+                double gmtCreate = DateUtil.getUnixTime();
                 Transaction transaction = jedis.multi();
-                transaction.zadd(peopleIdKey + SUFFIX_F0LLOWERS,gmtCreate, userId.toString());
-                transaction.zadd(userIdKey + SUFFIX_F0LLOWS,gmtCreate, peopleId.toString());
+                transaction.zadd(peopleIdKey + SUFFIX_F0LLOWERS, gmtCreate, userId.toString());
+                transaction.zadd(userIdKey + SUFFIX_F0LLOWS, gmtCreate, peopleId.toString());
                 transaction.exec();
-                activityService.saveActivity(getFollowActivity(peopleId, userId,DateUtil.getUnixTime() ));
+                activityService.saveActivity(getFollowActivity(peopleId, userId, DateUtil.getUnixTime()));
                 res = true;
             }
         } catch (Exception e) {
@@ -232,7 +246,7 @@ public class UserServiceImpl extends RedisService implements UserService {
     }
 
     private List<UserInfo> getUserInfos(String setKey, Long userId, Jedis jedis) {
-        Set<String> idStrings = jedis.smembers(setKey);
+        Set<String> idStrings = jedis.zrange(setKey,0L,-1L);
         List<UserInfo> userInfos = new ArrayList<>(idStrings.size());
         for (String idString : idStrings) {
             userInfos.add(getUserInfo(Long.parseLong(idString), userId));

@@ -4,6 +4,7 @@ import com.gzu.queswer.common.UserContext;
 import com.gzu.queswer.common.UserException;
 import com.gzu.queswer.model.Question;
 import com.gzu.queswer.model.UserLogin;
+import com.gzu.queswer.model.vo.ActivityInfo;
 import com.gzu.queswer.model.vo.QuestionInfo;
 import com.gzu.queswer.service.QuestionService;
 import lombok.extern.slf4j.Slf4j;
@@ -64,5 +65,10 @@ public class QuestionController {
     @GetMapping("/queryQuestionsByUserId")
     public List<QuestionInfo> queryQuestionsByUserId(Long peopleId) throws UserException {
         return questionService.queryQuestionsByUserId(peopleId, userContext.getUserId(false));
+    }
+
+    @GetMapping("/querySubscribeQuestionsByUserId")
+    public List<ActivityInfo> querySubscribeQuestionsByUserId(Long peopleId) throws UserException {
+        return questionService.querySubscribeQuestionsByUserId(peopleId, userContext.getUserId(false));
     }
 }

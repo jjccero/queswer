@@ -5,6 +5,7 @@ import com.gzu.queswer.dao.QuestionDao;
 import com.gzu.queswer.model.Action;
 import com.gzu.queswer.model.Activity;
 import com.gzu.queswer.model.Question;
+import com.gzu.queswer.model.vo.ActivityInfo;
 import com.gzu.queswer.model.vo.QuestionInfo;
 import com.gzu.queswer.model.vo.UserInfo;
 import com.gzu.queswer.service.*;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
+import redis.clients.jedis.Tuple;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -246,15 +248,34 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
 
     @Override
     public List<QuestionInfo> queryQuestionsByUserId(Long peopleId, Long userId) {
-        List<QuestionInfo> questionInfos;
         List<Long> questionIds = questionDao.selectQuestionIdsByUserId(peopleId);
-        questionInfos = new ArrayList<>(questionIds.size());
+        List<QuestionInfo> questionInfos = new ArrayList<>(questionIds.size());
         for (Long questionId : questionIds) {
             QuestionInfo questionInfo = getQuestionInfo(questionId, userId, false);
             if (questionInfo != null)
                 questionInfos.add(questionInfo);
         }
         return questionInfos;
+    }
+
+    @Override
+    public List<ActivityInfo> querySubscribeQuestionsByUserId(Long peopleId, Long userId) {
+        try (Jedis jedis = getJedis()) {
+            Set<Tuple> activityTuples = jedis.zrangeWithScores(PREFIX_USER + peopleId + SUFFIX_SUBSCRIBE_QUESTION, 0L, -1L);
+            List<ActivityInfo> activityInfos = new ArrayList<>(activityTuples.size());
+            for (Tuple activityTuple : activityTuples) {
+                Activity activity = getSubscribeActivity(Long.parseLong(activityTuple.getElement()), peopleId, (long) activityTuple.getScore());
+                ActivityInfo activityInfo = activityService.getActivityInfo(activity, userId);
+                if (activityInfo != null){
+                    activityInfo.setActivity(activity);
+                    activityInfos.add(activityInfo);
+                }
+            }
+            return activityInfos;
+        } catch (Exception e) {
+            log.error(e.toString());
+        }
+        return new ArrayList<>();
     }
 
     private List<Long> queryQuestionIds(int page, int limit) {

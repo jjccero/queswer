@@ -92,10 +92,10 @@ public class ActivityServiceImpl extends RedisService implements ActivityService
             //判断是否已经加载到内存
             String tempKey = getTempKey(userId, jedis);
             String userIdKey = PREFIX_USER + userId;
-            if (tempKey == null) {
+            if (tempKey == null || page == 0) {
                 //找到所有用户的id
                 tempKey = userIdKey + SUFFIX_TEMP_ACTIVITIES;
-                Set<String> peopleIdStrings = jedis.smembers(userIdKey + SUFFIX_F0LLOWS);
+                Set<String> peopleIdStrings = jedis.zrange(userIdKey + SUFFIX_F0LLOWS, 0L, -1L);
                 List<Map<String, Double>> activityMaps = new ArrayList<>(16);
                 for (String peopleIdString : peopleIdStrings) {
                     Set<Tuple> activityTuples = jedis.zrevrangeByScoreWithScores(PREFIX_ACTIVITIES + peopleIdString, Double.POSITIVE_INFINITY, 0.0);
@@ -107,7 +107,7 @@ public class ActivityServiceImpl extends RedisService implements ActivityService
                 }
                 Transaction transaction = jedis.multi();
                 for (Map<String, Double> map : activityMaps) transaction.zadd(tempKey, map);
-                transaction.expire(tempKey, THIRTY_MINUTES);
+                transaction.expire(tempKey, ONE_MINUTE);
                 transaction.exec();
             }
             Set<Tuple> activityTuples = jedis.zrevrangeByScoreWithScores(tempKey, Double.POSITIVE_INFINITY, 0.0, offset, limit);
@@ -128,7 +128,7 @@ public class ActivityServiceImpl extends RedisService implements ActivityService
 
     private String getTempKey(Long userId, Jedis jedis) {
         String tempKey = PREFIX_USER + userId + SUFFIX_TEMP_ACTIVITIES;
-        return Boolean.TRUE.equals(jedis.exists(tempKey)) ? tempKey : null;
+        return jedis.expire(tempKey, ONE_MINUTE) != 0L ? tempKey : null;
     }
 
     private Activity getActivity(Tuple activityTuple, Long peopleId) {

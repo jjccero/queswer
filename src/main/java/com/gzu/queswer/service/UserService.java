@@ -6,6 +6,7 @@ import com.gzu.queswer.model.UserLogin;
 import com.gzu.queswer.model.vo.PasswordForm;
 import com.gzu.queswer.model.vo.UserForm;
 import com.gzu.queswer.model.vo.UserInfo;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -17,6 +18,8 @@ public interface UserService {
     boolean updateUser(UserForm userForm);
 
     boolean updateAuthority(User user);
+
+    boolean uploadAvater(MultipartFile file, Long userId);
 
     List<UserInfo> queryAdminInfos(Long userId);
 
