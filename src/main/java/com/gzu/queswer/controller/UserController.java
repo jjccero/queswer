@@ -79,11 +79,6 @@ public class UserController {
         return userService.deleteFollow(peopleId, userContext.getUserId(true));
     }
 
-    //    @PostMapping("/queryUserInfos")
-//    public List<UserInfo> queryUserInfos(@RequestBody String peopleIdsString) throws UserException {
-//        JSONArray peopleIds = JSON.parseArray(peopleIdsString);
-//        return userService.queryUserInfos(peopleIds.toJavaList(Long.class), userContext.getUserId(false));
-//    }
     @PostMapping("/queryUserInfos")
     public List<UserInfo> queryUserInfos(@RequestBody List<Long> peopleIds) throws UserException {
         return userService.queryUserInfos(peopleIds, userContext.getUserId(false));

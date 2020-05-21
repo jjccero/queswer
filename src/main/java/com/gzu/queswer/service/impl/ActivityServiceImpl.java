@@ -1,13 +1,15 @@
 package com.gzu.queswer.service.impl;
 
-import com.gzu.queswer.dao.ActivityDao;
 import com.gzu.queswer.model.Action;
 import com.gzu.queswer.model.Activity;
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.vo.ActivityInfo;
 import com.gzu.queswer.model.vo.QuestionInfo;
 import com.gzu.queswer.model.vo.UserInfo;
-import com.gzu.queswer.service.*;
+import com.gzu.queswer.service.ActivityService;
+import com.gzu.queswer.service.AnswerService;
+import com.gzu.queswer.service.QuestionService;
+import com.gzu.queswer.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,11 +19,16 @@ import redis.clients.jedis.Tuple;
 
 import java.util.*;
 
+
 @Service
 @Slf4j
 public class ActivityServiceImpl extends RedisService implements ActivityService {
     @Autowired
-    ActivityDao activityDao;
+    AnswerService answerService;
+    @Autowired
+    QuestionService questionService;
+    @Autowired
+    UserService userService;
 
     @Override
     public boolean saveActivity(Activity activity) {
@@ -53,13 +60,6 @@ public class ActivityServiceImpl extends RedisService implements ActivityService
         }
         return res;
     }
-
-    @Autowired
-    AnswerService answerService;
-    @Autowired
-    QuestionService questionService;
-    @Autowired
-    UserService userService;
 
     @Override
     public List<ActivityInfo> queryPeopleActivities(Long peopleId, Long userId, int page, int limit) {
@@ -164,9 +164,6 @@ public class ActivityServiceImpl extends RedisService implements ActivityService
         else if (Action.SUBSCRIBE_QUESTION.equals(act))
             //2 关注了问题
             return getQuestionActivityInfo(activity, userId, true);
-        else if (Action.SUBSCRIBE_TOPIC.equals(act))
-            //3 关注了话题
-            return getTopicActivityInfo(activity, userId);
         else if (Action.SAVE_ANSWER.equals(act))
             //4 回答了问题（不匿名）
             return getAnswerActivityInfo(activity, userId, false);
@@ -202,10 +199,6 @@ public class ActivityServiceImpl extends RedisService implements ActivityService
             return activityInfo;
         } else
             return null;
-    }
-
-    private ActivityInfo getTopicActivityInfo(Activity activity, Long userId) {
-        return null;
     }
 
     private ActivityInfo getAnswerActivityInfo(Activity activity, Long userId, boolean agreed) {

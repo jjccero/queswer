@@ -8,7 +8,10 @@ import com.gzu.queswer.model.Question;
 import com.gzu.queswer.model.vo.ActivityInfo;
 import com.gzu.queswer.model.vo.QuestionInfo;
 import com.gzu.queswer.model.vo.UserInfo;
-import com.gzu.queswer.service.*;
+import com.gzu.queswer.service.ActivityService;
+import com.gzu.queswer.service.AnswerService;
+import com.gzu.queswer.service.QuestionService;
+import com.gzu.queswer.service.UserService;
 import com.gzu.queswer.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +21,6 @@ import redis.clients.jedis.Transaction;
 import redis.clients.jedis.Tuple;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -173,7 +175,7 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
         QuestionInfo questionInfo = getQuestionInfo(questionId, userId, inc);
         Long userAId = null;
         if (userId != null && userAnswer) {
-            userAId = selectAidByUid(questionId, userId);
+            userAId = selectAnswerIdByUserId(questionId, userId);
             if (userAId != null) questionInfo.setUserAnswer(answerService.getAnswerInfo(userAId, userId));
         }
         if (answerId != null && !answerId.equals(userAId))
@@ -186,15 +188,15 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
         List<Long> questionIds = queryQuestionIds(page, limit);
         List<QuestionInfo> questionInfos = new ArrayList<>(questionIds.size());
         for (Long questionId : questionIds) {
-            Long aId = getTopAnswerId(questionId);
-            QuestionInfo questionInfo = getQuestionInfo(questionId, aId, userId, false, false);
+            Long answerId = answerService.getTopAnswerId(questionId);
+            QuestionInfo questionInfo = getQuestionInfo(questionId, answerId, userId, false, false);
             questionInfos.add(questionInfo);
         }
         return questionInfos;
     }
 
     @Override
-    public boolean saveSubscribe(Long questionId, Long userId) {
+    public boolean saveSubscribeQuestion(Long questionId, Long userId) {
         boolean res = false;
         try (Jedis jedis = getJedis()) {
             String questionIdKey = getKey(questionId, jedis);
@@ -214,7 +216,7 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
     }
 
     @Override
-    public boolean deleteSubscribe(Long questionId, Long userId) {
+    public boolean deleteSubscribeQuestion(Long questionId, Long userId) {
         boolean res = false;
         try (Jedis jedis = getJedis()) {
             String questionIdKey = getKey(questionId, jedis);
@@ -266,7 +268,7 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
             for (Tuple activityTuple : activityTuples) {
                 Activity activity = getSubscribeActivity(Long.parseLong(activityTuple.getElement()), peopleId, (long) activityTuple.getScore());
                 ActivityInfo activityInfo = activityService.getActivityInfo(activity, userId);
-                if (activityInfo != null){
+                if (activityInfo != null) {
                     activityInfo.setActivity(activity);
                     activityInfos.add(activityInfo);
                 }
@@ -294,8 +296,8 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
         return questionIds;
     }
 
-    private boolean getFollowed(String questionIdFKey, Long uId, Jedis jedis) {
-        return jedis.zrank(questionIdFKey, uId.toString()) != null;
+    private boolean getFollowed(String questionIdFKey, Long userId, Jedis jedis) {
+        return jedis.zrank(questionIdFKey, userId.toString()) != null;
     }
 
     private long getSubscribeCount(String questionIdFKey, Jedis jedis) {
@@ -306,23 +308,10 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
         return jedis.zcard(questionIdAKey);
     }
 
-    private double getViewCount(Long questionId, Jedis jedis) {
-        return jedis.zscore(TOP_LIST_KEY, questionId.toString());
+    private long getViewCount(Long questionId, Jedis jedis) {
+        return jedis.zscore(TOP_LIST_KEY, questionId.toString()).longValue();
     }
 
-    private Long getTopAnswerId(Long questionId) {
-        Long aid = null;
-        try (Jedis jedis = getJedis()) {
-            Set<String> aIdKeys = jedis.zrevrangeByScore(PREFIX_QUESTION + questionId.toString() + SUFFIX_ANSWERS, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 0, 1);
-            Iterator<String> iterator = aIdKeys.iterator();
-            if (iterator.hasNext()) {
-                aid = Long.parseLong(aIdKeys.iterator().next());
-            }
-        } catch (Exception e) {
-            log.error(e.toString());
-        }
-        return aid;
-    }
 
     private String getKey(Long questionId, Jedis jedis) {
         String questionIdKey = PREFIX_QUESTION + questionId.toString();
@@ -354,13 +343,13 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
         return question;
     }
 
-    private Long selectAidByUid(Long questionId, Long uid) {
-        return questionDao.selectAnswerIdByUserId(questionId, uid);
+    private Long selectAnswerIdByUserId(Long questionId, Long userId) {
+        return questionDao.selectAnswerIdByUserId(questionId, userId);
     }
 
-    private Activity getSubscribeActivity(Long questionId, Long uId, Long gmtCreate) {
+    private Activity getSubscribeActivity(Long questionId, Long userId, Long gmtCreate) {
         Activity activity = new Activity();
-        activity.setUserId(uId);
+        activity.setUserId(userId);
         activity.setId(questionId);
         activity.setAct(Action.SUBSCRIBE_QUESTION);
         activity.setGmtCreate(gmtCreate);

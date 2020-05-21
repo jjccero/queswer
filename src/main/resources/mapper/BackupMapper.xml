@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gzu.queswer.dao.BackupDao">
+    <select id="selectQuestionIds" resultType="Long">
+        select question_id
+        FROM t_question;
+    </select>
+    <select id="selectAnswerIdsByQuestionId" resultType="Long">
+        SELECT answer_id
+        from t_answer
+        where question_id = #{questionId};
+    </select>
+    <select id="selectReviewIdsByAnswerId" resultType="Long">
+        SELECT review_id
+        from t_review
+        where answer_id = #{answerId};
+    </select>
+    <!--activity-->
+    <select id="selectQuestionActivities" resultType="com.gzu.queswer.model.Activity">
+        select question_id id, user_id, gmt_create
+        from t_question
+        where anonymous = false;
+    </select>
+    <select id="selectAnswerActivities" resultType="com.gzu.queswer.model.Activity">
+        select answer_id id, user_id, gmt_create
+        from t_answer
+        where anonymous = false;
+    </select>
+    <!--赞同回答-->
+    <!--<insert id="insertAttitudesBatch">-->
+        <!--insert into t_attitude(answer_id, user_id,atti, gmt_create)-->
+        <!--values-->
+        <!--<foreach collection="list" item="attitude" separator=",">-->
+            <!--(#{answerId}, #{userId},#{atti} #{gmtCreate})-->
+        <!--</foreach>-->
+    <!--</insert>-->
+    <!--<delete id="deleteAttitudes">-->
+        <!--delete-->
+        <!--from t_attitude;-->
+    <!--</delete>-->
+    <select id="selectAttitudes" resultType="com.gzu.queswer.model.Attitude">
+        select *
+        from t_attitude;
+    </select>
+    <!--订阅问题-->
+    <!--<insert id="insertSubscribeQuestionBatch">-->
+        <!--insert into t_subscribe_question(question_id, user_id, gmt_create)-->
+        <!--values-->
+        <!--<foreach collection="list" item="activity" separator=",">-->
+            <!--(#{id}, #{userId}, #{gmtCreate})-->
+        <!--</foreach>-->
+    <!--</insert>-->
+    <!--<delete id="deleteSubscribeQuestion">-->
+        <!--delete-->
+        <!--from t_subscribe_question;-->
+    <!--</delete>-->
+    <select id="selectSubscribeQuestion" resultType="com.gzu.queswer.model.Activity">
+        select question_id id, user_id, gmt_create
+        from t_subscribe_question
+    </select>
+    <!--订阅话题-->
+    <!--<insert id="insertApproveBatch">-->
+        <!--insert into t_subscribe_topic(topic, user_id, gmt_create)-->
+        <!--values-->
+        <!--<foreach collection="list" item="activity" separator=",">-->
+            <!--(#{topic}, #{userId}, #{gmtCreate})-->
+        <!--</foreach>-->
+    <!--</insert>-->
+    <!--<delete id="deleteSubscribeTopic">-->
+        <!--delete-->
+        <!--from t_subscribe_topic;-->
+    <!--</delete>-->
+    <select id="selectSubscribeTopic" resultType="com.gzu.queswer.model.TopicActivity">
+        select topic, user_id, gmt_create
+        from t_subscribe_topic
+    </select>
+    <!--评论赞同-->
+    <!--<insert id="insertApproveBatch">-->
+        <!--insert into t_approve(review_id, user_id, gmt_create)-->
+        <!--values-->
+        <!--<foreach collection="list" item="activity" separator=",">-->
+            <!--(#{id}, #{userId}, #{gmtCreate})-->
+        <!--</foreach>-->
+    <!--</insert>-->
+    <!--<delete id="deleteApprove">-->
+        <!--delete-->
+        <!--from t_approve;-->
+    <!--</delete>-->
+    <select id="selectApprove" resultType="com.gzu.queswer.model.Activity">
+        select review_id id, user_id, gmt_create
+        from t_approve
+    </select>
+</mapper>

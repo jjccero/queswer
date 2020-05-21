@@ -14,6 +14,8 @@ public interface AnswerService {
 
     boolean updateAnswer(Answer answer, boolean isAdmin);
 
+    Answer getAnswer(Long answerId);
+
     boolean updateAttitude(Attitude attitude);
 
     boolean deleteAttitude(Long answerId, Long userId);
@@ -22,10 +24,9 @@ public interface AnswerService {
 
     AnswerInfo getAnswerInfo(Long answerId, Long userId);
 
-    Answer getAnswer(Long answerId);
-
     boolean getAgree(Long answerId, Long userId);
 
     List<QuestionInfo> queryAnswersByUserId(Long peopleId, Long userId);
 
+    Long getTopAnswerId(Long questionId);
 }

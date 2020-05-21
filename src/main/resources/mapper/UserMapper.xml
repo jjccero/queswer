@@ -63,7 +63,6 @@
         WHERE user_id = #{userId}
           AND anonymous = false;
     </select>
-
     <select id="selectQuestionIdsByUserId" resultType="Long">
         SELECT question_id
         FROM t_question

@@ -21,6 +21,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Transaction;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -68,13 +69,13 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
                     //从问题表里删除aid
                     res = jedis.zrem(PREFIX_QUESTION + answer.getQuestionId().toString() + SUFFIX_ANSWERS, answer.getAnswerId().toString()) == 1L;
                     //删除评论列表
-                    String answerIdRKey = answerIdKey + SUFFIX_REVIEWS;
-                    jedis.del(answerIdRKey);
-                    Set<String> rIdKeys = jedis.zrange(answerIdRKey, 0, -1);
-                    for (String rIdKey : rIdKeys) {
-                        rIdKey = PREFIX_REVIEW + rIdKey;
+                    String answerReviewsKey = answerIdKey + SUFFIX_REVIEWS;
+                    jedis.del(answerReviewsKey);
+                    Set<String> reviewStrings = jedis.zrange(answerReviewsKey, 0, -1);
+                    for (String reviewString : reviewStrings) {
+                        reviewString = PREFIX_REVIEW + reviewString;
                         //删除评论以及赞
-                        jedis.del(rIdKey, rIdKey + SUFFIX_APPROVERS);
+                        jedis.del(reviewString, reviewString + SUFFIX_APPROVERS);
                     }
                     activityService.deleteActivity(getAnswerActivity(answer));
                     res = true;
@@ -95,12 +96,12 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
             String answerIdKey = getKey(answer.getAnswerId(), jedis);
             if (answerIdKey != null) {
                 Answer oldAnswer = getAnswer(answerIdKey, jedis);
-                if (isAdmin||oldAnswer.getUserId().equals(answer.getUserId())) {
+                if (isAdmin || oldAnswer.getUserId().equals(answer.getUserId())) {
                     oldAnswer.setAnonymous(answer.getAnonymous());
                     oldAnswer.setAns(answer.getAns());
                     oldAnswer.setGmtModify(answer.getGmtModify());
-                    jedis.set(answerIdKey, JSON.toJSONString(oldAnswer), SET_PARAMS_ONE_MINUTE);
                     answerDao.updateAnswer(oldAnswer);
+                    jedis.set(answerIdKey, JSON.toJSONString(oldAnswer), SET_PARAMS_ONE_MINUTE);
                     res = true;
                 }
             }
@@ -118,16 +119,16 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
             String answerIdKey = getKey(attitude.getAnswerId(), jedis);
             if (answerIdKey != null) {
                 Transaction transaction = jedis.multi();
-                String aid1 = answerIdKey + SUFFIX_AGREE;
-                String aid0 = answerIdKey + SUFFIX_AGAINST;
-                String userIdField = attitude.getUserId().toString();
-                Double gmtCreateScore = attitude.getGmtCreate().doubleValue();
+                String agreeKey = answerIdKey + SUFFIX_AGREE;
+                String againstKey = answerIdKey + SUFFIX_AGAINST;
+                String userIdString = attitude.getUserId().toString();
+                double gmtCreateScore = attitude.getGmtCreate().doubleValue();
                 if (Boolean.TRUE.equals(attitude.getAtti())) {
-                    transaction.zrem(aid0, userIdField);
-                    transaction.zadd(aid1, gmtCreateScore, userIdField);
+                    transaction.zrem(againstKey, userIdString);
+                    transaction.zadd(agreeKey, gmtCreateScore, userIdString);
                 } else {
-                    transaction.zrem(aid1, userIdField);
-                    transaction.zadd(aid0, gmtCreateScore, userIdField);
+                    transaction.zrem(agreeKey, userIdString);
+                    transaction.zadd(againstKey, gmtCreateScore, userIdString);
                 }
                 transaction.exec();
                 activityService.saveActivity(getAttitudeActivity(attitude.getAnswerId(), attitude.getUserId(), attitude.getGmtCreate()));
@@ -213,6 +214,19 @@ public class AnswerServiceImpl extends RedisService implements AnswerService {
                 questionInfos.add(questionService.getQuestionInfo(answer.getQuestionId(), answerId, userId, false, false));
         }
         return questionInfos;
+    }
+
+    @Override
+    public Long getTopAnswerId(Long questionId) {
+        Long answerId = null;
+        try (Jedis jedis = getJedis()) {
+            Set<String> answerIdStrings = jedis.zrevrangeByScore(PREFIX_QUESTION + questionId.toString() + SUFFIX_ANSWERS, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 0, 1);
+            Iterator<String> iterator = answerIdStrings.iterator();
+            if (iterator.hasNext()) answerId = Long.parseLong(answerIdStrings.iterator().next());
+        } catch (Exception e) {
+            log.error(e.toString());
+        }
+        return answerId;
     }
 
     private Answer getAnswer(String answerIdKey, Jedis jedis) {

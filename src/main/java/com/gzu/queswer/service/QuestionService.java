@@ -9,9 +9,11 @@ import java.util.List;
 public interface QuestionService {
     Long saveQuestion(Question question);
 
+    boolean deleteQuestion(Long questionId);
+
     boolean updateQuestion(Question question);
 
-    boolean deleteQuestion(Long questionId);
+    Question getQuestion(Long questionId);
 
     QuestionInfo getQuestionInfo(Long questionId, Long answerId, Long userId, boolean userAnswer, boolean inc);
 
@@ -19,11 +21,9 @@ public interface QuestionService {
 
     List<QuestionInfo> queryQuestions(int page, int limit, Long userId);
 
-    boolean saveSubscribe(Long questionId, Long userId);
+    boolean saveSubscribeQuestion(Long questionId, Long userId);
 
-    boolean deleteSubscribe(Long questionId, Long userId);
-
-    Question getQuestion(Long questionId);
+    boolean deleteSubscribeQuestion(Long questionId, Long userId);
 
     List<QuestionInfo> queryQuestionsByUserId(Long peopleId, Long userId);
 

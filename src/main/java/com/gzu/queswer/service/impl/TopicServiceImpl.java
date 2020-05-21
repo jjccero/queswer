@@ -2,6 +2,7 @@ package com.gzu.queswer.service.impl;
 
 import com.gzu.queswer.model.vo.QuestionInfo;
 import com.gzu.queswer.model.vo.TopicInfo;
+import com.gzu.queswer.service.AnswerService;
 import com.gzu.queswer.service.QuestionService;
 import com.gzu.queswer.service.TopicService;
 import com.gzu.queswer.util.DateUtil;
@@ -21,7 +22,8 @@ import java.util.Set;
 public class TopicServiceImpl extends RedisService implements TopicService {
     @Autowired
     QuestionService questionService;
-
+    @Autowired
+    AnswerService answerService;
     @Override
     public boolean saveSubscribe(String topic, Long userId) {
         boolean res = false;
@@ -102,7 +104,9 @@ public class TopicServiceImpl extends RedisService implements TopicService {
             List<String> questionIdStrings = jedis.srandmember(tempKey, 5);
             List<QuestionInfo> questionInfos = new ArrayList<>(questionIdStrings.size());
             for (String questionIdString : questionIdStrings) {
-                QuestionInfo questionInfo = questionService.getQuestionInfo(Long.parseLong(questionIdString), userId, false);
+                Long questionId=Long.parseLong(questionIdString);
+                Long answerId = answerService.getTopAnswerId(questionId);
+                QuestionInfo questionInfo = questionService.getQuestionInfo(questionId,answerId, userId, false,false);
                 if (questionInfo != null)
                     questionInfos.add(questionInfo);
             }
@@ -119,7 +123,9 @@ public class TopicServiceImpl extends RedisService implements TopicService {
             Set<String> questionIdStrings = jedis.smembers(topicKey);
             List<QuestionInfo> questionInfos = new ArrayList<>(questionIdStrings.size());
             for (String questionIdString : questionIdStrings) {
-                QuestionInfo questionInfo = questionService.getQuestionInfo(Long.parseLong(questionIdString), userId, false);
+                Long questionId=Long.parseLong(questionIdString);
+                Long answerId = answerService.getTopAnswerId(questionId);
+                QuestionInfo questionInfo = questionService.getQuestionInfo(questionId, answerId,userId, false,false);
                 if (questionInfo != null)
                     questionInfos.add(questionInfo);
             }

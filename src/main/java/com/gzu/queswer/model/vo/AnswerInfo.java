@@ -2,51 +2,15 @@ package com.gzu.queswer.model.vo;
 
 import com.gzu.queswer.model.Answer;
 import com.gzu.queswer.model.UserApi;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class AnswerInfo extends UserApi {
     private Answer answer;
     private Boolean attituded;
     private Long agree;
     private Long against;
     private Long reviewCount;
-
-    public Boolean getAttituded() {
-        return attituded;
-    }
-
-    public void setAttituded(Boolean attituded) {
-        this.attituded = attituded;
-    }
-
-    public Long getAgree() {
-        return agree;
-    }
-
-    public void setAgree(Long agree) {
-        this.agree = agree;
-    }
-
-    public Long getAgainst() {
-        return against;
-    }
-
-    public void setAgainst(Long against) {
-        this.against = against;
-    }
-
-    public Answer getAnswer() {
-        return answer;
-    }
-
-    public void setAnswer(Answer answer) {
-        this.answer = answer;
-    }
-
-    public Long getReviewCount() {
-        return reviewCount;
-    }
-
-    public void setReviewCount(Long reviewCount) {
-        this.reviewCount = reviewCount;
-    }
 }

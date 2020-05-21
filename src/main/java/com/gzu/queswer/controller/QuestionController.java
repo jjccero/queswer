@@ -54,12 +54,12 @@ public class QuestionController {
 
     @GetMapping("/saveSubscribe")
     public boolean saveSubscribe(Long questionId) throws UserException {
-        return questionService.saveSubscribe(questionId, userContext.getUserId(true));
+        return questionService.saveSubscribeQuestion(questionId, userContext.getUserId(true));
     }
 
     @GetMapping("/deleteSubscribe")
     public boolean deleteSubscribe(Long questionId) throws UserException {
-        return questionService.deleteSubscribe(questionId, userContext.getUserId(true));
+        return questionService.deleteSubscribeQuestion(questionId, userContext.getUserId(true));
     }
 
     @GetMapping("/queryQuestionsByUserId")
