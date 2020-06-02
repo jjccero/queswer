@@ -30,7 +30,7 @@ public class UserController {
     UserContext userContext;
 
     @PostMapping(value = "/login")
-    public JSONObject login(@RequestBody JSONObject loginForm) {
+    public JSONObject login(@RequestBody JSONObject loginForm) throws UserException {
         String username = loginForm.getString("username");
         String password = loginForm.getString("password");
         return userService.login(username, password);
@@ -38,11 +38,11 @@ public class UserController {
 
     @GetMapping(value = "/logout")
     public boolean logout(String token) {
-        return userService.deleteUserByToken(token);
+        return userService.deleteUserBySessionId(token);
     }
 
     @PostMapping(value = "/signup")
-    public Long signup(@RequestBody UserLogin userLogin) {
+    public Long signup(@RequestBody UserLogin userLogin) throws UserException {
         return userService.saveUser(userLogin);
     }
 

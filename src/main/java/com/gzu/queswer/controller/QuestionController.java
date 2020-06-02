@@ -52,12 +52,12 @@ public class QuestionController {
         return questionService.getQuestionInfo(questionId, answerId, userContext.getUserId(false), true, true);
     }
 
-    @GetMapping("/saveSubscribe")
+    @GetMapping("/saveSubscribeQuestion")
     public boolean saveSubscribe(Long questionId) throws UserException {
         return questionService.saveSubscribeQuestion(questionId, userContext.getUserId(true));
     }
 
-    @GetMapping("/deleteSubscribe")
+    @GetMapping("/deleteSubscribeQuestion")
     public boolean deleteSubscribe(Long questionId) throws UserException {
         return questionService.deleteSubscribeQuestion(questionId, userContext.getUserId(true));
     }

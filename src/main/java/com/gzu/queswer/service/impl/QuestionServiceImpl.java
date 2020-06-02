@@ -12,6 +12,7 @@ import com.gzu.queswer.service.ActivityService;
 import com.gzu.queswer.service.AnswerService;
 import com.gzu.queswer.service.QuestionService;
 import com.gzu.queswer.service.UserService;
+import com.gzu.queswer.util.AnalysisUtil;
 import com.gzu.queswer.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,6 +92,12 @@ public class QuestionServiceImpl extends RedisService implements QuestionService
                     //话题添加问题id
                     for (String topic : topics)
                         jedis.sadd(PREFIX_TOPIC + topic, questionIdString);
+                }
+                //建立问题索引
+                jedis.select(T_QUESTION_INDEX);
+                Set<String> templates = AnalysisUtil.analysisString(question.getTitle());
+                for (String string : templates) {
+                    jedis.sadd(string, questionIdString);
                 }
             } catch (Exception e) {
                 log.error(e.toString());

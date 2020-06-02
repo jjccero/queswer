@@ -58,6 +58,6 @@ public class AnswerController {
 
     @GetMapping("/queryAnswersByUserId")
     public List<QuestionInfo> queryAnswersByUserId(Long peopleId) throws UserException {
-        return answerService.queryAnswersByUserId(peopleId, userContext.getUserId(true));
+        return answerService.queryAnswersByUserId(peopleId, userContext.getUserId(false));
     }
 }

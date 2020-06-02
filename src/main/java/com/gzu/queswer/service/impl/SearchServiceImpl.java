@@ -34,7 +34,7 @@ public class SearchServiceImpl extends RedisService implements SearchService {
         boolean res = false;
         try (Jedis jedis = getJedis()) {
             //建立问题索引
-            jedis.select(T_USER_INDEX);
+            jedis.select(T_QUESTION_INDEX);
             jedis.flushDB();
             List<StringIndex> indexs = searchDao.selectQuestionIndexs();
             for (StringIndex stringIndex : indexs) {
@@ -63,16 +63,20 @@ public class SearchServiceImpl extends RedisService implements SearchService {
         JSONObject res = new JSONObject();
         try (Jedis jedis = getJedis()) {
             jedis.select(T_QUESTION_INDEX);
+            //分词结果保存到set
             Set<String> templates = AnalysisUtil.analysisString(title);
             if (!templates.isEmpty()) {
+                //使用redis求并集
                 Set<String> questionIdStrings = jedis.sunion(templates.toArray(new String[0]));
                 List<QuestionInfo> questionInfos = new ArrayList<>(questionIdStrings.size());
                 for (String questionIdString : questionIdStrings) {
                     Long questionId = Long.parseLong(questionIdString);
                     questionInfos.add(questionService.getQuestionInfo(questionId, userId, false));
                 }
+                //返回添加问题
                 res.put("questionInfos", questionInfos);
             }
+            //返回添加词
             res.put("templates", templates);
         } catch (Exception e) {
             log.error(e.toString());

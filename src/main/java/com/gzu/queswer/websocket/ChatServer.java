@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
-@ServerEndpoint("/chat/{token}")
+@ServerEndpoint("/chat/{sessionId}")
 public class ChatServer {
     private static ConcurrentHashMap<Long, List<ChatServer>> map = new ConcurrentHashMap<>();
     private Session session;
@@ -31,9 +31,9 @@ public class ChatServer {
     private static MessageService messageService;
 
     @OnOpen
-    public void onOpen(Session session, @PathParam("token") String token) {
+    public void onOpen(Session session, @PathParam("sessionId") String sessionId) {
         this.session = session;
-        User user = userService.getUserByToken(token);
+        User user = userService.getUserBySessionId(sessionId);
         if (user == null) return;
         userId = user.getUserId();
         List<ChatServer> chatServers = map.computeIfAbsent(userId, k -> new Vector<>(1));

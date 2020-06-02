@@ -1,6 +1,7 @@
 package com.gzu.queswer.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.gzu.queswer.common.UserException;
 import com.gzu.queswer.model.User;
 import com.gzu.queswer.model.UserLogin;
 import com.gzu.queswer.model.vo.PasswordForm;
@@ -11,9 +12,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface UserService {
-    JSONObject login(String username, String password);
+    JSONObject login(String username, String password) throws UserException;
 
-    Long saveUser(UserLogin userLogin);
+    Long saveUser(UserLogin userLogin) throws UserException;
 
     boolean updateUser(UserForm userForm);
 
@@ -35,9 +36,9 @@ public interface UserService {
 
     List<UserInfo> queryFollowerInfosByPeopleId(Long peopleId, Long userId);
 
-    User getUserByToken(String token);
+    User getUserBySessionId(String sessionId);
 
-    boolean deleteUserByToken(String token);
+    boolean deleteUserBySessionId(String sessionId);
 
     List<UserInfo> queryUserInfos(List<Long> peopleIds, Long userId);
 }

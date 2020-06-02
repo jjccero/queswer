@@ -2,6 +2,7 @@ package com.gzu.queswer.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.gzu.queswer.common.UserException;
 import com.gzu.queswer.dao.UserDao;
 import com.gzu.queswer.model.Action;
 import com.gzu.queswer.model.Activity;
@@ -13,6 +14,7 @@ import com.gzu.queswer.model.vo.UserInfo;
 import com.gzu.queswer.service.ActivityService;
 import com.gzu.queswer.service.UserService;
 import com.gzu.queswer.util.DateUtil;
+import com.gzu.queswer.util.ExceptionUtil;
 import com.gzu.queswer.util.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,17 +40,17 @@ public class UserServiceImpl extends RedisService implements UserService {
     ActivityService activityService;
 
     @Override
-    public JSONObject login(String username, String password) {
+    public JSONObject login(String username, String password) throws UserException {
         try (Jedis jedis = getJedis()) {
             UserLogin userLogin = userDao.selectUserLoginByUsername(username);
             if (userLogin != null && passwordEncoder.matches(password, userLogin.getPassword())) {
                 User user = userDao.selectUser(userLogin.getUserId());
                 if (user != null) {
-                    String token = UUID.randomUUID().toString();
+                    String sessionId = UUID.randomUUID().toString();
                     jedis.select(T_TOKEN);
-                    jedis.set(token, user.getUserId().toString(), SET_PARAMS_THIRTY_DAYS);
+                    jedis.set(sessionId, user.getUserId().toString(), SET_PARAMS_THIRTY_DAYS);
                     JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("token", token);
+                    jsonObject.put("sessionId", sessionId);
                     jsonObject.put("user", user);
                     return jsonObject;
                 }
@@ -56,23 +58,35 @@ public class UserServiceImpl extends RedisService implements UserService {
         } catch (Exception e) {
             log.error(e.toString());
         }
-        return null;
+        throw ExceptionUtil.PASSWORD_ERROR;
     }
 
     @Override
-    public Long saveUser(UserLogin userLogin) {
+    public Long saveUser(UserLogin userLogin) throws UserException {
         userLogin.setNormalUser();
         userLogin.setGmtCreate(DateUtil.getUnixTime());
         userLogin.setPassword(passwordEncoder.encode(userLogin.getPassword()));
-        userDao.insertUser(userLogin);
-        return userLogin.getUserId();
+        try {
+            userDao.insertUser(userLogin);
+            return userLogin.getUserId();
+        } catch (Exception e) {
+            throw ExceptionUtil.EXISTS_ERROR;
+        }
     }
 
     @Override
     public boolean updateUser(UserForm userForm) {
         if (userDao.updateUser(userForm) == 1) {
             try (Jedis jedis = getJedis()) {
-                jedis.del(PREFIX_USER + userForm.getUserId());
+                Long userId = userForm.getUserId();
+                String userIdString = userId.toString();
+                String userKey = getKey(userId, jedis);
+                User user = getUser(userKey, jedis);
+                jedis.del(PREFIX_USER + userIdString);
+                jedis.select(T_USER_INDEX);
+                String nickname = userForm.getNickname();
+                jedis.srem(user.getNickname(), userIdString);
+                jedis.sadd(nickname, userIdString);
             } catch (Exception e) {
                 log.error(e.toString());
             }
@@ -146,7 +160,7 @@ public class UserServiceImpl extends RedisService implements UserService {
         try (Jedis jedis = getJedis()) {
             String userIdKey = getKey(userId, jedis);
             String peopleIdKey = getKey(peopleId, jedis);
-            if (userIdKey != null) {
+            if (userIdKey != null && peopleIdKey != null) {
                 double gmtCreate = DateUtil.getUnixTime();
                 Transaction transaction = jedis.multi();
                 transaction.zadd(peopleIdKey + SUFFIX_F0LLOWERS, gmtCreate, userId.toString());
@@ -208,11 +222,11 @@ public class UserServiceImpl extends RedisService implements UserService {
     }
 
     @Override
-    public User getUserByToken(String token) {
-        if (token == null) return null;
+    public User getUserBySessionId(String sessionId) {
+        if (sessionId == null) return null;
         try (Jedis jedis = getJedis()) {
             jedis.select(T_TOKEN);
-            String userIdString = jedis.get(token);
+            String userIdString = jedis.get(sessionId);
             if (userIdString != null) {
                 jedis.select(0);
                 String userIdKey = getKey(Long.parseLong(userIdString), jedis);
@@ -226,10 +240,10 @@ public class UserServiceImpl extends RedisService implements UserService {
     }
 
     @Override
-    public boolean deleteUserByToken(String token) {
+    public boolean deleteUserBySessionId(String sessionId) {
         try (Jedis jedis = getJedis()) {
             jedis.select(T_TOKEN);
-            return jedis.del(token) == 1L;
+            return jedis.del(sessionId) == 1L;
         } catch (Exception e) {
             log.error(e.toString());
         }
@@ -246,7 +260,7 @@ public class UserServiceImpl extends RedisService implements UserService {
     }
 
     private List<UserInfo> getUserInfos(String setKey, Long userId, Jedis jedis) {
-        Set<String> idStrings = jedis.zrange(setKey,0L,-1L);
+        Set<String> idStrings = jedis.zrange(setKey, 0L, -1L);
         List<UserInfo> userInfos = new ArrayList<>(idStrings.size());
         for (String idString : idStrings) {
             userInfos.add(getUserInfo(Long.parseLong(idString), userId));

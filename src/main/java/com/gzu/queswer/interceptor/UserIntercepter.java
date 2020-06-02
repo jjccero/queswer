@@ -22,9 +22,9 @@ public class UserIntercepter implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String token = request.getHeader("token");
-        if (token != null) {
-            User user = userService.getUserByToken(token);
+        String sessionId = request.getHeader("sessionId");
+        if (sessionId != null) {
+            User user = userService.getUserBySessionId(sessionId);
             if (user != null) {
                 userContext.setUser(user);
             }
