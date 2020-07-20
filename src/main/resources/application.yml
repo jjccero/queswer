@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/queswer?useUnicode=true&characterEncoding=utf8&useSSL=false&&serverTimezone=Asia/Shanghai
     username: root
-    password: root
+    password: 数据库密码
     hikari:
       maximum-pool-size: 100
 mybatis:
@@ -12,4 +12,8 @@ mybatis:
     use-generated-keys: true
     default-executor-type: REUSE
 #resouerce
-resourceLocation: D:/Personal/Desktop/project/img/
+resourceLocation: /home/root/temp/img/
+server:
+  tomcat:
+    basedir: /home/root/temp
+  port: 8090

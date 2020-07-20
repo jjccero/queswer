@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.gzu.queswer.dao.ReviewDao">
-    <insert id="insertReview" useGeneratedKeys="true" keyProperty="rId">
+    <insert id="insertReview" useGeneratedKeys="true" keyProperty="reviewId">
         INSERT INTO t_review (gmt_create, answer_id, user_id, revi, reply_id, deleted)
         VALUES (#{gmtCreate}, #{answerId}, #{userId}, #{revi}, #{replyId}, False);
     </insert>

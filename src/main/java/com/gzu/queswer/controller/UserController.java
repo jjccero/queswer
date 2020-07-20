@@ -33,6 +33,7 @@ public class UserController {
     public JSONObject login(@RequestBody JSONObject loginForm) throws UserException {
         String username = loginForm.getString("username");
         String password = loginForm.getString("password");
+
         return userService.login(username, password);
     }
 
